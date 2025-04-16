@@ -1,0 +1,594 @@
+# Product Requirements Document: MCP Integration Platform
+
+## Executive Summary
+
+This PRD outlines a secure, high-performance Model Context Protocol (MCP) integration platform enabling AI-powered applications to leverage web search (via OpenAI, Tavily, and Perplexity), form automation, vector storage, and data scraping through a standardized interface.
+
+## Strategic Rationale
+
+As organizations transition from Assistants API to newer Responses API and Agents SDKs, this platform provides:
+1. Unified integration across multiple AI providers 
+2. Enterprise-grade security
+3. Rapid AI-enhanced application development
+4. Future-proof implementation pattern
+
+## Core Capabilities
+
+The platform exposes five primary tools through the MCP protocol:
+
+1. **Web Search**: Multi-provider search (OpenAI, Tavily, Perplexity) with provider-specific parameters
+2. **Form Automation**: Programmatic form filling with validation
+3. **Vector Storage**: Embeddings database connectivity
+4. **Data Scraping**: Structured data extraction with configurable policies
+5. **Status/Observability**: Tool status and diagnostics
+
+## Technical Architecture
+
+### System Components
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│                         CLIENT APPLICATIONS                    │
+└───────────────────────────────┬────────────────────────────────┘
+                                │ MCP Protocol (STDIO/SSE)
+┌───────────────────────────────▼────────────────────────────────┐
+│                      MCP INTEGRATION PLATFORM                  │
+│  ┌─────────────┐   ┌────────────┐   ┌────────────┐   ┌───────┐ │
+│  │ Web Search  │   │    Form    │   │   Vector   │   │ Data  │ │
+│  │   Module    │   │Automation  │   │  Storage   │   │Scraper│ │
+│  └──────┬──────┘   └─────┬──────┘   └─────┬──────┘   └───┬───┘ │
+└─────────┼────────────────┼────────────────┼──────────────┼─────┘
+          │                │                │              │
+┌─────────▼─────────┐ ┌────▼───────┐ ┌──────▼──────┐ ┌─────▼──────┐
+│  Search Providers │ │ Websites & │ │   Vector    │ │ Websites & │
+│ OpenAI│Tavily│Perp│ │ Web Apps   │ │  Databases  │ │    APIs    │
+└─────────────────┘ └────────────┘ └─────────────┘ └────────────┘
+```
+
+## Technical Specifications
+
+### 1. Web Search Module
+
+```typescript
+// Tool schema definition
+{
+  name: "web_search",
+  description: "Search the web for information with multiple provider options",
+  inputSchema: {
+    type: "object",
+    properties: {
+      query: { 
+        type: "string", 
+        description: "The search query to execute" 
+      },
+      provider: { 
+        type: "string", 
+        enum: ["openai", "tavily", "perplexity"], 
+        default: "openai",
+        description: "Search provider to use" 
+      },
+      // Common parameters
+      resultCount: { 
+        type: "integer", 
+        minimum: 1, 
+        maximum: 50, 
+        default: 5,
+        description: "Number of results to return" 
+      },
+      // Provider-specific parameters
+      openaiOptions: {
+        type: "object",
+        properties: {
+          searchContextSize: { 
+            type: "string", 
+            enum: ["low", "medium", "high"],
+            default: "medium",
+            description: "Amount of search context to retrieve"
+          }
+        }
+      },
+      tavilyOptions: {
+        type: "object",
+        properties: {
+          searchDepth: { 
+            type: "string", 
+            enum: ["basic", "advanced"],
+            default: "basic",
+            description: "Depth of search to perform" 
+          },
+          topic: { 
+            type: "string", 
+            enum: ["general", "news"],
+            default: "general" 
+          },
+          includeRawContent: { 
+            type: "boolean", 
+            default: false 
+          },
+          includeImages: { 
+            type: "boolean", 
+            default: false 
+          }
+        }
+      },
+      perplexityOptions: {
+        type: "object",
+        properties: {
+          model: { 
+            type: "string", 
+            enum: ["sonar", "sonar-pro"],
+            default: "sonar",
+            description: "Perplexity model to use" 
+          },
+          searchContextSize: { 
+            type: "string", 
+            enum: ["low", "medium", "high"],
+            default: "medium" 
+          },
+          searchDomainFilter: { 
+            type: "array", 
+            items: { type: "string" },
+            description: "List of domains to filter by (prefix with - to exclude)" 
+          }
+        }
+      }
+    },
+    required: ["query"]
+  },
+  annotations: {
+    title: "Web Search",
+    readOnlyHint: true,
+    openWorldHint: true
+  }
+}
+```
+
+**Provider Implementation Details:**
+
+**OpenAI Web Search**:
+```typescript
+async function executeOpenAISearch(query, options) {
+  const openaiClient = new OpenAI(config.openai.apiKey);
+  
+  return openaiClient.responses.create({
+    model: "gpt-4o", // Or other compatible model
+    input: [
+      { role: "user", content: query }
+    ],
+    tools: [
+      {
+        type: "web_search",
+        search_context_size: options.searchContextSize || "medium"
+      }
+    ]
+  });
+}
+```
+
+**Tavily Web Search**:
+```typescript
+async function executeTavilySearch(query, options) {
+  const response = await fetch("https://api.tavily.com/search", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${config.tavily.apiKey}`
+    },
+    body: JSON.stringify({
+      query,
+      search_depth: options.searchDepth || "basic",
+      max_results: options.resultCount || 5,
+      include_raw_content: options.includeRawContent || false,
+      include_images: options.includeImages || false,
+      topic: options.topic || "general"
+    })
+  });
+  
+  return response.json();
+}
+```
+
+**Perplexity Web Search**:
+```typescript
+async function executePerplexitySearch(query, options) {
+  const response = await fetch("https://api.perplexity.ai/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${config.perplexity.apiKey}`
+    },
+    body: JSON.stringify({
+      model: options.model || "sonar",
+      messages: [
+        { role: "user", content: query }
+      ],
+      web_search_options: {
+        search_context_size: options.searchContextSize || "medium"
+      },
+      search_domain_filter: options.searchDomainFilter || [],
+      temperature: 0.2
+    })
+  });
+  
+  return response.json();
+}
+```
+
+**Performance Requirements:**
+- Search response time < 1.5 seconds for basic searches (p95)
+- Intelligent provider fallback with 250ms timeout detection
+- Automatic caching for identical queries (15-minute TTL)
+- Provider-specific rate limit awareness and backoff handling
+
+### 2. Form Automation Module
+
+```typescript
+// Tool schema definition
+{
+  name: "form_automation",
+  description: "Fill and submit web forms with validation",
+  inputSchema: {
+    type: "object",
+    properties: {
+      url: { 
+        type: "string", 
+        format: "uri",
+        description: "URL of the form to automate" 
+      },
+      formData: { 
+        type: "object", 
+        additionalProperties: true,
+        description: "Key-value pairs of form fields and values" 
+      },
+      submitForm: { 
+        type: "boolean", 
+        default: true,
+        description: "Whether to submit the form after filling" 
+      },
+      waitForNavigation: { 
+        type: "boolean", 
+        default: true,
+        description: "Whether to wait for page navigation after submission" 
+      },
+      timeout: { 
+        type: "integer", 
+        minimum: 1000, 
+        maximum: 30000, 
+        default: 5000,
+        description: "Maximum time to wait for operation completion (ms)" 
+      }
+    },
+    required: ["url", "formData"]
+  },
+  annotations: {
+    title: "Form Automation",
+    readOnlyHint: false,
+    destructiveHint: true,
+    idempotentHint: false,
+    openWorldHint: true
+  }
+}
+```
+
+### 3. Vector Storage Module
+
+```typescript
+// Tool schema definition
+{
+  name: "vector_storage",
+  description: "Connect to vector databases for semantic search and retrieval",
+  inputSchema: {
+    type: "object",
+    properties: {
+      operation: { 
+        type: "string", 
+        enum: ["search", "retrieve", "store", "delete"],
+        description: "Operation to perform" 
+      },
+      collection: { 
+        type: "string",
+        description: "Vector collection to operate on" 
+      },
+      query: { 
+        type: "string",
+        description: "Query text for semantic search" 
+      },
+      embedding: { 
+        type: "array", 
+        items: { type: "number" },
+        description: "Pre-computed embedding vector (optional)" 
+      },
+      filters: { 
+        type: "object", 
+        additionalProperties: true,
+        description: "Metadata filters for search" 
+      },
+      limit: { 
+        type: "integer", 
+        minimum: 1, 
+        maximum: 100, 
+        default: 10,
+        description: "Maximum number of results" 
+      },
+      data: { 
+        type: "object",
+        description: "Data to store (for store operations)" 
+      },
+      ids: { 
+        type: "array", 
+        items: { type: "string" },
+        description: "Document IDs (for retrieve/delete operations)" 
+      }
+    },
+    required: ["operation", "collection"]
+  },
+  annotations: {
+    title: "Vector Storage",
+    readOnlyHint: false,
+    destructiveHint: true,
+    idempotentHint: false,
+    openWorldHint: false
+  }
+}
+```
+
+### 4. Data Scraping Module
+
+```typescript
+// Tool schema definition
+{
+  name: "data_scraper",
+  description: "Extract structured data from websites with configurable policies",
+  inputSchema: {
+    type: "object",
+    properties: {
+      url: { 
+        type: "string", 
+        format: "uri",
+        description: "URL to scrape" 
+      },
+      selectors: { 
+        type: "object", 
+        additionalProperties: { 
+          type: "string" 
+        },
+        description: "Named CSS selectors to extract data" 
+      },
+      format: { 
+        type: "string", 
+        enum: ["json", "csv", "text"], 
+        default: "json",
+        description: "Output format" 
+      },
+      pagination: { 
+        type: "object", 
+        properties: {
+          enabled: { type: "boolean", default: false },
+          nextSelector: { type: "string" },
+          maxPages: { type: "integer", default: 1 }
+        },
+        description: "Pagination configuration"
+      },
+      javascript: { 
+        type: "boolean", 
+        default: true,
+        description: "Whether to execute JavaScript on the page" 
+      },
+      timeout: { 
+        type: "integer", 
+        minimum: 1000, 
+        maximum: 60000, 
+        default: 10000,
+        description: "Maximum time to wait for scraping completion (ms)" 
+      }
+    },
+    required: ["url"]
+  },
+  annotations: {
+    title: "Data Scraper",
+    readOnlyHint: true,
+    openWorldHint: true
+  }
+}
+```
+
+## Integration with OpenAI Agents SDK
+
+```python
+from openai_agents import Agent, MCPServerStdio
+
+async def initialize_agent_with_mcp_tools():
+    # Connect to MCP server via stdio
+    server_params = {
+        "command": "node",
+        "args": ["./dist/mcp-server.js"]
+    }
+    
+    async with MCPServerStdio(params=server_params) as mcp_server:
+        # Create agent with access to MCP tools
+        agent = Agent(
+            name="Research Assistant",
+            instructions="Use the tools to search for information and manipulate web pages.",
+            model="gpt-4o",
+            mcp_servers=[mcp_server]
+        )
+        
+        # Agent can now access all tools exposed by the MCP server
+        return agent
+```
+
+## Performance Optimization Strategy
+
+### Web Search Provider Selection Logic
+
+```typescript
+async function selectOptimalSearchProvider(query, options) {
+  // Track provider performance metrics
+  const metrics = await getProviderMetrics();
+  
+  // Select provider based on:
+  // 1. Current availability (health checks)
+  // 2. Historical latency
+  // 3. Success rate for similar queries
+  // 4. Remaining rate limits
+  
+  if (options.provider) {
+    // Honor explicit selection if provided
+    return options.provider;
+  }
+  
+  // Calculate score for each provider
+  const scores = {
+    openai: calculateProviderScore('openai', query, metrics),
+    tavily: calculateProviderScore('tavily', query, metrics),
+    perplexity: calculateProviderScore('perplexity', query, metrics)
+  };
+  
+  // Return highest scoring provider
+  return Object.entries(scores)
+    .sort((a, b) => b[1] - a[1])
+    .map(([provider]) => provider)[0];
+}
+```
+
+## Security Implementation
+
+### API Key Management
+
+```typescript
+class SecureKeyManager {
+  private readonly encryptionKey: Buffer;
+  private readonly keyStore: Map<string, EncryptedKey>;
+  
+  constructor(config) {
+    this.encryptionKey = crypto.scryptSync(
+      config.masterPassword,
+      config.salt,
+      32
+    );
+    this.keyStore = new Map();
+  }
+  
+  async getKey(provider: string, clientId: string): Promise<string> {
+    const keyId = `${provider}:${clientId}`;
+    
+    if (!this.keyStore.has(keyId)) {
+      throw new Error(`No API key configured for ${keyId}`);
+    }
+    
+    const encryptedKey = this.keyStore.get(keyId)!;
+    
+    // Check if key needs rotation
+    if (encryptedKey.rotationDue < Date.now()) {
+      await this.rotateKey(provider, clientId);
+    }
+    
+    return this.decryptKey(encryptedKey);
+  }
+  
+  private decryptKey(encryptedKey: EncryptedKey): string {
+    const decipher = crypto.createDecipheriv('aes-256-gcm', this.encryptionKey, encryptedKey.iv);
+    decipher.setAuthTag(encryptedKey.authTag);
+    
+    let decrypted = decipher.update(encryptedKey.data, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    
+    return decrypted;
+  }
+  
+  // Additional methods for key rotation, etc.
+}
+```
+
+## OpenAI Agents Compatibility Matrix
+
+| Feature | OpenAI Agents | Anthropic MCP | Requirements |
+|---------|---------------|---------------|--------------|
+| Tool Schema | JSON Schema | JSON Schema | Strict schema validation |
+| Transport | STDIO, SSE | STDIO | Robust error handling |
+| Authentication | API Keys | API Keys | Secure key management |
+| Streaming | Supported | Supported | Chunked response handling |
+| Error Format | isError + content | isError + content | Consistent error structure |
+| Timeouts | Configurable | Configurable | Graceful timeout handling |
+
+## Implementation Plan
+
+### Phase 1: Core Infrastructure (Weeks 1-3)
+- MCP server implementation with transport layer
+- Authentication and authorization framework
+- Web search module with OpenAI integration
+
+### Phase 2: Search Provider Expansion (Weeks 4-5)
+- Tavily search integration
+- Perplexity search integration
+- Provider selection optimization
+
+### Phase 3: Additional Tools (Weeks 6-10)
+- Form automation implementation
+- Vector storage connectors
+- Data scraping engine
+- Status/observability endpoints
+
+### Phase 4: Client SDK Development (Weeks 11-13)
+- JavaScript/TypeScript SDK
+- Python client with OpenAI Agents compatibility
+- Java integration
+
+### Phase 5: Testing and Optimization (Weeks 14-16)
+- Security testing
+- Performance optimization
+- Documentation and examples
+
+## Monitoring Implementation
+
+```typescript
+// Prometheus-compatible metrics endpoint
+server.addMetricsEndpoint("/metrics", async () => {
+  return {
+    // Tool usage metrics
+    "mcp_tool_calls_total": {
+      type: "counter",
+      help: "Total number of tool calls",
+      labels: ["tool", "status"],
+      values: toolMetrics.getCounts()
+    },
+    "mcp_tool_latency_seconds": {
+      type: "histogram",
+      help: "Tool execution latency in seconds",
+      labels: ["tool"],
+      values: toolMetrics.getLatencies()
+    },
+    
+    // Search provider metrics
+    "mcp_search_provider_calls_total": {
+      type: "counter",
+      help: "Total number of search provider calls",
+      labels: ["provider", "status"],
+      values: searchMetrics.getCounts()
+    },
+    "mcp_search_provider_latency_seconds": {
+      type: "histogram",
+      help: "Search provider latency in seconds",
+      labels: ["provider"],
+      values: searchMetrics.getLatencies()
+    },
+    
+    // Resource utilization
+    "mcp_resource_utilization": {
+      type: "gauge",
+      help: "Resource utilization percentages",
+      labels: ["resource"],
+      values: {
+        "memory": process.memoryUsage().heapUsed / process.memoryUsage().heapTotal * 100,
+        "cpu": await getCpuUtilization()
+      }
+    }
+  };
+});
+```
+
+## Conclusion
+
+This MCP Integration Platform offers a secure, high-performance bridge between AI applications and external systems, with special focus on multi-provider web search capabilities. The standardized MCP protocol enables seamless integration across OpenAI, Anthropic, and Google AI platforms.
+
+The comprehensive web search module, featuring OpenAI, Tavily, and Perplexity integrations, provides optimal search results through intelligent provider selection and fallback mechanisms. The platform's modular architecture ensures extensibility, while performance optimizations guarantee responsiveness under varying load conditions.
