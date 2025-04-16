@@ -213,29 +213,74 @@ export default function Settings() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
-                <Label htmlFor="api-key">Your MCP API Key</Label>
-                <div className="relative mt-1">
+                <Label htmlFor="api-key">Your API Key</Label>
+                <div className="relative mt-1 flex">
                   <Input 
                     id="api-key"
-                    type="password"
-                    value="mcp_35fd8a72c6e4b9d1f7c93a5e8b4c2d1a"
+                    value="mcp_v58zSSsVuNu77gqEKd22DfTwP0OeUxyb"
                     readOnly
+                    className="flex-1"
                   />
                   <Button 
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 p-0 w-8"
-                    onClick={() => {}}
+                    variant="outline"
+                    size="icon"
+                    className="ml-2"
+                    onClick={() => {
+                      navigator.clipboard.writeText("mcp_v58zSSsVuNu77gqEKd22DfTwP0OeUxyb");
+                      toast({
+                        title: "Copied to clipboard",
+                        description: "API key has been copied to clipboard"
+                      });
+                    }}
                   >
-                    <RefreshCw className="h-4 w-4" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                   </Button>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">Use this key to authenticate requests to the MCP API</p>
               </div>
               
               <div className="flex space-x-2">
-                <Button variant="outline" onClick={handleGenerateKey}>Generate New Key</Button>
-                <Button variant="destructive">Revoke Key</Button>
+                <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleGenerateKey}>Generate New API Key</Button>
+                <Button variant="outline">Revoke API Key</Button>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>MCP Protocol Usage</CardTitle>
+              <CardDescription>How to use the MCP tools</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p>To use the MCP tools, include your API key in the request headers:</p>
+              
+              <div className="bg-gray-900 text-gray-100 rounded-md p-4 overflow-auto font-mono text-sm">
+                <pre>{`// JavaScript example
+const response = await fetch('/api/mcp', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': 'your-api-key-here'
+  },
+  body: JSON.stringify({
+    id: 'request-id',
+    name: 'web_search',
+    parameters: {
+      query: 'Your search query',
+      provider: 'tavily',
+      max_results: 5
+    }
+  })
+});`}</pre>
+              </div>
+              
+              <div className="mt-4">
+                <h3 className="font-semibold text-lg mb-2">Available Tools</h3>
+                <ul className="list-disc list-inside space-y-1">
+                  <li><span className="font-semibold">web_search</span> - Search the web with multiple provider options</li>
+                  <li><span className="font-semibold">form_automation</span> - Fill and submit web forms programmatically</li>
+                  <li><span className="font-semibold">vector_storage</span> - Connect to vector databases for semantic search</li>
+                  <li><span className="font-semibold">data_scraper</span> - Extract structured data from websites</li>
+                </ul>
               </div>
             </CardContent>
           </Card>
