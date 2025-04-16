@@ -21,10 +21,11 @@ export default function Layout({ children }: LayoutProps) {
           <div className="flex-1 p-4">
             {children}
           </div>
-          {/* Footer */}
-          <Footer />
         </main>
       </div>
+      
+      {/* Footer - Moved outside the main content area */}
+      <Footer />
       
       {/* Status bar */}
       <StatusBar />
