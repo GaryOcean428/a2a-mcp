@@ -95,13 +95,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // API Key management routes (protected)
-  app.post('/api/keys/generate', apiKeyAuth, async (req, res) => {
+  // API Key management routes
+  app.post('/api/keys/generate', async (req, res) => {
     try {
       const { userId } = req.body;
       
       if (!userId) {
         return res.status(400).json({ error: 'User ID is required' });
+      }
+      
+      // Verify the user exists
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
       }
       
       const apiKey = await storage.generateApiKey(userId);
@@ -112,12 +118,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  app.post('/api/keys/revoke', apiKeyAuth, async (req, res) => {
+  app.post('/api/keys/revoke', async (req, res) => {
     try {
       const { userId } = req.body;
       
       if (!userId) {
         return res.status(400).json({ error: 'User ID is required' });
+      }
+      
+      // Verify the user exists
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
       }
       
       await storage.revokeApiKey(userId);

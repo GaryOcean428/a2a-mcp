@@ -253,6 +253,12 @@
         MCP Integration Platform
       </a>
       <div class="nav-actions">
+        <button id="key-button" class="btn btn-outline" style="display: none; margin-right: 0.5rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.5rem;">
+            <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
+          </svg>
+          API Keys
+        </button>
         <button id="login-button" class="btn btn-outline">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.5rem;">
             <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
@@ -260,6 +266,14 @@
             <line x1="15" y1="12" x2="3" y2="12"></line>
           </svg>
           Log in
+        </button>
+        <button id="logout-button" class="btn btn-outline" style="display: none;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.5rem;">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          Log out
         </button>
       </div>
     </header>
@@ -379,6 +393,75 @@
             </div>
             <button type="submit" class="btn btn-primary" style="width: 100%;">Create account</button>
           </form>
+        </div>
+      </div>
+    </div>
+    
+    <!-- API Key Modal -->
+    <div id="api-key-modal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>API Key Management</h2>
+          <button id="close-key-modal" class="close-button">&times;</button>
+        </div>
+        
+        <div id="api-key-section">
+          <p>Use your API key to authenticate requests to the MCP Integration Platform.</p>
+          
+          <div class="form-group">
+            <label for="api-key-display">Your API Key</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="text" id="api-key-display" class="form-control" readonly 
+                     style="flex-grow: 1; font-family: monospace;" 
+                     value="No API key generated yet">
+              <button id="copy-api-key" class="btn btn-outline" title="Copy to clipboard">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+          
+          <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+            <button id="generate-api-key" class="btn btn-primary">Generate New API Key</button>
+            <button id="revoke-api-key" class="btn btn-outline">Revoke API Key</button>
+          </div>
+          
+          <div style="margin-top: 2rem;">
+            <h3>MCP Protocol Usage</h3>
+            <p>To use the MCP tools, include your API key in the request headers:</p>
+            <pre style="background-color: #1f2937; color: #e5e7eb; padding: 1rem; border-radius: 0.25rem; overflow-x: auto;">
+// JavaScript example
+const response = await fetch('/api/mcp', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': 'your-api-key-here'
+  },
+  body: JSON.stringify({
+    id: 'request-id',
+    name: 'web_search',
+    parameters: {
+      query: 'Your search query',
+      provider: 'tavily',
+      max_results: 5
+    }
+  })
+});</pre>
+            
+            <h4 style="margin-top: 1.5rem;">Available Tools</h4>
+            <ul style="list-style-type: disc; padding-left: 1.5rem;">
+              <li><strong>web_search</strong> - Search the web with multiple provider options</li>
+              <li><strong>form_automation</strong> - Fill and submit web forms programmatically</li>
+              <li><strong>vector_storage</strong> - Connect to vector databases for semantic search</li>
+              <li><strong>data_scraper</strong> - Extract structured data from websites</li>
+            </ul>
+            
+            <p style="margin-top: 1rem;">
+              <a href="/documentation" style="color: #2563eb; text-decoration: underline;">View complete API documentation</a>
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -593,15 +676,141 @@
       const checkLoginStatus = () => {
         const user = JSON.parse(localStorage.getItem('user') || 'null');
         if (user) {
-          loginButton.innerHTML = `
+          // Hide login button, show logout button
+          loginButton.style.display = 'none';
+          document.getElementById('logout-button').style.display = 'flex';
+          document.getElementById('logout-button').innerHTML = `
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.5rem;">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
             </svg>
-            ${user.username}
+            Logout (${user.username})
           `;
+          
+          // Show API key button
+          const keyButton = document.getElementById('key-button');
+          keyButton.style.display = 'flex';
+          
+          // Check if user has an API key
+          if (user.apiKey) {
+            document.getElementById('api-key-display').value = user.apiKey;
+          }
         }
       };
+      
+      // Logout functionality
+      document.getElementById('logout-button').addEventListener('click', () => {
+        localStorage.removeItem('user');
+        window.location.reload();
+      });
+      
+      // API Key modal functionality
+      const apiKeyModal = document.getElementById('api-key-modal');
+      const keyButton = document.getElementById('key-button');
+      const closeKeyButton = document.getElementById('close-key-modal');
+      
+      // Open API key modal
+      keyButton.addEventListener('click', () => {
+        apiKeyModal.classList.add('open');
+      });
+      
+      // Close API key modal
+      closeKeyButton.addEventListener('click', () => {
+        apiKeyModal.classList.remove('open');
+      });
+      
+      // Close API key modal when clicking outside
+      apiKeyModal.addEventListener('click', (e) => {
+        if (e.target === apiKeyModal) {
+          apiKeyModal.classList.remove('open');
+        }
+      });
+      
+      // Generate API key
+      document.getElementById('generate-api-key').addEventListener('click', async () => {
+        try {
+          const user = JSON.parse(localStorage.getItem('user') || 'null');
+          if (!user) {
+            alert('You must be logged in to generate an API key');
+            return;
+          }
+          
+          const response = await fetch('/api/keys/generate', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-API-Key': user.apiKey || ''
+            },
+            body: JSON.stringify({ userId: user.id })
+          });
+          
+          if (!response.ok) {
+            throw new Error('Failed to generate API key');
+          }
+          
+          const data = await response.json();
+          
+          // Update UI and stored user data
+          document.getElementById('api-key-display').value = data.apiKey;
+          user.apiKey = data.apiKey;
+          localStorage.setItem('user', JSON.stringify(user));
+          
+          alert('API key generated successfully!');
+        } catch (error) {
+          alert('Error: ' + (error.message || 'Failed to generate API key'));
+        }
+      });
+      
+      // Revoke API key
+      document.getElementById('revoke-api-key').addEventListener('click', async () => {
+        if (!confirm('Are you sure you want to revoke your API key? This action cannot be undone.')) {
+          return;
+        }
+        
+        try {
+          const user = JSON.parse(localStorage.getItem('user') || 'null');
+          if (!user) {
+            alert('You must be logged in to revoke an API key');
+            return;
+          }
+          
+          const response = await fetch('/api/keys/revoke', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-API-Key': user.apiKey || ''
+            },
+            body: JSON.stringify({ userId: user.id })
+          });
+          
+          if (!response.ok) {
+            throw new Error('Failed to revoke API key');
+          }
+          
+          // Update UI and stored user data
+          document.getElementById('api-key-display').value = 'No API key generated yet';
+          user.apiKey = null;
+          localStorage.setItem('user', JSON.stringify(user));
+          
+          alert('API key revoked successfully!');
+        } catch (error) {
+          alert('Error: ' + (error.message || 'Failed to revoke API key'));
+        }
+      });
+      
+      // Copy API key to clipboard
+      document.getElementById('copy-api-key').addEventListener('click', () => {
+        const apiKeyDisplay = document.getElementById('api-key-display');
+        if (apiKeyDisplay.value === 'No API key generated yet') {
+          alert('No API key to copy');
+          return;
+        }
+        
+        apiKeyDisplay.select();
+        document.execCommand('copy');
+        alert('API key copied to clipboard!');
+      });
       
       // Call on page load
       checkLoginStatus();
