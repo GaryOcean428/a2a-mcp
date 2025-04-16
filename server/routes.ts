@@ -166,8 +166,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/status', mcpController.getStatus.bind(mcpController));
   app.get('/api/status/:toolName', mcpController.getToolStatus.bind(mcpController));
   
-  // Serve static HTML for root route
-  app.get('/', (req, res) => {
+  // Serve static HTML for all client routes to enable client-side routing
+  app.get(['/', '/auth', '/web-search', '/form-automation', '/vector-storage', 
+           '/data-scraping', '/settings', '/documentation'], (req, res) => {
     const htmlPath = path.join(process.cwd(), 'client/index.html');
     
     try {
@@ -191,6 +192,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       timestamp: new Date().toISOString(),
       status: 'ok'
     });
+  });
+  
+  // Catch-all route to support client-side routing
+  app.get('*', (req, res, next) => {
+    // Skip API routes
+    if (req.path.startsWith('/api/')) {
+      return next();
+    }
+    
+    const htmlPath = path.join(process.cwd(), 'client/index.html');
+    
+    try {
+      if (fs.existsSync(htmlPath)) {
+        const html = fs.readFileSync(htmlPath, 'utf-8');
+        res.setHeader('Content-Type', 'text/html');
+        res.send(html);
+      } else {
+        res.status(404).send('HTML file not found');
+      }
+    } catch (error) {
+      console.error('Error serving HTML file:', error);
+      res.status(500).send('Error serving HTML file');
+    }
   });
   
   // Initialize STDIO transport for local MCP server
