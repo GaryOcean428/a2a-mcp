@@ -9,12 +9,12 @@ export function Footer() {
           © {new Date().getFullYear()} MCP Integration Platform
         </div>
         <div className="flex justify-center space-x-4">
-          <Link href="/documentation" className="text-sm text-purple-600 hover:text-purple-800">
+          <a href="/documentation" className="text-sm text-purple-600 hover:text-purple-800">
             📄 Documentation
-          </Link>
-          <Link href="/cline-integration" className="text-sm text-purple-600 hover:text-purple-800">
+          </a>
+          <a href="/cline-integration" className="text-sm text-purple-600 hover:text-purple-800">
             🔗 Cline Integration
-          </Link>
+          </a>
           <a 
             href="https://github.com/cline-ai/cline" 
             target="_blank" 
