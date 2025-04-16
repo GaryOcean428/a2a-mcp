@@ -1,0 +1,103 @@
+here is the formate the Cline and related config files use to connect to servers:
+
+Configuring MCP
+MCP (Model Context Protocol) enables LLMs to access custom tools and services. An MCP server implements the MCP protocol and provides a set of related tools and services.
+
+In this file, you can specify MCP servers you want Cascade to use. Here is an example configuration that sets up a single MCP server, for GitHub:
+
+{
+"mcpServers": {
+"github": {
+"command": "npx",
+"args": [
+"-y",
+"@modelcontextprotocol/server-github"
+],
+"env": {
+"GITHUB_PERSONAL_ACCESS_TOKEN": "<YOUR_TOKEN>"
+}
+}
+}
+}
+
+Here are some that work i've already connected to:
+
+{
+"mcpServers": {
+"filesystem": {
+"command": "npx",
+"args": [
+"-y",
+"@modelcontextprotocol/server-filesystem",
+"/home/braden/Desktop/Dev",
+"/home/"
+],
+"autoApprove": ["list_directory", "read_file", "search_files"]
+},
+"memory": {
+"command": "npx",
+"args": ["-y", "@modelcontextprotocol/server-memory"]
+},
+"github.com/pashpashpash/perplexity-mcp": {
+"command": "node",
+"args": [
+"/home/braden/Documents/Cline/MCP/perplexity-mcp/build/index.js"
+],
+"env": {
+"PERPLEXITY_API_KEY": "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"
+},
+"disabled": false,
+"autoApprove": [
+"search",
+"get_documentation",
+"chat_perplexity",
+"find_apis",
+"check_deprecated_code"
+]
+},
+"mcp-browserbase": {
+"command": "npx",
+"args": [
+"-y",
+"@smithery/cli@latest",
+"run",
+"@browserbasehq/mcp-browserbase",
+"--key",
+"f83a808f-58c4-410a-aae1-6d64b51b6a54"
+]
+}
+}
+}
+
+Will the MCP Protocol usage guidence mentioned when creating keys work in this format. it currently says the following when you create a new api:
+
+Integration Platform.
+
+Your API Key
+￼￼
+￼Generate New API Key
+￼Revoke API Key
+MCP Protocol Usage
+To use the MCP tools, include your API key in the request headers:
+
+// JavaScript example
+const response = await fetch('/api/mcp', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json',
+'X-API-Key': 'your-api-key-here'
+},
+body: JSON.stringify({
+id: 'request-id',
+name: 'web_search',
+parameters: {
+query: 'Your search query',
+provider: 'tavily',
+max_results: 5
+}
+})
+});
+Available Tools
+web_search - Search the web with multiple provider options
+form_automation - Fill and submit web forms programmatically
+vector_storage - Connect to vector databases for semantic search

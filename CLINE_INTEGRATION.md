@@ -8,39 +8,36 @@ This document explains how to connect [Cline VSCode Extension](https://docs.clin
 2. You must have generated an API key from the API Keys section
 3. The MCP Integration Platform server must be running and accessible
 
-## Connection Steps
+## Configuring MCP
 
-### 1. Install Cline VSCode Extension
+MCP (Model Context Protocol) enables LLMs to access custom tools and services. 
 
-Install the Cline extension from the [VSCode Marketplace](https://marketplace.visualstudio.com/items?itemName=Cline.cline).
+### Configure Cline with your MCP Integration Platform
 
-### 2. Configure Cline to use your MCP Integration Platform
-
-Cline supports multiple configuration formats. Choose the one that works with your version of Cline:
-
-#### Option A: Using mcpServers in settings.json (Recommended)
-
-1. Open VSCode settings.json:
-   - Press `Ctrl+Shift+P` (Windows/Linux) or `Cmd+Shift+P` (Mac)
-   - Type "Preferences: Open Settings (JSON)" and select it
-
-2. Add the following configuration:
+Add the following configuration to your `cascade.json` file for Cline:
 
 ```json
 {
   "mcpServers": {
     "mcp-integration-platform": {
       "url": "http://localhost:5000/api/mcp",
-      "apiKey": "your-api-key-here",
-      "autoApprove": ["web_search", "vector_storage", "form_automation", "data_scraper"]
+      "headers": {
+        "X-API-Key": "your-api-key-here"
+      },
+      "autoApprove": [
+        "web_search",
+        "form_automation", 
+        "vector_storage", 
+        "data_scraper"
+      ]
     }
   }
 }
 ```
 
-#### Option B: Using Command-Line Connection
+### Alternative Configuration Methods
 
-For more advanced configurations, you can use the command-line approach:
+#### Using HTTP Request Format
 
 ```json
 {
@@ -60,19 +57,37 @@ For more advanced configurations, you can use the command-line approach:
 }
 ```
 
-#### Option C: Using Older Cline Configuration Format
+#### Other MCP Server Examples
 
-For older versions of Cline, use this format:
+You can also connect to other popular MCP services alongside the MCP Integration Platform:
 
 ```json
-"cline.mcp": {
-  "servers": [
-    {
-      "name": "MCP Integration Platform",
+{
+  "mcpServers": {
+    "mcp-integration-platform": {
       "url": "http://localhost:5000/api/mcp",
-      "apiKey": "your-api-key-here"
+      "headers": {
+        "X-API-Key": "your-api-key-here"
+      },
+      "autoApprove": ["web_search", "form_automation", "vector_storage", "data_scraper"]
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"],
+      "autoApprove": ["list_directory", "read_file", "search_files"]
+    },
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"]
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "<YOUR_TOKEN>"
+      }
     }
-  ]
+  }
 }
 ```
 

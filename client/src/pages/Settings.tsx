@@ -248,18 +248,50 @@ export default function Settings() {
           <Card>
             <CardHeader>
               <CardTitle>MCP Protocol Usage</CardTitle>
-              <CardDescription>How to use the MCP tools</CardDescription>
+              <CardDescription>How to use the MCP tools with Cline</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p>To use the MCP tools, include your API key in the request headers:</p>
+              <p>To use the MCP tools with Cline, add the following configuration to your <code className="text-xs bg-gray-100 px-1 py-0.5 rounded">cascade.json</code> file:</p>
               
               <div className="bg-gray-900 text-gray-100 rounded-md p-4 overflow-auto font-mono text-sm">
-                <pre>{`// JavaScript example
-const response = await fetch('/api/mcp', {
+                <pre>{`{
+  "mcpServers": {
+    "mcp-integration-platform": {
+      "url": "${window.location.protocol}//${window.location.host}/api/mcp",
+      "headers": {
+        "X-API-Key": "mcp_v58zSSsVuNu77gqEKd22DfTwP0OeUxyb"
+      },
+      "autoApprove": [
+        "web_search",
+        "form_automation", 
+        "vector_storage", 
+        "data_scraper"
+      ]
+    }
+  }
+}`}</pre>
+              </div>
+              
+              <div className="mt-4">
+                <h3 className="font-semibold text-lg mb-2">Available Tools</h3>
+                <ul className="list-disc list-inside space-y-1">
+                  <li><span className="font-semibold">web_search</span> - Search the web with multiple provider options</li>
+                  <li><span className="font-semibold">form_automation</span> - Fill and submit web forms programmatically</li>
+                  <li><span className="font-semibold">vector_storage</span> - Connect to vector databases for semantic search</li>
+                  <li><span className="font-semibold">data_scraper</span> - Extract structured data from websites</li>
+                </ul>
+              </div>
+              
+              <div className="mt-4 bg-blue-50 border border-blue-200 rounded-md p-4">
+                <h3 className="font-semibold text-blue-800 mb-1">Alternative Usage (Direct API)</h3>
+                <p className="text-sm text-blue-700 mb-2">For direct API access instead of using Cline, you can make HTTP requests:</p>
+                <div className="bg-gray-900 text-gray-100 rounded-md p-3 overflow-auto font-mono text-xs">
+                  <pre>{`// JavaScript example
+const response = await fetch('${window.location.protocol}//${window.location.host}/api/mcp', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
-    'X-API-Key': 'your-api-key-here'
+    'X-API-Key': 'mcp_v58zSSsVuNu77gqEKd22DfTwP0OeUxyb'
   },
   body: JSON.stringify({
     id: 'request-id',
@@ -271,16 +303,7 @@ const response = await fetch('/api/mcp', {
     }
   })
 });`}</pre>
-              </div>
-              
-              <div className="mt-4">
-                <h3 className="font-semibold text-lg mb-2">Available Tools</h3>
-                <ul className="list-disc list-inside space-y-1">
-                  <li><span className="font-semibold">web_search</span> - Search the web with multiple provider options</li>
-                  <li><span className="font-semibold">form_automation</span> - Fill and submit web forms programmatically</li>
-                  <li><span className="font-semibold">vector_storage</span> - Connect to vector databases for semantic search</li>
-                  <li><span className="font-semibold">data_scraper</span> - Extract structured data from websites</li>
-                </ul>
+                </div>
               </div>
             </CardContent>
           </Card>
