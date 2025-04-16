@@ -244,28 +244,17 @@ Check out the [Cline Integration Guide](/cline-integration) for detailed usage e
     });
   });
   
-  // Catch-all route to support client-side routing
-  app.get('*', (req, res, next) => {
-    // Skip API routes
-    if (req.path.startsWith('/api/')) {
-      return next();
-    }
-    
-    const htmlPath = path.join(process.cwd(), 'client/index.html');
-    
-    try {
-      if (fs.existsSync(htmlPath)) {
-        const html = fs.readFileSync(htmlPath, 'utf-8');
-        res.setHeader('Content-Type', 'text/html');
-        res.send(html);
-      } else {
-        res.status(404).send('HTML file not found');
+  // Add the catch-all route for production mode only
+  if (process.env.NODE_ENV === 'production') {
+    app.get('*', (req, res, next) => {
+      // Skip API routes
+      if (req.path.startsWith('/api/')) {
+        return next();
       }
-    } catch (error) {
-      console.error('Error serving HTML file:', error);
-      res.status(500).send('Error serving HTML file');
-    }
-  });
+      
+      res.sendFile(path.join(process.cwd(), 'dist/public/index.html'));
+    });
+  }
   
   // Initialize STDIO transport for local MCP server
   // Only enable in development or when explicitly requested
