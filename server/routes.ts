@@ -233,24 +233,7 @@ Check out the [Cline Integration Guide](/cline-integration) for detailed usage e
     }
   });
 
-  // Serve static HTML for all client routes to enable client-side routing
-  app.get(['/', '/auth', '/web-search', '/form-automation', '/vector-storage', 
-           '/data-scraping', '/settings', '/documentation', '/docs', '/cline-integration'], (req, res) => {
-    const htmlPath = path.join(process.cwd(), 'client/index.html');
-    
-    try {
-      if (fs.existsSync(htmlPath)) {
-        const html = fs.readFileSync(htmlPath, 'utf-8');
-        res.setHeader('Content-Type', 'text/html');
-        res.send(html);
-      } else {
-        res.status(404).send('HTML file not found');
-      }
-    } catch (error) {
-      console.error('Error serving HTML file:', error);
-      res.status(500).send('Error serving HTML file');
-    }
-  });
+  // We'll rely on the catch-all route at the end to handle client-side routing
   
   // Add a test route
   app.get('/test', (req, res) => {
