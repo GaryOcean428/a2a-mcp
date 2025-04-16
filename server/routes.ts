@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { mcpController } from "./controllers/mcp-controller";
@@ -6,6 +6,19 @@ import { apiKeyAuth } from "./middleware/auth-middleware";
 import { globalRateLimiter, toolRateLimiter } from "./middleware/rate-limit-middleware";
 import path from "path";
 import fs from "fs";
+import { z } from "zod";
+import { insertUserSchema } from "@shared/schema";
+
+// Create authentication validation schemas
+const loginSchema = z.object({
+  username: z.string().min(3).max(30),
+  password: z.string().min(6)
+});
+
+const registerSchema = insertUserSchema.extend({
+  password: z.string().min(6).max(100),
+  email: z.string().email()
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Create HTTP server
@@ -16,6 +29,127 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Apply global rate limiter to all API routes
   app.use('/api', globalRateLimiter.middleware());
+  
+  // Authentication routes
+  app.post('/api/register', async (req, res) => {
+    try {
+      // Validate input
+      const validatedData = registerSchema.parse(req.body);
+      
+      // Check if username already exists
+      const existingUserByName = await storage.getUserByUsername(validatedData.username);
+      if (existingUserByName) {
+        return res.status(400).json({ error: 'Username already taken' });
+      }
+      
+      // Check if email already exists
+      const existingUserByEmail = await storage.getUserByEmail(validatedData.email);
+      if (existingUserByEmail) {
+        return res.status(400).json({ error: 'Email already registered' });
+      }
+      
+      // Create new user
+      const user = await storage.createUser(validatedData);
+      
+      // Sanitize response (remove password)
+      const { password, ...userResponse } = user;
+      
+      res.status(201).json(userResponse);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      console.error('Registration error:', error);
+      res.status(500).json({ error: 'Registration failed' });
+    }
+  });
+  
+  app.post('/api/login', async (req, res) => {
+    try {
+      // Validate input
+      const validatedData = loginSchema.parse(req.body);
+      
+      // Authenticate user
+      const user = await storage.validateUserCredentials(
+        validatedData.username,
+        validatedData.password
+      );
+      
+      if (!user) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+      
+      // Update last login time
+      await storage.updateUserLastLogin(user.id);
+      
+      // Sanitize response (remove password)
+      const { password, ...userResponse } = user;
+      
+      res.status(200).json(userResponse);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      console.error('Login error:', error);
+      res.status(500).json({ error: 'Login failed' });
+    }
+  });
+  
+  // API Key management routes (protected)
+  app.post('/api/keys/generate', apiKeyAuth, async (req, res) => {
+    try {
+      const { userId } = req.body;
+      
+      if (!userId) {
+        return res.status(400).json({ error: 'User ID is required' });
+      }
+      
+      const apiKey = await storage.generateApiKey(userId);
+      res.status(200).json({ apiKey });
+    } catch (error) {
+      console.error('API key generation error:', error);
+      res.status(500).json({ error: 'Failed to generate API key' });
+    }
+  });
+  
+  app.post('/api/keys/revoke', apiKeyAuth, async (req, res) => {
+    try {
+      const { userId } = req.body;
+      
+      if (!userId) {
+        return res.status(400).json({ error: 'User ID is required' });
+      }
+      
+      await storage.revokeApiKey(userId);
+      res.status(200).json({ message: 'API key revoked successfully' });
+    } catch (error) {
+      console.error('API key revocation error:', error);
+      res.status(500).json({ error: 'Failed to revoke API key' });
+    }
+  });
+  
+  // User profile route (protected)
+  app.get('/api/user/profile', apiKeyAuth, async (req, res) => {
+    try {
+      const apiKey = req.header('X-API-Key');
+      if (!apiKey) {
+        return res.status(401).json({ error: 'API key is required' });
+      }
+      
+      const user = await storage.getUserByApiKey(apiKey);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      // Sanitize response (remove password)
+      const { password, ...userProfile } = user;
+      
+      res.status(200).json(userProfile);
+    } catch (error) {
+      console.error('Profile retrieval error:', error);
+      res.status(500).json({ error: 'Failed to retrieve profile' });
+    }
+  });
   
   // MCP API route for HTTP transport
   app.post('/api/mcp', 

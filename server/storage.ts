@@ -227,9 +227,12 @@ export class MemStorage implements IStorage {
   async createToolConfig(config: InsertToolConfig): Promise<ToolConfig> {
     const id = this.configIdCounter++;
     const now = new Date();
+    // Ensure all required fields are present
     const toolConfig: ToolConfig = {
       ...config,
       id,
+      active: config.active ?? true,
+      userId: config.userId ?? null,
       createdAt: now,
       updatedAt: now
     };
@@ -254,9 +257,14 @@ export class MemStorage implements IStorage {
   // Request logging operations
   async createRequestLog(log: InsertRequestLog): Promise<RequestLog> {
     const id = this.logIdCounter++;
+    // Ensure all required fields are present
     const requestLog: RequestLog = {
       ...log,
       id,
+      userId: log.userId ?? null,
+      statusCode: log.statusCode ?? null,
+      executionTimeMs: log.executionTimeMs ?? null,
+      responseData: log.responseData ?? null,
       timestamp: new Date()
     };
     this.requestLogs.set(id, requestLog);
@@ -310,14 +318,7 @@ export class MemStorage implements IStorage {
     this.systemStatus.activeTools = Array.from(this.toolStatus.values());
   }
   
-  private generateApiKey(): string {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = 'mcp_';
-    for (let i = 0; i < 32; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
-  }
+  // This is intentionally left empty as we're using createApiKeyString instead
 }
 
 export const storage = new MemStorage();
