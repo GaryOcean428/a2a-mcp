@@ -29,8 +29,8 @@ function Router() {
         <ProtectedRoute path="/data-scraping" component={DataScraping} />
         <ProtectedRoute path="/settings" component={Settings} />
         <Route path="/documentation" component={Documentation} />
-        <Route path="/cline-integration" component={ClineIntegration} />
         <Route path="/docs" component={Documentation} />
+        <Route path="/cline-integration" component={ClineIntegration} />
         <Route component={NotFound} />
       </Switch>
     </Layout>
