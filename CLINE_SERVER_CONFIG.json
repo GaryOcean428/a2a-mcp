@@ -1,0 +1,136 @@
+{
+  "server": {
+    "name": "MCP Integration Platform",
+    "url": "http://localhost:5000/api/mcp",
+    "apiKey": "YOUR_API_KEY_HERE"
+  },
+  "schema": {
+    "web_search": {
+      "description": "Search the web for information with multiple provider options",
+      "parameters": {
+        "query": {
+          "type": "string",
+          "description": "Search query",
+          "required": true
+        },
+        "provider": {
+          "type": "string",
+          "description": "Search provider to use (tavily, perplexity, or openai)",
+          "default": "tavily"
+        },
+        "max_results": {
+          "type": "number",
+          "description": "Maximum number of results to return",
+          "default": 5
+        }
+      }
+    },
+    "vector_storage": {
+      "description": "Connect to vector databases for semantic search and retrieval",
+      "parameters": {
+        "operation": {
+          "type": "string",
+          "description": "Operation to perform",
+          "enum": ["search", "retrieve", "store", "delete"],
+          "required": true
+        },
+        "collection": {
+          "type": "string",
+          "description": "Vector collection to operate on",
+          "required": true
+        },
+        "query": {
+          "type": "string",
+          "description": "Query text for semantic search"
+        },
+        "filters": {
+          "type": "object",
+          "description": "Metadata filters for search"
+        },
+        "limit": {
+          "type": "number",
+          "description": "Maximum number of results",
+          "default": 10
+        },
+        "data": {
+          "type": "object",
+          "description": "Data to store (for store operations)"
+        },
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Document IDs (for retrieve/delete operations)"
+        }
+      }
+    },
+    "form_automation": {
+      "description": "Fill and submit web forms programmatically with validation",
+      "parameters": {
+        "url": {
+          "type": "string",
+          "description": "Form URL",
+          "required": true
+        },
+        "fields": {
+          "type": "object",
+          "description": "Form fields to fill",
+          "required": true
+        },
+        "submit": {
+          "type": "boolean",
+          "description": "Whether to submit the form",
+          "default": true
+        },
+        "wait_for_navigation": {
+          "type": "boolean",
+          "description": "Whether to wait for navigation after submission",
+          "default": true
+        }
+      }
+    },
+    "data_scraper": {
+      "description": "Extract structured data from websites with configurable policies",
+      "parameters": {
+        "url": {
+          "type": "string",
+          "description": "URL to scrape",
+          "required": true
+        },
+        "selectors": {
+          "type": "object",
+          "description": "Named CSS selectors to extract data"
+        },
+        "format": {
+          "type": "string",
+          "description": "Output format",
+          "enum": ["json", "csv", "text"],
+          "default": "json"
+        },
+        "pagination": {
+          "type": "object",
+          "description": "Pagination configuration",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "nextSelector": {
+              "type": "string"
+            },
+            "maxPages": {
+              "type": "number",
+              "default": 1
+            }
+          }
+        },
+        "javascript": {
+          "type": "boolean",
+          "description": "Whether to execute JavaScript on the page",
+          "default": true
+        }
+      }
+    }
+  }
+}
