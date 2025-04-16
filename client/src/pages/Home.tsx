@@ -3,7 +3,7 @@ import { Link } from 'wouter';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, FileText, Database, Code, ArrowRight, Activity } from 'lucide-react';
+import { Search, FileText, Database, Code, ArrowRight, Activity, Sparkles, Layers, Zap } from 'lucide-react';
 import { mcpClient } from '@/lib/mcp-client';
 import { SystemStatus } from '@shared/schema';
 
@@ -32,130 +32,192 @@ export default function Home() {
       description: "Search the web with multiple provider options including OpenAI, Tavily, and Perplexity",
       icon: <Search className="h-5 w-5" />,
       href: "/web-search",
-      color: "bg-blue-50 text-blue-700"
+      color: "from-blue-500 to-indigo-500"
     },
     {
       title: "Form Automation",
       description: "Fill and submit web forms programmatically with validation",
       icon: <FileText className="h-5 w-5" />,
       href: "/form-automation",
-      color: "bg-green-50 text-green-700"
+      color: "from-green-500 to-emerald-500"
     },
     {
       title: "Vector Storage",
       description: "Connect to embeddings databases for semantic search and retrieval",
       icon: <Database className="h-5 w-5" />,
       href: "/vector-storage",
-      color: "bg-purple-50 text-purple-700"
+      color: "from-purple-500 to-violet-500"
     },
     {
       title: "Data Scraping",
       description: "Extract structured data from websites with configurable policies",
       icon: <Code className="h-5 w-5" />,
       href: "/data-scraping",
-      color: "bg-amber-50 text-amber-700"
+      color: "from-amber-500 to-orange-500"
     }
   ];
 
   return (
-    <div className="container mx-auto px-6 py-8">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold">Welcome to MCP Integration Platform</h1>
-          <p className="text-gray-500 mt-1">
-            A secure, high-performance Model Context Protocol (MCP) integration platform for AI-powered applications
+    <div>
+      {/* Hero Section */}
+      <div className="bg-gradient-to-br from-purple-50 via-indigo-50 to-white py-12 mb-12 rounded-lg shadow-sm">
+        <div className="container mx-auto px-6">
+          <div className="max-w-3xl">
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
+              <span className="bg-gradient-to-r from-purple-600 to-indigo-600 text-transparent bg-clip-text">
+                MCP Integration Platform
+              </span>
+            </h1>
+            <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+              A secure, high-performance Model Context Protocol (MCP) integration platform that provides standardized interfaces for AI-powered applications to leverage web search, form automation, vector storage, and data scraping.
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <Button size="lg" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
+                <Link href="/settings">
+                  <span className="flex items-center">Get Started <ArrowRight className="ml-2 h-5 w-5" /></span>
+                </Link>
+              </Button>
+              <Button size="lg" variant="outline" className="border-purple-200 text-purple-700 hover:bg-purple-50">
+                <Link href="/documentation">
+                  <span className="flex items-center">Documentation <FileText className="ml-2 h-5 w-5" /></span>
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Features Section */}
+      <div className="container mx-auto px-6 mb-16">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 text-transparent bg-clip-text inline-block mb-4">
+            Key Features
+          </h2>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            Our MCP Integration Platform provides multiple tools to enhance your AI applications with powerful capabilities.
           </p>
         </div>
-        <Button asChild>
-          <Link href="/documentation">
-            <span className="flex items-center">View Documentation <ArrowRight className="ml-2 h-4 w-4" /></span>
-          </Link>
-        </Button>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+            <div className="bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full w-12 h-12 flex items-center justify-center mb-4">
+              <Zap className="h-6 w-6 text-white" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2">Standardized Protocols</h3>
+            <p className="text-gray-600">Implement a consistent interface for AI interactions with external tools through the MCP protocol.</p>
+          </div>
+          
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+            <div className="bg-gradient-to-r from-indigo-500 to-blue-500 rounded-full w-12 h-12 flex items-center justify-center mb-4">
+              <Layers className="h-6 w-6 text-white" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2">Multiple Providers</h3>
+            <p className="text-gray-600">Configure each tool to use your preferred provider with customizable options for optimal results.</p>
+          </div>
+          
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+            <div className="bg-gradient-to-r from-violet-500 to-purple-500 rounded-full w-12 h-12 flex items-center justify-center mb-4">
+              <Sparkles className="h-6 w-6 text-white" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2">Seamless Integration</h3>
+            <p className="text-gray-600">Easily integrate with Cline's VS Code extension or make direct API calls from any application.</p>
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        {/* Platform Status Card */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center">
-              <Activity className="h-5 w-5 mr-2 text-primary" />
-              Platform Status
-            </CardTitle>
-            <CardDescription>
-              Current system status and active tools
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="animate-pulse space-y-3">
-                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-              </div>
-            ) : status ? (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">Version</p>
-                    <p className="font-medium">{status.version}</p>
+      <div className="container mx-auto px-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+          {/* Platform Status Card */}
+          <Card className="shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2 border-b">
+              <CardTitle className="flex items-center text-xl">
+                <Activity className="h-5 w-5 mr-2 text-purple-600" />
+                Platform Status
+              </CardTitle>
+              <CardDescription>
+                Current system status and active tools
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-6">
+              {isLoading ? (
+                <div className="animate-pulse space-y-4">
+                  <div className="h-5 bg-gray-200 rounded w-3/4"></div>
+                  <div className="h-5 bg-gray-200 rounded w-1/2"></div>
+                  <div className="h-5 bg-gray-200 rounded w-2/3"></div>
+                  <div className="h-5 bg-gray-200 rounded w-4/5"></div>
+                </div>
+              ) : status ? (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="bg-purple-50 p-4 rounded-lg">
+                      <p className="text-sm font-medium text-purple-800 mb-1">Version</p>
+                      <p className="font-semibold text-lg">{status.version}</p>
+                    </div>
+                    <div className="bg-indigo-50 p-4 rounded-lg">
+                      <p className="text-sm font-medium text-indigo-800 mb-1">Transport</p>
+                      <p className="font-semibold text-lg">{status.transport}</p>
+                    </div>
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                      <p className="text-sm font-medium text-blue-800 mb-1">Uptime</p>
+                      <p className="font-semibold text-lg">
+                        {Math.floor(status.uptime / 60)} mins, {status.uptime % 60} secs
+                      </p>
+                    </div>
+                    <div className="bg-violet-50 p-4 rounded-lg">
+                      <p className="text-sm font-medium text-violet-800 mb-1">Active Tools</p>
+                      <p className="font-semibold text-lg">{status.activeTools?.length || 0}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">Transport</p>
-                    <p className="font-medium">{status.transport}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">Uptime</p>
-                    <p className="font-medium">
-                      {Math.floor(status.uptime / 60)} minutes, {status.uptime % 60} seconds
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">Active Tools</p>
-                    <p className="font-medium">{status.activeTools?.length || 0}</p>
+                  
+                  <div className="mt-2">
+                    <p className="text-sm font-medium text-gray-700 mb-3">Tool Status</p>
+                    <div className="space-y-3">
+                      {status.activeTools?.map(tool => (
+                        <div key={tool.name} className="flex items-center justify-between bg-gray-50 p-3 rounded-md">
+                          <span className="font-medium capitalize flex items-center text-gray-800">
+                            <span className="w-2 h-2 rounded-full bg-gray-300 mr-2"></span>
+                            {tool.name.replace(/_/g, ' ')}
+                          </span>
+                          <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                            tool.available 
+                              ? 'bg-green-100 text-green-800 border border-green-200' 
+                              : 'bg-red-100 text-red-800 border border-red-200'
+                          }`}>
+                            {tool.available ? 'Available' : 'Unavailable'}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
-                
-                <div>
-                  <p className="text-sm font-medium text-gray-500 mb-2">Tool Status</p>
-                  <div className="space-y-2">
-                    {status.activeTools?.map(tool => (
-                      <div key={tool.name} className="flex items-center justify-between text-sm border-b border-gray-100 pb-1">
-                        <span className="font-medium capitalize">{tool.name.replace(/_/g, ' ')}</span>
-                        <span className={`px-2 py-0.5 rounded-full text-xs ${tool.available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                          {tool.available ? 'Available' : 'Unavailable'}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+              ) : (
+                <div className="text-center py-10 text-gray-500">
+                  <Activity className="h-10 w-10 mx-auto mb-4 text-gray-400" />
+                  <p>Unable to fetch system status</p>
                 </div>
-              </div>
-            ) : (
-              <div className="text-center py-4 text-gray-500">
-                Unable to fetch system status
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              )}
+            </CardContent>
+          </Card>
 
-        {/* Quick Start Card */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle>Quick Start Guide</CardTitle>
-            <CardDescription>
-              Get started with the MCP Integration Platform
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="http">
-              <TabsList className="mb-4">
-                <TabsTrigger value="http">HTTP</TabsTrigger>
-                <TabsTrigger value="stdio">STDIO</TabsTrigger>
-                <TabsTrigger value="sse">SSE</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="http" className="mt-0">
-                <div className="bg-gray-50 p-3 rounded-md font-mono text-sm overflow-x-auto">
-                  <pre>{`// Make an HTTP request to the MCP endpoint
+          {/* Quick Start Card */}
+          <Card className="shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2 border-b">
+              <CardTitle className="text-xl">Quick Start Guide</CardTitle>
+              <CardDescription>
+                Get started with the MCP Integration Platform
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <Tabs defaultValue="http">
+                <TabsList className="mb-4 grid grid-cols-3 w-full">
+                  <TabsTrigger value="http">HTTP</TabsTrigger>
+                  <TabsTrigger value="stdio">STDIO</TabsTrigger>
+                  <TabsTrigger value="sse">SSE</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="http" className="mt-0">
+                  <div className="bg-gray-900 p-4 rounded-md font-mono text-sm overflow-x-auto text-gray-300">
+                    <pre>{`// Make an HTTP request to the MCP endpoint
 fetch('/api/mcp', {
   method: 'POST',
   headers: {
@@ -173,12 +235,12 @@ fetch('/api/mcp', {
 })
 .then(response => response.json())
 .then(data => console.log(data));`}</pre>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="stdio" className="mt-0">
-                <div className="bg-gray-50 p-3 rounded-md font-mono text-sm overflow-x-auto">
-                  <pre>{`// Send a request via STDIO
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="stdio" className="mt-0">
+                  <div className="bg-gray-900 p-4 rounded-md font-mono text-sm overflow-x-auto text-gray-300">
+                    <pre>{`// Send a request via STDIO
 const request = {
   id: 'request-123',
   name: 'web_search',
@@ -196,12 +258,12 @@ process.stdin.on('data', (chunk) => {
   const response = JSON.parse(chunk.toString());
   console.log(response);
 });`}</pre>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="sse" className="mt-0">
-                <div className="bg-gray-50 p-3 rounded-md font-mono text-sm overflow-x-auto">
-                  <pre>{`// Connect via WebSocket
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="sse" className="mt-0">
+                  <div className="bg-gray-900 p-4 rounded-md font-mono text-sm overflow-x-auto text-gray-300">
+                    <pre>{`// Connect via WebSocket
 const ws = new WebSocket('ws://localhost:5000/ws');
 
 ws.onopen = () => {
@@ -225,43 +287,81 @@ ws.onmessage = (event) => {
     console.log(data.data);
   }
 };`}</pre>
-                </div>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-          <CardFooter>
-            <Button variant="outline" asChild className="w-full">
-              <Link href="/documentation">
-                View Full Documentation
-              </Link>
-            </Button>
-          </CardFooter>
-        </Card>
-      </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+            <CardFooter className="border-t pt-4">
+              <Button variant="outline" asChild className="w-full bg-gray-50 hover:bg-gray-100">
+                <Link href="/documentation">
+                  <span className="flex items-center justify-center">
+                    View Full Documentation
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </span>
+                </Link>
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
 
-      {/* Tool Cards */}
-      <h2 className="text-xl font-semibold mb-4">Available Tools</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {toolCards.map((card, index) => (
-          <Link key={index} href={card.href}>
-            <Card className="h-full hover:shadow-md transition-shadow cursor-pointer">
-              <CardHeader>
-                <div className={`w-10 h-10 rounded-full ${card.color} flex items-center justify-center mb-2`}>
-                  {card.icon}
-                </div>
-                <CardTitle className="text-lg">{card.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-500 text-sm">{card.description}</p>
-              </CardContent>
-              <CardFooter>
-                <Button variant="ghost" size="sm" className="ml-auto">
-                  Configure <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </CardFooter>
-            </Card>
-          </Link>
-        ))}
+        {/* Tool Cards */}
+        <div className="mb-16">
+          <h2 className="text-2xl font-bold mb-6 flex items-center">
+            <span className="bg-gradient-to-r from-purple-600 to-indigo-600 text-transparent bg-clip-text">
+              Available Tools
+            </span>
+            <div className="h-px flex-1 bg-gradient-to-r from-purple-100 to-transparent ml-4"></div>
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {toolCards.map((card, index) => (
+              <Link key={index} href={card.href}>
+                <Card className="h-full hover:shadow-md transition-all cursor-pointer overflow-hidden border-gray-200 hover:border-purple-200">
+                  <div className={`h-2 w-full bg-gradient-to-r ${card.color}`}></div>
+                  <CardHeader>
+                    <div className={`w-12 h-12 rounded-lg bg-gradient-to-r ${card.color} flex items-center justify-center mb-3`}>
+                      <div className="text-white">
+                        {card.icon}
+                      </div>
+                    </div>
+                    <CardTitle className="text-xl">{card.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600 text-sm leading-relaxed">{card.description}</p>
+                  </CardContent>
+                  <CardFooter className="border-t pt-3">
+                    <Button variant="ghost" size="sm" className="ml-auto text-gray-600 hover:text-purple-700 hover:bg-purple-50">
+                      Configure <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </div>
+        
+        {/* CTA Section */}
+        <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-8 rounded-xl mb-12 shadow-md">
+          <div className="flex flex-col md:flex-row items-center justify-between">
+            <div className="mb-6 md:mb-0 md:mr-8">
+              <h3 className="text-2xl font-bold mb-2">Ready to integrate with your AI models?</h3>
+              <p className="text-purple-100 max-w-lg">
+                Get started with MCP Integration Platform today and enhance your AI applications with powerful web search, form automation, vector storage, and data scraping capabilities.
+              </p>
+            </div>
+            <div className="flex gap-4">
+              <Button size="lg" variant="secondary" className="bg-white text-purple-700 hover:bg-gray-100 border-none">
+                <Link href="/cline-integration">
+                  <span className="flex items-center">Cline Integration <ArrowRight className="ml-2 h-4 w-4" /></span>
+                </Link>
+              </Button>
+              <Button size="lg" className="bg-purple-800 hover:bg-purple-900 text-white">
+                <Link href="/settings">
+                  <span className="flex items-center">API Settings <ArrowRight className="ml-2 h-4 w-4" /></span>
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
