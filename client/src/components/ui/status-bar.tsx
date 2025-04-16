@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Circle, Info } from 'lucide-react';
+import { Circle, Info, Activity, Server, Globe, Clock } from 'lucide-react';
 import { mcpClient } from '@/lib/mcp-client';
 import { SystemStatus } from '@shared/schema';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function StatusBar() {
   const [status, setStatus] = useState<SystemStatus | null>(null);
@@ -41,32 +47,81 @@ export function StatusBar() {
   };
   
   return (
-    <footer className="bg-white border-t border-gray-200 py-2 px-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center text-sm">
-            <Circle className="w-2 h-2 mr-2 fill-green-600 text-green-600" />
-            <span>MCP Server: Running</span>
-          </div>
-          <div className="flex items-center text-sm">
-            <Circle className="w-2 h-2 mr-2 fill-green-600 text-green-600" />
-            <span>Transport: {status?.transport || 'STDIO'}</span>
-          </div>
-          <div className="flex items-center text-sm">
-            <Circle className="w-2 h-2 mr-2 fill-green-600 text-green-600" />
-            <span>Tools: {status?.activeTools?.length || 0} active</span>
+    <TooltipProvider>
+      <footer className="bg-gradient-to-r from-purple-50 to-indigo-50 border-t border-gray-200 py-2">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            {/* Status Indicators - Left Side */}
+            <div className="flex items-center flex-wrap gap-3 md:gap-5">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center text-sm">
+                    <div className="bg-gradient-to-r from-green-500 to-emerald-500 p-1 rounded-full mr-2">
+                      <Server className="w-3 h-3 text-white" />
+                    </div>
+                    <span className="hidden sm:inline">MCP Server:</span>
+                    <span className="ml-1 font-medium">Running</span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>MCP Server operational</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center text-sm">
+                    <div className="bg-gradient-to-r from-blue-500 to-indigo-500 p-1 rounded-full mr-2">
+                      <Globe className="w-3 h-3 text-white" />
+                    </div>
+                    <span className="hidden sm:inline">Transport:</span>
+                    <span className="ml-1 font-medium">{status?.transport || 'STDIO'}</span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Transport protocol type</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center text-sm">
+                    <div className="bg-gradient-to-r from-violet-500 to-purple-500 p-1 rounded-full mr-2">
+                      <Activity className="w-3 h-3 text-white" />
+                    </div>
+                    <span className="hidden sm:inline">Tools:</span>
+                    <span className="ml-1 font-medium">{status?.activeTools?.length || 0} active</span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Number of active tools</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+
+            {/* Right side */}
+            <div className="flex items-center gap-4">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <Clock className="h-3.5 w-3.5 mr-1.5 text-gray-500" />
+                    <span className="hidden sm:inline">Last request:</span>
+                    <span className="ml-1">{lastRequest || 'Never'}</span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Time since last API request</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <button className="text-sm text-purple-600 hover:text-purple-800 flex items-center bg-white px-2 py-1 rounded-md shadow-sm">
+                <Info className="h-3.5 w-3.5 mr-1.5" />
+                <span>Metrics</span>
+              </button>
+            </div>
           </div>
         </div>
-        <div className="flex items-center space-x-4">
-          <span className="text-sm text-gray-500">
-            Last request: {lastRequest || 'Never'}
-          </span>
-          <button className="text-sm text-primary hover:text-opacity-80 flex items-center">
-            <Info className="h-4 w-4 mr-1" />
-            View Metrics
-          </button>
-        </div>
-      </div>
-    </footer>
+      </footer>
+    </TooltipProvider>
   );
 }
