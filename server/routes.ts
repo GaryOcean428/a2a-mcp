@@ -178,9 +178,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/status', mcpController.getStatus.bind(mcpController));
   app.get('/api/status/:toolName', mcpController.getToolStatus.bind(mcpController));
   
+  // Documentation API routes
+  app.get('/api/documentation', (req, res) => {
+    try {
+      const docPath = path.join(process.cwd(), 'README.md');
+      if (fs.existsSync(docPath)) {
+        const content = fs.readFileSync(docPath, 'utf-8');
+        res.setHeader('Content-Type', 'text/markdown');
+        res.send(content);
+      } else {
+        // If README.md doesn't exist, create a simple documentation
+        const fallbackContent = `# MCP Integration Platform Documentation
+
+## Overview
+The MCP Integration Platform provides a standardized interface for AI applications to leverage web search, form automation, vector storage, and data scraping capabilities.
+
+## Features
+- **Web Search**: Search the web with multiple provider options (Tavily, Perplexity, OpenAI)
+- **Form Automation**: Fill and submit web forms programmatically
+- **Vector Storage**: Connect to vector databases for semantic search and retrieval
+- **Data Scraping**: Extract structured data from websites with configurable policies
+
+## API Access
+To use the API, you need to:
+1. Register for an account
+2. Generate an API key through the settings page
+3. Include the API key in your requests using the \`X-API-Key\` header
+
+## For more information
+Check out the [Cline Integration Guide](/cline-integration) for detailed usage examples.
+`;
+        res.setHeader('Content-Type', 'text/markdown');
+        res.send(fallbackContent);
+      }
+    } catch (error) {
+      console.error('Error serving documentation:', error);
+      res.status(500).send('Error loading documentation');
+    }
+  });
+
+  app.get('/api/cline-integration', (req, res) => {
+    try {
+      const clineDocsPath = path.join(process.cwd(), 'CLINE_INTEGRATION.md');
+      if (fs.existsSync(clineDocsPath)) {
+        const content = fs.readFileSync(clineDocsPath, 'utf-8');
+        res.setHeader('Content-Type', 'text/markdown');
+        res.send(content);
+      } else {
+        res.status(404).send('# Cline Integration Documentation Not Found\n\nThe integration guide appears to be missing.');
+      }
+    } catch (error) {
+      console.error('Error serving Cline integration guide:', error);
+      res.status(500).send('Error loading Cline integration guide');
+    }
+  });
+
   // Serve static HTML for all client routes to enable client-side routing
   app.get(['/', '/auth', '/web-search', '/form-automation', '/vector-storage', 
-           '/data-scraping', '/settings', '/documentation'], (req, res) => {
+           '/data-scraping', '/settings', '/documentation', '/docs', '/cline-integration'], (req, res) => {
     const htmlPath = path.join(process.cwd(), 'client/index.html');
     
     try {
