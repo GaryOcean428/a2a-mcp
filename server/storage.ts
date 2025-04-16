@@ -18,9 +18,16 @@ export interface IStorage {
   // User operations
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   getUserByApiKey(apiKey: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  updateUserApiKey(userId: number, apiKey: string): Promise<void>;
+  updateUserApiKey(userId: number, apiKey: string | null): Promise<void>;
+  validateUserCredentials(username: string, password: string): Promise<User | undefined>;
+  generateApiKey(userId: number): Promise<string>;
+  revokeApiKey(userId: number): Promise<void>;
+  updateUserLastLogin(userId: number): Promise<void>;
+  updateUserRole(userId: number, role: string): Promise<void>;
+  updateUserActiveStatus(userId: number, active: boolean): Promise<void>;
   
   // Tool configuration operations
   getToolConfig(id: number): Promise<ToolConfig | undefined>;
@@ -101,10 +108,26 @@ export class MemStorage implements IStorage {
     );
   }
   
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(
+      (user) => user.email === email,
+    );
+  }
+  
   async getUserByApiKey(apiKey: string): Promise<User | undefined> {
     return Array.from(this.users.values()).find(
-      (user) => user.apiKey === apiKey,
+      (user) => user.apiKey === apiKey && user.active,
     );
+  }
+
+  // Creates a random API key string
+  private createApiKeyString(): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = 'mcp_';
+    for (let i = 0; i < 32; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
@@ -112,17 +135,74 @@ export class MemStorage implements IStorage {
     const user: User = { 
       ...insertUser, 
       id, 
-      apiKey: this.generateApiKey(),
+      apiKey: this.createApiKeyString(),
+      role: 'user',
+      active: true,
+      lastLogin: null,
       createdAt: new Date()
     };
     this.users.set(id, user);
     return user;
   }
   
-  async updateUserApiKey(userId: number, apiKey: string): Promise<void> {
+  async updateUserApiKey(userId: number, apiKey: string | null): Promise<void> {
     const user = this.users.get(userId);
     if (user) {
       user.apiKey = apiKey;
+      this.users.set(userId, user);
+    }
+  }
+  
+  async validateUserCredentials(username: string, password: string): Promise<User | undefined> {
+    const user = await this.getUserByUsername(username);
+    // In a real app, we would verify the password hash here
+    // For demo purposes, we'll just check equality
+    if (user && user.password === password && user.active) {
+      return user;
+    }
+    return undefined;
+  }
+  
+  async generateApiKey(userId: number): Promise<string> {
+    const user = await this.getUser(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    
+    const apiKey = this.createApiKeyString();
+    await this.updateUserApiKey(userId, apiKey);
+    return apiKey;
+  }
+  
+  async revokeApiKey(userId: number): Promise<void> {
+    const user = await this.getUser(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    
+    await this.updateUserApiKey(userId, null);
+  }
+  
+  async updateUserLastLogin(userId: number): Promise<void> {
+    const user = this.users.get(userId);
+    if (user) {
+      user.lastLogin = new Date();
+      this.users.set(userId, user);
+    }
+  }
+  
+  async updateUserRole(userId: number, role: string): Promise<void> {
+    const user = this.users.get(userId);
+    if (user) {
+      user.role = role;
+      this.users.set(userId, user);
+    }
+  }
+  
+  async updateUserActiveStatus(userId: number, active: boolean): Promise<void> {
+    const user = this.users.get(userId);
+    if (user) {
+      user.active = active;
       this.users.set(userId, user);
     }
   }
