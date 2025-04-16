@@ -11,6 +11,7 @@ import VectorStorage from "@/pages/VectorStorage";
 import DataScraping from "@/pages/DataScraping";
 import Settings from "@/pages/Settings";
 import Documentation from "@/pages/Documentation";
+import ClineIntegration from "@/pages/ClineIntegration";
 import NotFound from "@/pages/not-found";
 
 // Components
@@ -28,6 +29,8 @@ function Router() {
         <ProtectedRoute path="/data-scraping" component={DataScraping} />
         <ProtectedRoute path="/settings" component={Settings} />
         <Route path="/documentation" component={Documentation} />
+        <Route path="/cline-integration" component={ClineIntegration} />
+        <Route path="/docs" component={Documentation} />
         <Route component={NotFound} />
       </Switch>
     </Layout>
