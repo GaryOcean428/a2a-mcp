@@ -16,15 +16,65 @@ Install the Cline extension from the [VSCode Marketplace](https://marketplace.vi
 
 ### 2. Configure Cline to use your MCP Integration Platform
 
-1. Open the Cline settings in VSCode:
-   - Press `Ctrl+Shift+P` (Windows/Linux) or `Cmd+Shift+P` (Mac)
-   - Type "Cline: Settings" and select it
+Cline supports multiple configuration formats. Choose the one that works with your version of Cline:
 
-2. In the Cline settings, add a new MCP server with the following configuration:
-   - **Name**: MCP Integration Platform (or any name you prefer)
-   - **URL**: `http://your-server-url:5000/api/mcp` (replace with your actual server URL)
-   - **Transport**: HTTP
-   - **API Key**: Paste your API key generated from the platform
+#### Option A: Using mcpServers in settings.json (Recommended)
+
+1. Open VSCode settings.json:
+   - Press `Ctrl+Shift+P` (Windows/Linux) or `Cmd+Shift+P` (Mac)
+   - Type "Preferences: Open Settings (JSON)" and select it
+
+2. Add the following configuration:
+
+```json
+{
+  "mcpServers": {
+    "mcp-integration-platform": {
+      "url": "http://localhost:5000/api/mcp",
+      "apiKey": "your-api-key-here",
+      "autoApprove": ["web_search", "vector_storage", "form_automation", "data_scraper"]
+    }
+  }
+}
+```
+
+#### Option B: Using Command-Line Connection
+
+For more advanced configurations, you can use the command-line approach:
+
+```json
+{
+  "mcpServers": {
+    "mcp-integration-platform": {
+      "command": "curl",
+      "args": [
+        "-X", "POST",
+        "-H", "Content-Type: application/json",
+        "-H", "X-API-Key: your-api-key-here",
+        "-d", "@-",
+        "http://localhost:5000/api/mcp"
+      ],
+      "autoApprove": ["web_search", "vector_storage", "form_automation", "data_scraper"]
+    }
+  }
+}
+```
+
+#### Option C: Using Older Cline Configuration Format
+
+For older versions of Cline, use this format:
+
+```json
+"cline.mcp": {
+  "servers": [
+    {
+      "name": "MCP Integration Platform",
+      "url": "http://localhost:5000/api/mcp",
+      "apiKey": "your-api-key-here"
+    }
+  ]
+}
+```
 
 3. Save the configuration
 
