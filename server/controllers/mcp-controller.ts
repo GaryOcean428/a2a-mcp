@@ -19,7 +19,11 @@ export class MCPController {
    * Initialize WebSocket server for SSE transport
    */
   initialize(server: Server) {
-    this.wss = new WebSocketServer({ server });
+    // Use a specific path for the WebSocket server to avoid conflicts with Vite's HMR WebSocket
+    this.wss = new WebSocketServer({ 
+      server,
+      path: '/mcp-ws'
+    });
     
     this.wss.on('connection', (ws) => {
       const clientId = nanoid();
@@ -78,7 +82,7 @@ export class MCPController {
       if (userId) {
         await storage.createRequestLog({
           userId,
-          toolType: request.name,
+          toolType: request.name as any, // Cast to any to avoid type issues
           requestData: request,
           responseData: null,
           statusCode: 0,
