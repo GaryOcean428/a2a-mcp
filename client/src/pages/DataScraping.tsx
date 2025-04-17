@@ -77,16 +77,15 @@ export default function DataScraping() {
 
       {/* Configuration Tabs */}
       <Card className="mb-6 overflow-hidden shadow-sm">
-        <div className="border-b border-gray-200">
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <div className="border-b border-gray-200">
             <TabsList className="border-b-0">
               <TabsTrigger value="configuration">Configuration</TabsTrigger>
               <TabsTrigger value="test-console">Test Console</TabsTrigger>
               <TabsTrigger value="api-reference">API Reference</TabsTrigger>
               <TabsTrigger value="logs">Logs</TabsTrigger>
             </TabsList>
-          </Tabs>
-        </div>
+          </div>
 
         <TabsContent value="configuration" className="p-6 m-0">
           <DataScrapingConfig config={config} onChange={setConfig} />
@@ -183,6 +182,7 @@ export default function DataScraping() {
             </div>
           </div>
         </TabsContent>
+        </Tabs>
       </Card>
     </div>
   );
