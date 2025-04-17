@@ -138,10 +138,20 @@ export class VectorStorageService {
     // Initialize vector database
     this.db = new InMemoryVectorDB();
     
-    // Update tool status
-    storage.updateToolStatus("vector_storage", { 
-      available: true
-    });
+    // Check if OpenAI API key is available for embeddings
+    const openaiApiKey = process.env.OPENAI_API_KEY || '';
+    if (openaiApiKey) {
+      console.log('OpenAI API key found, vector storage service available');
+      storage.updateToolStatus("vector_storage", { 
+        available: true 
+      });
+    } else {
+      console.log('OpenAI API key not found, vector storage functionality will be limited');
+      storage.updateToolStatus("vector_storage", { 
+        available: false,
+        error: "OpenAI API key not configured for embeddings"
+      });
+    }
   }
   
   /**
@@ -232,7 +242,6 @@ export class VectorStorageService {
     } catch (error) {
       // Update tool status with error
       await storage.updateToolStatus("vector_storage", {
-        available: true,
         error: error instanceof Error ? error.message : String(error)
       });
       
