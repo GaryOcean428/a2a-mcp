@@ -29,7 +29,9 @@ interface ScrapingResult {
 export class DataScrapingService {
   
   constructor() {
-    // Update status to available
+    // Data scraping should check for required dependencies if any
+    // For demo purposes, we're keeping it available
+    console.log('Data scraping service initialized');
     this.updateStatus(true);
   }
   

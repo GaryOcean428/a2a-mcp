@@ -18,7 +18,9 @@ interface FormSubmissionResult {
 export class FormAutomationService {
   
   constructor() {
-    // Update status to available
+    // Form automation should check for required dependencies if any
+    // For demo purposes, we're keeping it available
+    console.log('Form automation service initialized');
     this.updateStatus(true);
   }
   

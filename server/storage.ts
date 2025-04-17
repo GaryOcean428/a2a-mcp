@@ -74,14 +74,22 @@ export class MemStorage implements IStorage {
       activeTools: []
     };
     
-    // Initialize default tool statuses
+    // Initialize default tool statuses - set them as unavailable by default
+    // Individual services will update their status to available if their dependencies are met
     const defaultTools = ["web_search", "form_automation", "vector_storage", "data_scraper", "status"];
     defaultTools.forEach(tool => {
       this.toolStatus.set(tool, {
         name: tool,
-        available: true,
+        available: false, // Start as unavailable
         latency: 0
       });
+    });
+    
+    // Only the status tool is always available by default
+    this.toolStatus.set("status", {
+      name: "status",
+      available: true,
+      latency: 0
     });
     
     this.updateSystemStatus();
