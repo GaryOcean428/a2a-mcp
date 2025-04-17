@@ -34,7 +34,16 @@ export class WebSearchService {
     // Initialize OpenAI client if API key is available
     const openaiApiKey = process.env.OPENAI_API_KEY || '';
     if (openaiApiKey) {
+      console.log('OpenAI API key found, initializing client');
       this.openaiClient = new OpenAI({ apiKey: openaiApiKey });
+      // Set available status for web search since we have OpenAI
+      storage.updateToolStatus("web_search", { available: true });
+    } else {
+      console.log('OpenAI API key not found, web search functionality will be limited');
+      storage.updateToolStatus("web_search", { 
+        available: false,
+        error: "OpenAI API key not configured"
+      });
     }
     
     // Note: Tavily and Perplexity clients would be initialized here similarly
@@ -45,9 +54,6 @@ export class WebSearchService {
    */
   async executeSearch(params: WebSearchParams): Promise<SearchResponse> {
     const startTime = Date.now();
-    
-    // Track tool status
-    await storage.updateToolStatus("web_search", { available: true });
     
     // Select search provider
     let results: SearchResult[] = [];
@@ -84,7 +90,6 @@ export class WebSearchService {
     } catch (error) {
       // Update tool status with error information
       await storage.updateToolStatus("web_search", { 
-        available: true,
         error: error instanceof Error ? error.message : String(error) 
       });
       
