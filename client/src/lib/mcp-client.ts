@@ -42,7 +42,7 @@ export class MCPClient {
    */
   private initWebSocket() {
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${wsProtocol}//${window.location.host}/ws`;
+    const wsUrl = `${wsProtocol}//${window.location.host}/mcp-ws`;
     
     console.log(`Attempting to connect to WebSocket at: ${wsUrl}`);
     
