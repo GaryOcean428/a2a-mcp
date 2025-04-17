@@ -87,7 +87,7 @@ export default function DataScraping() {
             </TabsList>
           </div>
 
-        <TabsContent value="configuration" className="p-6 m-0">
+          <TabsContent value="configuration" className="p-6 m-0">
           <DataScrapingConfig config={config} onChange={setConfig} />
           {schema && (
             <div className="mt-6">
