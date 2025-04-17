@@ -196,9 +196,14 @@ export class VectorStorageService {
             throw new Error('Data is required for store operation');
           }
           
+          // Generate an ID if none is provided
+          const vectorId = params.ids && params.ids.length > 0 
+            ? String(params.ids[0]) 
+            : `vector-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+          
           // Convert data to VectorResult format
           const vectorData: VectorResult = {
-            id: params.ids?.[0],
+            id: vectorId,
             metadata: params.data,
             vector: params.embedding,
             content: params.query
