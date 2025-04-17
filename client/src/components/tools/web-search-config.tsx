@@ -50,11 +50,11 @@ export function WebSearchConfig({ config, onChange }: WebSearchConfigProps) {
         <h3 className="text-lg font-medium mb-2">Provider</h3>
         <p className="text-gray-500 text-sm mb-4">Select the search provider to use for web searches.</p>
         
-        <div className="grid grid-cols-3 gap-4">
+        <RadioGroup value={selectedProvider} onValueChange={handleProviderChange} className="grid grid-cols-3 gap-4">
           <Card 
             className={`border ${selectedProvider === 'openai' ? 'border-primary' : 'border-gray-200'} ${
               selectedProvider === 'openai' ? 'bg-primary bg-opacity-5' : ''
-            } hover:border-gray-300 transition-colors`}
+            } hover:border-gray-300 transition-colors cursor-pointer`}
             onClick={() => handleProviderChange('openai')}
           >
             <CardContent className="p-4">
@@ -62,7 +62,6 @@ export function WebSearchConfig({ config, onChange }: WebSearchConfigProps) {
                 <RadioGroupItem 
                   id="provider-openai" 
                   value="openai" 
-                  checked={selectedProvider === 'openai'}
                   className="h-4 w-4 text-primary"
                 />
                 <Label htmlFor="provider-openai" className="ml-2 font-medium">OpenAI</Label>
@@ -74,7 +73,7 @@ export function WebSearchConfig({ config, onChange }: WebSearchConfigProps) {
           <Card 
             className={`border ${selectedProvider === 'tavily' ? 'border-primary' : 'border-gray-200'} ${
               selectedProvider === 'tavily' ? 'bg-primary bg-opacity-5' : ''
-            } hover:border-gray-300 transition-colors`}
+            } hover:border-gray-300 transition-colors cursor-pointer`}
             onClick={() => handleProviderChange('tavily')}
           >
             <CardContent className="p-4">
@@ -82,7 +81,6 @@ export function WebSearchConfig({ config, onChange }: WebSearchConfigProps) {
                 <RadioGroupItem 
                   id="provider-tavily" 
                   value="tavily" 
-                  checked={selectedProvider === 'tavily'}
                   className="h-4 w-4 text-primary"
                 />
                 <Label htmlFor="provider-tavily" className="ml-2 font-medium">Tavily</Label>
@@ -94,7 +92,7 @@ export function WebSearchConfig({ config, onChange }: WebSearchConfigProps) {
           <Card 
             className={`border ${selectedProvider === 'perplexity' ? 'border-primary' : 'border-gray-200'} ${
               selectedProvider === 'perplexity' ? 'bg-primary bg-opacity-5' : ''
-            } hover:border-gray-300 transition-colors`}
+            } hover:border-gray-300 transition-colors cursor-pointer`}
             onClick={() => handleProviderChange('perplexity')}
           >
             <CardContent className="p-4">
@@ -102,7 +100,6 @@ export function WebSearchConfig({ config, onChange }: WebSearchConfigProps) {
                 <RadioGroupItem 
                   id="provider-perplexity" 
                   value="perplexity" 
-                  checked={selectedProvider === 'perplexity'}
                   className="h-4 w-4 text-primary"
                 />
                 <Label htmlFor="provider-perplexity" className="ml-2 font-medium">Perplexity</Label>
@@ -110,7 +107,7 @@ export function WebSearchConfig({ config, onChange }: WebSearchConfigProps) {
               <p className="text-gray-500 text-sm">Perplexity AI's search with Sonar models.</p>
             </CardContent>
           </Card>
-        </div>
+        </RadioGroup>
       </div>
       
       {/* General Settings */}

@@ -1,0 +1,81 @@
+[vite] connecting...
+DOMException {}
+
+MCP client initialized with baseUrl: https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev
+Development mode: Using HTTP transport instead of WebSockets
+Warning: validateDOMNesting(...): <a> cannot appear as a descendant of &lt;a&gt;.
+    at a
+    at a
+    at https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=e2b5adee:337:18
+    at div
+    at div
+    at div
+    at header
+    at Header (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/Header.tsx:153:49)
+    at div
+    at Layout (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/Layout.tsx:20:34)
+    at Router
+    at QueryClientProvider (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=e2b5adee:2805:3)
+    at App
+at a
+at a
+at https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=e2b5adee:337:18
+at div
+at div
+at div
+at header
+at Header (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/Header.tsx:153:49)
+at div
+at Layout (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/Layout.tsx:20:34)
+at Router
+at QueryClientProvider (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=e2b5adee:2805:3)
+at App
+at t.value (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+`RadioGroupItem` must be used within `RadioGroup`
+`RadioGroupItem` must be used within `RadioGroup`
+`RadioGroupItem` must be used within `RadioGroup`
+`RadioGroupItem` must be used within `RadioGroup`
+`RadioGroupItem` must be used within `RadioGroup`
+`RadioGroupItem` must be used within `RadioGroup`
+The above error occurred in the <RadioGroupItem> component:
+
+    at https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-radio-group.js?v=e2b5adee:234:13
+    at _c3 (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/ui/radio-group.tsx:43:50)
+    at div
+    at div
+    at _c9 (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/ui/card.tsx:114:12)
+    at div
+    at _c (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/ui/card.tsx:20:11)
+    at div
+    at div
+    at div
+    at WebSearchConfig (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/tools/web-search-config.tsx:26:35)
+    at div
+    at https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-CPFL7ZFD.js?v=e2b5adee:41:13
+    at Presence (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-FQBNBWJQ.js?v=e2b5adee:24:11)
+    at https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tabs.js?v=e2b5adee:171:13
+    at _c5 (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/ui/tabs.tsx:72:12)
+    at div
+    at https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-CPFL7ZFD.js?v=e2b5adee:41:13
+    at Provider (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-6J5IXUBZ.js?v=e2b5adee:48:15)
+    at https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tabs.js?v=e2b5adee:49:7
+    at div
+    at _c (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/ui/card.tsx:20:11)
+    at div
+    at WebSearch (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/pages/WebSearch.tsx?t=1744864703702:30:31)
+    at Route (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=e2b5adee:323:16)
+    at ProtectedRoute (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/protected-route.tsx:22:34)
+    at Switch (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=e2b5adee:379:17)
+    at div
+    at main
+    at div
+    at Layout (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/Layout.tsx:20:34)
+    at Router
+    at QueryClientProvider (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=e2b5adee:2805:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.

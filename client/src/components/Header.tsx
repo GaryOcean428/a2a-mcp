@@ -255,7 +255,7 @@ export default function Header() {
             {/* Logo and Brand */}
             <div className="flex items-center">
               <Link href="/">
-                <a className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 cursor-pointer">
                   <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-1.5 rounded-md">
                     <Code className="h-6 w-6 text-white" />
                   </div>
@@ -265,7 +265,7 @@ export default function Header() {
                   <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 text-transparent bg-clip-text md:hidden">
                     MCP
                   </span>
-                </a>
+                </div>
               </Link>
             </div>
 
@@ -273,14 +273,14 @@ export default function Header() {
             <nav className="hidden md:flex items-center space-x-1">
               {navLinks.map((item) => (
                 <Link key={item.href} href={item.href}>
-                  <a className={`px-3 py-2 rounded-md text-sm font-medium flex items-center transition-colors ${
+                  <div className={`px-3 py-2 rounded-md text-sm font-medium flex items-center transition-colors cursor-pointer ${
                     location === item.href 
                       ? 'bg-purple-100 text-purple-800' 
                       : 'text-gray-700 hover:bg-gray-100'
                   }`}>
                     <span className="mr-1.5">{item.icon}</span>
                     {item.label}
-                  </a>
+                  </div>
                 </Link>
               ))}
             </nav>
@@ -475,8 +475,8 @@ export default function Header() {
               {navLinks.map((item) => (
                 <li key={item.href}>
                   <Link href={item.href}>
-                    <a 
-                      className={`block px-4 py-3 rounded-md text-base font-medium flex items-center ${
+                    <div 
+                      className={`block px-4 py-3 rounded-md text-base font-medium flex items-center cursor-pointer ${
                         location === item.href 
                           ? 'bg-purple-100 text-purple-800' 
                           : 'text-gray-700 hover:bg-gray-100'
@@ -485,7 +485,7 @@ export default function Header() {
                     >
                       <span className="mr-3">{item.icon}</span>
                       {item.label}
-                    </a>
+                    </div>
                   </Link>
                 </li>
               ))}
