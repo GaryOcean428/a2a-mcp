@@ -221,7 +221,17 @@ Check out the [Cline Integration Guide](/cline-integration) for detailed usage e
     try {
       const clineDocsPath = path.join(process.cwd(), 'CLINE_INTEGRATION.md');
       if (fs.existsSync(clineDocsPath)) {
-        const content = fs.readFileSync(clineDocsPath, 'utf-8');
+        // Read the content and dynamically replace the localhost URL with the current host
+        let content = fs.readFileSync(clineDocsPath, 'utf-8');
+        
+        // Get the current host from the request
+        const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
+        const host = req.headers['x-forwarded-host'] || req.headers.host || 'localhost:5000';
+        const currentUrl = `${protocol}://${host}/api/mcp`;
+        
+        // Replace localhost URLs with the current URL in the documentation
+        content = content.replace(/http:\/\/localhost:5000\/api\/mcp/g, currentUrl);
+        
         res.setHeader('Content-Type', 'text/markdown');
         res.send(content);
       } else {

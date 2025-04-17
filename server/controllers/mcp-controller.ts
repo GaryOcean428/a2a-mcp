@@ -97,7 +97,7 @@ export class MCPController {
       if (userId) {
         await storage.createRequestLog({
           userId,
-          toolType: request.name,
+          toolType: request.name as any, // Cast to any to avoid type issues
           requestData: request,
           responseData: response,
           statusCode: response.error ? 400 : 200,
