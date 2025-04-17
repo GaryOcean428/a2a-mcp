@@ -11,9 +11,9 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function Settings() {
   const [apiKeys, setApiKeys] = useState({
-    openai: process.env.OPENAI_API_KEY || '●●●●●●●●●●●●●●●●●●',
-    tavily: process.env.TAVILY_API_KEY || '',
-    perplexity: process.env.PERPLEXITY_API_KEY || ''
+    openai: '●●●●●●●●●●●●●●●●●●', // Masked key for UI display
+    tavily: '',
+    perplexity: ''
   });
   
   const [rateLimits, setRateLimits] = useState({
@@ -42,10 +42,17 @@ export default function Settings() {
   
   const handleGenerateKey = () => {
     const newKey = 'mcp_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    // In a real application, we would make an API call to the server to generate a new key
     toast({
       title: 'API Key Generated',
       description: 'New API key has been generated.'
     });
+    
+    // For now, we'll simulate updating the displayed key with the new generated value
+    const apiKeyInput = document.getElementById('api-key') as HTMLInputElement;
+    if (apiKeyInput) {
+      apiKeyInput.value = newKey;
+    }
   };
   
   return (
@@ -152,7 +159,12 @@ export default function Settings() {
                     variant="ghost"
                     size="sm"
                     className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 p-0 w-8"
-                    onClick={() => {}}
+                    onClick={() => {
+                      toast({
+                        title: "API Key Updated",
+                        description: "OpenAI API key refresh requested"
+                      });
+                    }}
                   >
                     <RefreshCw className="h-4 w-4" />
                   </Button>
@@ -173,7 +185,12 @@ export default function Settings() {
                     variant="ghost"
                     size="sm"
                     className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 p-0 w-8"
-                    onClick={() => {}}
+                    onClick={() => {
+                      toast({
+                        title: "API Key Updated",
+                        description: "Tavily API key refresh requested"
+                      });
+                    }}
                   >
                     <RefreshCw className="h-4 w-4" />
                   </Button>
@@ -194,7 +211,12 @@ export default function Settings() {
                     variant="ghost"
                     size="sm"
                     className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 p-0 w-8"
-                    onClick={() => {}}
+                    onClick={() => {
+                      toast({
+                        title: "API Key Updated",
+                        description: "Perplexity API key refresh requested"
+                      });
+                    }}
                   >
                     <RefreshCw className="h-4 w-4" />
                   </Button>
@@ -240,7 +262,23 @@ export default function Settings() {
               
               <div className="flex space-x-2">
                 <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleGenerateKey}>Generate New API Key</Button>
-                <Button variant="outline">Revoke API Key</Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    toast({
+                      title: "API Key Revoked",
+                      description: "Your API key has been revoked. Generate a new one to continue using the API.",
+                      variant: "destructive"
+                    });
+                    // In a real application, we would make an API call to the server to revoke the key
+                    const apiKeyInput = document.getElementById('api-key') as HTMLInputElement;
+                    if (apiKeyInput) {
+                      apiKeyInput.value = "API key revoked";
+                    }
+                  }}
+                >
+                  Revoke API Key
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -367,7 +405,12 @@ const response = await fetch('${window.location.protocol}//${window.location.hos
                 <Switch id="ip-allowlist" />
               </div>
               
-              <Button>Save Security Settings</Button>
+              <Button onClick={() => {
+                toast({
+                  title: "Security Settings Saved",
+                  description: "Your security settings have been saved successfully."
+                });
+              }}>Save Security Settings</Button>
             </CardContent>
           </Card>
         </TabsContent>

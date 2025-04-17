@@ -288,7 +288,15 @@ export default function Header() {
             {/* Right Section with User Menu or Login Button */}
             <div className="flex items-center space-x-3">
               {isAuthenticated && (
-                <Button className="hidden md:flex items-center bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
+                <Button 
+                  className="hidden md:flex items-center bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                  onClick={() => {
+                    toast({
+                      title: "New Connection",
+                      description: "Connection feature coming soon"
+                    });
+                  }}
+                >
                   <PlusCircle className="h-4 w-4 mr-2" />
                   New Connection
                 </Button>
@@ -485,7 +493,16 @@ export default function Header() {
 
             {isAuthenticated && (
               <div className="mt-6 px-4">
-                <Button className="w-full flex items-center justify-center bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
+                <Button 
+                  className="w-full flex items-center justify-center bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    toast({
+                      title: "New Connection",
+                      description: "Connection feature coming soon"
+                    });
+                  }}
+                >
                   <PlusCircle className="h-4 w-4 mr-2" />
                   New Connection
                 </Button>
