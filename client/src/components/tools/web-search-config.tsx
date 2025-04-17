@@ -167,16 +167,22 @@ export function WebSearchConfig({ config, onChange }: WebSearchConfigProps) {
                 <div>
                   <Label htmlFor="openai-model" className="block text-sm font-medium mb-1">Model</Label>
                   <Select 
-                    value="gpt-4o" 
-                    onValueChange={(value) => {}}
+                    value={config.openaiOptions?.model || "gpt-4o-realtime-preview"}
+                    onValueChange={(value) => handleOpenAIOptionChange('model', value)}
                   >
                     <SelectTrigger id="openai-model">
                       <SelectValue placeholder="Select model" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="gpt-4o">GPT-4o</SelectItem>
-                      <SelectItem value="gpt-4-turbo">GPT-4 Turbo</SelectItem>
-                      <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
+                      <SelectItem value="gpt-4o-realtime-preview">GPT-4o Realtime</SelectItem>
+                      <SelectItem value="chatgpt-4.1">GPT-4.1</SelectItem>
+                      <SelectItem value="gpt-4.1-mini">GPT-4.1 Mini</SelectItem>
+                      <SelectItem value="o1">O1</SelectItem>
+                      <SelectItem value="o1-mini">O1 Mini</SelectItem>
+                      <SelectItem value="o1-pro">O1 Pro</SelectItem>
+                      <SelectItem value="o3">O3</SelectItem>
+                      <SelectItem value="o3-mini-2025-01-31">O3 Mini</SelectItem>
+                      <SelectItem value="o4-mini">O4 Mini</SelectItem>
                     </SelectContent>
                   </Select>
                   <p className="mt-1 text-xs text-gray-500">OpenAI model to use for search capabilities</p>

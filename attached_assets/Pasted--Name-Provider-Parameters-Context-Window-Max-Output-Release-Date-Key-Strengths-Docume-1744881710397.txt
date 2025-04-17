@@ -1,0 +1,21 @@
+| Name | Provider | Parameters | Context Window | Max Output | Release Date | Key Strengths | Documentation |
+|------|----------|------------|---------------|------------|--------------|---------------|---------------|
+| claude-3-5-sonnet-latest | Anthropic | Not disclosed | 200K | Not specified | 2024-04 | Former Most intelligent code model, text/image input | [Docs](https://docs.anthropic.com/en/docs/about-claude) |
+| claude-3-5-haiku-latest | Anthropic | Not disclosed | 200K | Not specified | 2024-07 | Fastest Claude 3.5 model | [Docs](https://docs.anthropic.com/en/docs/about-claude) |
+| claude-3-7-sonnet-20250219 | Anthropic | Not disclosed | 200K | 8192 | 2025-02 | Most intelligent model, text/image input/Coding/Agentic/tools | [Docs](https://docs.anthropic.com/en/docs/about-claude) |
+| gemini-2.5-pro-exp-03-25 | Google | Not disclosed | 1 million | 64,000 | 2025-03-25 | State-of-the-art thinking model, reasoning over complex problems in code, math, and STEM | [Docs](https://ai.google.dev/gemini-api/docs/models#gemini-2.5-pro-exp-03-25) |
+| gemini-2.0-flash | Google | Not disclosed | Not specified | Not specified | 2025-01-30 | General-purpose model, fast and efficient | [Docs](https://cloud.google.com/vertex-ai/docs/gemini) |
+| gemini-2.0-flash-thinking-exp | Google | Not disclosed | 1 million | 64,000 | 2025-02-05 | Advanced reasoning capabilities, shows thought process | [Docs](https://ai.google.dev/gemini-api/docs/thinking) |
+| gemini-2.0-pro-experimental | Google | Not disclosed | 2 million | Not specified | 2025-02-05 | Best-in-class coding performance, complex prompts | [Docs](https://cloud.google.com/vertex-ai/docs/gemini) |
+| gemini-2.0-flash-lite | Google | Not disclosed | Not specified | Not specified | 2025-02-05 | Cost-efficient model for real-time interactions | [Docs](https://cloud.google.com/vertex-ai/docs/gemini) |
+| chatgpt-4.1 | OpenAI | Not disclosed | 128K | 16,384 | 2025-04 | Improved reasoning and creativity over GPT-4 | [Docs](https://platform.openai.com/docs/models#gpt-4-1) |
+| o1 | OpenAI | Not disclosed | 200K | 100K | 2024-12 | Complex reasoning capabilities | [Docs](https://platform.openai.com/docs/models#o3-mini) |
+| o1-mini | OpenAI | Not disclosed | 128K | 65,536 | 2024-09 | Fast reasoning for specialized tasks | [Docs](https://platform.openai.com/docs/models#o3-mini) |
+| o3-mini-2025-01-31 | OpenAI | Not disclosed | 200k | 100K | 31/01/2025 | Small reasoning model for STEM tasks | [Docs](https://platform.openai.com/docs/models#o3-mini) |
+| gpt-4o-realtime-preview | OpenAI | Not disclosed | 128K | 4096 | Current | Real-time audio/text input | [Docs](https://platform.openai.com/docs/models#gpt-4o-realtime) |
+| gpt-4.1-mini | OpenAI | Not disclosed | 128K | 16,384 | 2025-04 | Compact chat variant for discussion | [Docs](https://platform.openai.com/docs/models#gpt-4-1) |
+| o4-mini | OpenAI | Not disclosed | 128K | 4,096 | 2025-03 | Mini variant for cost-sensitive tasks | [Docs](https://platform.openai.com/docs/models#o4-mini) |
+| o3 | OpenAI | Not disclosed | 200K | 100K | 2025-03 | Versatile mid-tier GPT-o3 variant | [Docs](https://platform.openai.com/docs/models#o3) |
+| o1-pro | OpenAI | Not disclosed | 200K | 100K | 2025-04 | Pro performance variant for demanding tasks | [Docs](https://platform.openai.com/docs/models#o1-pro) |
+| llama-3.3 | Meta | Not disclosed | 200K | Not specified | 2025-02 | State-of-the-art open-source LLaMA model | [Docs](https://ai.meta.com/llama/docs/models#llama-3-3) |
+| grok-3 | xAI | Not disclosed | 128K | Not specified | 2025-01 | Fast reasoning model from xAI | [Docs](https://x.ai/docs/models#grok-3) |

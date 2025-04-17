@@ -82,6 +82,17 @@ export const webSearchSchema = z.object({
   provider: z.enum(["openai", "tavily", "perplexity"]).default("openai").describe("Search provider to use"),
   resultCount: z.number().int().min(1).max(50).default(5).describe("Number of results to return"),
   openaiOptions: z.object({
+    model: z.enum([
+      "gpt-4o-realtime-preview", 
+      "chatgpt-4.1", 
+      "gpt-4.1-mini", 
+      "o1", 
+      "o1-mini",
+      "o1-pro",
+      "o3",
+      "o3-mini-2025-01-31",
+      "o4-mini"
+    ]).default("gpt-4o-realtime-preview").describe("OpenAI model to use"),
     searchContextSize: z.enum(["low", "medium", "high"]).default("medium").describe("Amount of search context to retrieve"),
   }).optional(),
   tavilyOptions: z.object({
