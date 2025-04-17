@@ -29,7 +29,8 @@ export class MCPClient {
     
     // Don't use WebSockets in development to avoid connection issues
     // In development, always use HTTP transport
-    if (options.useWebSocket && process.env.NODE_ENV !== 'development') {
+    const isDevelopment = import.meta.env.MODE === 'development' || import.meta.env.DEV;
+    if (options.useWebSocket && !isDevelopment) {
       this.initWebSocket();
     } else {
       console.log('Development mode: Using HTTP transport instead of WebSockets');
@@ -49,7 +50,8 @@ export class MCPClient {
       try {
         // Don't initiate WebSocket connections in development environment
         // Fall back to HTTP transport to avoid connection issues
-        if (process.env.NODE_ENV === 'development') {
+        const isDevelopment = import.meta.env.MODE === 'development' || import.meta.env.DEV;
+        if (isDevelopment) {
           console.log('Development mode: Using HTTP transport instead of WebSockets');
           this.connected = false;
           resolve();
@@ -200,13 +202,27 @@ export class MCPClient {
   async getStatus(): Promise<any> {
     // Use window.location.origin as the base URL if none provided
     const baseUrl = this.baseUrl || window.location.origin;
-    const response = await fetch(`${baseUrl}/api/status`);
     
-    if (!response.ok) {
-      throw new Error(`Failed to get status: ${response.status}`);
+    try {
+      const response = await fetch(`${baseUrl}/api/status`);
+      
+      if (!response.ok) {
+        console.error(`Status API returned ${response.status}: ${response.statusText}`);
+        throw new Error(`Failed to get status: ${response.status}`);
+      }
+      
+      return response.json();
+    } catch (error) {
+      console.error('Failed to fetch system status:', error);
+      
+      // Return a minimal fallback status instead of throwing
+      return {
+        version: "Unknown",
+        uptime: 0,
+        transport: "Unknown",
+        activeTools: []
+      };
     }
-    
-    return response.json();
   }
   
   /**
@@ -215,13 +231,26 @@ export class MCPClient {
   async getToolStatus(toolName: string): Promise<any> {
     // Use window.location.origin as the base URL if none provided
     const baseUrl = this.baseUrl || window.location.origin;
-    const response = await fetch(`${baseUrl}/api/status/${toolName}`);
     
-    if (!response.ok) {
-      throw new Error(`Failed to get tool status: ${response.status}`);
+    try {
+      const response = await fetch(`${baseUrl}/api/status/${toolName}`);
+      
+      if (!response.ok) {
+        console.error(`Tool status API returned ${response.status}: ${response.statusText}`);
+        throw new Error(`Failed to get tool status: ${response.status}`);
+      }
+      
+      return response.json();
+    } catch (error) {
+      console.error(`Failed to fetch tool status for ${toolName}:`, error);
+      
+      // Return a minimal fallback status instead of throwing
+      return {
+        name: toolName,
+        available: false,
+        error: "Could not connect to status API"
+      };
     }
-    
-    return response.json();
   }
   
   /**

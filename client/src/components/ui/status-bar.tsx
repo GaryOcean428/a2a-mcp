@@ -25,7 +25,15 @@ export function StatusBar() {
   
   const fetchStatus = async () => {
     try {
-      const systemStatus = await mcpClient.getStatus();
+      // Use direct fetch instead of mcpClient to avoid potential issues
+      const baseUrl = window.location.origin;
+      const response = await fetch(`${baseUrl}/api/status`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to get status: ${response.status}`);
+      }
+      
+      const systemStatus = await response.json();
       setStatus(systemStatus);
       
       if (systemStatus.lastRequest) {
@@ -43,6 +51,7 @@ export function StatusBar() {
       }
     } catch (error) {
       console.error('Failed to fetch system status:', error);
+      // Don't change the status state on error to keep displaying the last successful state
     }
   };
   
