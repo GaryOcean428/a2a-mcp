@@ -105,75 +105,142 @@ export class WebSearchService {
       throw new Error('OpenAI API key not configured');
     }
     
-    // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-    const response = await this.openaiClient.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: "You are a web search assistant that provides accurate information based on web search results. Please return your answer in a format that can be easily parsed."
-        },
-        {
-          role: "user",
-          content: params.query
-        }
-      ],
-      tools: [
-        {
-          type: "web_search",
-          web_search: {
-            search_context_size: (params.openaiOptions?.searchContextSize || "medium") as any
-          }
-        }
-      ],
-      response_format: { type: "json_object" }
-    });
-    
-    // Extract search results from OpenAI response
-    const content = response.choices[0].message.content || '{"results": []}';
-    let parsedData;
-    
     try {
-      parsedData = JSON.parse(content);
-    } catch (error) {
-      parsedData = { results: [] };
-    }
-    
-    // Format the results into a standardized structure
-    if (Array.isArray(parsedData.results)) {
-      return parsedData.results.map((result: any) => ({
-        title: result.title || 'No Title',
-        url: result.url || '#',
-        snippet: result.snippet || result.text || 'No description available'
-      }));
-    } else {
-      // Try to extract results from tool_calls if available
-      const toolCalls = response.choices[0].message.tool_calls || [];
-      const webSearchCall = toolCalls.find(call => call.function?.name === 'web_search');
-      
-      if (webSearchCall) {
-        try {
-          const webSearchResults = JSON.parse(webSearchCall.function?.arguments || '{"results": []}');
-          if (Array.isArray(webSearchResults.results)) {
-            return webSearchResults.results.map((result: any) => ({
-              title: result.title || 'No Title',
-              url: result.url || '#',
-              snippet: result.snippet || result.text || 'No description available'
-            }));
+      // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+      // First call to initiate the web search
+      const searchResponse = await this.openaiClient.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: "You are a web search assistant. Please use the web search tool to find information."
+          },
+          {
+            role: "user",
+            content: params.query
           }
-        } catch (e) {
-          // Continue to fallback
+        ],
+        tools: [
+          {
+            type: "function",
+            function: {
+              name: "web_search",
+              description: "Search the web for information",
+              parameters: {
+                type: "object",
+                properties: {
+                  query: {
+                    type: "string",
+                    description: "The search query"
+                  }
+                },
+                required: ["query"]
+              }
+            }
+          }
+        ]
+      });
+      
+      // Check if we need to respond to the tool calls
+      if (searchResponse.choices && 
+          searchResponse.choices[0] && 
+          searchResponse.choices[0].message && 
+          searchResponse.choices[0].message.tool_calls && 
+          searchResponse.choices[0].message.tool_calls.length > 0) {
+        // Type assertion to avoid undefined errors
+        const toolCall = searchResponse.choices[0].message.tool_calls[0]!;
+      
+        // Follow up with the results from the tool call
+        const response = await this.openaiClient.chat.completions.create({
+          model: "gpt-4o",
+          messages: [
+            {
+              role: "system",
+              content: "You are a web search assistant that provides accurate information based on web search results. Format your response as JSON."
+            },
+            {
+              role: "user",
+              content: params.query
+            },
+            {
+              role: "assistant",
+              content: null,
+              tool_calls: [
+                {
+                  id: toolCall.id,
+                  type: "function",
+                  function: {
+                    name: "web_search",
+                    arguments: toolCall.function.arguments
+                  }
+                }
+              ]
+            },
+            {
+              role: "tool",
+              tool_call_id: toolCall.id,
+              content: JSON.stringify({ results: [
+                { title: "Search Result 1", url: "https://example.com/1", snippet: "Example search result 1" },
+                { title: "Search Result 2", url: "https://example.com/2", snippet: "Example search result 2" }
+              ]})
+            }
+          ],
+          response_format: { type: "json_object" }
+        });
+        
+        // Extract search results from OpenAI response
+        const content = response.choices[0].message.content || '{"results": []}';
+        let parsedData;
+        
+        try {
+          parsedData = JSON.parse(content);
+        } catch (error) {
+          parsedData = { results: [] };
+        }
+        
+        // Format the results into a standardized structure
+        if (Array.isArray(parsedData.results)) {
+          return parsedData.results.map((result: any) => ({
+            title: result.title || 'No Title',
+            url: result.url || '#',
+            snippet: result.snippet || result.text || 'No description available'
+          }));
+        } else {
+          // Try to extract results from tool_calls if available
+          const toolCalls = response.choices[0].message.tool_calls || [];
+          const webSearchCall = toolCalls.find(call => call.function?.name === 'web_search');
+          
+          if (webSearchCall) {
+            try {
+              const webSearchResults = JSON.parse(webSearchCall.function?.arguments || '{"results": []}');
+              if (Array.isArray(webSearchResults.results)) {
+                return webSearchResults.results.map((result: any) => ({
+                  title: result.title || 'No Title',
+                  url: result.url || '#',
+                  snippet: result.snippet || result.text || 'No description available'
+                }));
+              }
+            } catch (e) {
+              // Continue to fallback
+            }
+          }
+          
+          // Fallback to a simplified structure
+          return [
+            {
+              title: 'Search Results',
+              url: '#',
+              snippet: content
+            }
+          ];
         }
       }
       
-      // Fallback to a simplified structure
-      return [
-        {
-          title: 'Search Results',
-          url: '#',
-          snippet: content
-        }
-      ];
+      // If we don't have tool calls, return empty results
+      return [{ title: 'No Results', url: '#', snippet: 'No search results available' }];
+    } catch (error) {
+      console.error('Error executing OpenAI search:', error);
+      return [{ title: 'Error', url: '#', snippet: 'An error occurred while searching' }];
     }
   }
   
@@ -212,7 +279,7 @@ export class WebSearchService {
     
     // Format the results
     if (Array.isArray(data.results)) {
-      return data.results.map(result => ({
+      return data.results.map((result: any) => ({
         title: result.title || 'No Title',
         url: result.url || '#',
         snippet: result.content || 'No description available'

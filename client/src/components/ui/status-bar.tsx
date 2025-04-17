@@ -123,7 +123,12 @@ export function StatusBar() {
                 </TooltipContent>
               </Tooltip>
 
-              <button className="text-sm text-purple-600 hover:text-purple-800 flex items-center bg-white px-2 py-1 rounded-md shadow-sm">
+              <button 
+                className="text-sm text-purple-600 hover:text-purple-800 flex items-center bg-white px-2 py-1 rounded-md shadow-sm"
+                onClick={() => {
+                  window.open('/metrics', '_blank');
+                }}
+              >
                 <Info className="h-3.5 w-3.5 mr-1.5" />
                 <span>Metrics</span>
               </button>
