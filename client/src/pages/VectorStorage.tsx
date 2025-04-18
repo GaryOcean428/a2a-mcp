@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { RefreshCw, ExternalLink, HelpCircle, Database } from 'lucide-react';
+import { RefreshCw, ExternalLink, HelpCircle, Database, Zap as ZapIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -115,6 +115,68 @@ export default function VectorStorage() {
     }
   };
 
+  // Configuration presets
+  const presets = [
+    {
+      name: 'Semantic Search',
+      description: 'Optimized for finding semantically similar content',
+      config: {
+        operation: 'search',
+        collection: 'semantic_search',
+        query: '',
+        limit: 10
+      }
+    },
+    {
+      name: 'Knowledge Base',
+      description: 'Store and retrieve structured knowledge',
+      config: {
+        operation: 'store',
+        collection: 'knowledge_base',
+        data: {
+          title: 'Example document',
+          tags: ['knowledge', 'example'],
+          source: 'manual'
+        },
+        query: 'This is an example document for knowledge storage and retrieval.'
+      }
+    },
+    {
+      name: 'Document Archive',
+      description: 'Archive and search long-form documents',
+      config: {
+        operation: 'store',
+        collection: 'documents',
+        data: {
+          title: 'Document Title',
+          author: 'Author Name',
+          date: new Date().toISOString().split('T')[0],
+          category: 'Documentation'
+        },
+        query: 'Document content goes here. This will be converted to an embedding vector.'
+      }
+    },
+    {
+      name: 'Q&A System',
+      description: 'Question and answer database',
+      config: {
+        operation: 'search',
+        collection: 'qa_pairs',
+        query: 'What is vector storage?',
+        limit: 5
+      }
+    }
+  ];
+
+  // Handle applying a preset
+  const handleApplyPreset = (presetConfig: any) => {
+    setConfig(presetConfig);
+    toast({
+      title: "Preset Applied",
+      description: "Configuration preset has been applied successfully.",
+    });
+  };
+
   return (
     <div className="container mx-auto px-6 py-6">
       {/* Tool Header */}
@@ -187,6 +249,47 @@ export default function VectorStorage() {
       </Card>
 
       {/* Configuration Tabs */}
+      {/* Configuration Presets */}
+      <div className="mb-6">
+        <h3 className="text-lg font-medium mb-3">Configuration Presets</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {presets.map((preset, index) => (
+            <Card 
+              key={index} 
+              className="overflow-hidden hover:border-primary/50 transition-colors cursor-pointer"
+              onClick={() => handleApplyPreset(preset.config)}
+            >
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">{preset.name}</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <p className="text-sm text-gray-500 mb-3">{preset.description}</p>
+                <div className="flex items-center mt-2">
+                  <span className="text-xs py-1 px-2 rounded-full bg-primary/10 text-primary">
+                    {preset.config.operation}
+                  </span>
+                  <span className="text-xs ml-2 py-1 px-2 rounded-full bg-gray-100">
+                    {preset.config.collection}
+                  </span>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="w-full mt-3"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleApplyPreset(preset.config);
+                  }}
+                >
+                  <ZapIcon className="h-3 w-3 mr-1" />
+                  Apply Preset
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+
       <Card className="mb-6 overflow-hidden shadow-sm">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="border-b border-gray-200">
