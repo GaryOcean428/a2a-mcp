@@ -22,14 +22,21 @@ export class MCPClient {
   } = {}) {
     // Set base URL with fallback to current origin
     this.baseUrl = options.baseUrl || window.location.origin;
-    this.apiKey = options.apiKey || null;
+    
+    // For development, use a default API key
+    const isDevelopment = import.meta.env.MODE === 'development' || import.meta.env.DEV;
+    if (isDevelopment && !options.apiKey) {
+      this.apiKey = 'dev-api-key';
+      console.log('Development mode: Using default API key');
+    } else {
+      this.apiKey = options.apiKey || null;
+    }
     
     // Log client initialization for debugging
     console.log(`MCP client initialized with baseUrl: ${this.baseUrl}`);
     
     // Don't use WebSockets in development to avoid connection issues
     // In development, always use HTTP transport
-    const isDevelopment = import.meta.env.MODE === 'development' || import.meta.env.DEV;
     if (options.useWebSocket && !isDevelopment) {
       this.initWebSocket();
     } else {

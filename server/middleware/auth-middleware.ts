@@ -6,6 +6,20 @@ import { storage } from '../storage';
  */
 export const apiKeyAuth = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    // Check if we're in development mode
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Development mode: bypassing API key authentication');
+      // Create a mock user for development
+      (req as any).user = {
+        id: 1,
+        username: 'devuser',
+        role: 'admin',
+        apiKey: 'dev-api-key',
+        lastLogin: new Date().toISOString()
+      };
+      return next();
+    }
+
     // Extract API key from header or query parameter
     const apiKey = req.headers['x-api-key'] || req.query.api_key;
     

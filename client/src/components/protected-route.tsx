@@ -13,48 +13,50 @@ export function ProtectedRoute({ path, component: Component }: ProtectedRoutePro
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { toast } = useToast();
 
+  // Use a single effect to check authentication and handle any side effects
   useEffect(() => {
-    // Check if user is authenticated
-    const user = localStorage.getItem("user");
-    setIsAuthenticated(!!user);
-    setIsLoading(false);
-  }, []);
-
-  // Show loading indicator while checking authentication
-  if (isLoading) {
-    return (
-      <Route path={path}>
-        <div className="flex items-center justify-center min-h-screen">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      </Route>
-    );
-  }
-
-  // Redirect to home page if not authenticated
-  if (!isAuthenticated) {
-    // Show notification outside of the render function
-    useEffect(() => {
-      if (!isLoading && !isAuthenticated) {
-        toast({
-          title: "Authentication required",
-          description: "Please log in to access this feature",
-          variant: "destructive"
-        });
+    // Only handle the authentication check once
+    if (isLoading) {
+      // Check if user is authenticated - for development, always authenticate
+      const isDevelopment = process.env.NODE_ENV === 'development';
+      if (isDevelopment) {
+        console.log('Development mode: Bypassing authentication');
+        setIsAuthenticated(true);
+      } else {
+        const user = localStorage.getItem("user");
+        setIsAuthenticated(!!user);
       }
-    }, [isLoading, isAuthenticated, toast]);
+      setIsLoading(false);
+    } 
     
-    return (
-      <Route path={path}>
-        <Redirect to="/" />
-      </Route>
-    );
-  }
+    // Show toast if authentication failed and loading is complete
+    if (!isLoading && !isAuthenticated) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to access this feature",
+        variant: "destructive"
+      });
+    }
+  }, [isLoading, isAuthenticated, toast]);
 
-  // Render the protected component if authenticated
+  // The render logic uses a single return statement with conditional content
   return (
     <Route path={path}>
-      {(params) => <Component {...params} />}
+      {() => {
+        if (isLoading) {
+          return (
+            <div className="flex items-center justify-center min-h-screen">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          );
+        }
+        
+        if (!isAuthenticated) {
+          return <Redirect to="/" />;
+        }
+        
+        return <Component />;
+      }}
     </Route>
   );
 }
