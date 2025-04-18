@@ -163,6 +163,66 @@ export function VectorStorageConfig({ config, onChange }: VectorStorageConfigPro
         </div>
       </div>
       
+      {/* Provider-Specific Settings */}
+      {config.provider === 'weaviate' && (
+        <div>
+          <h3 className="text-lg font-medium mb-2">Weaviate Settings</h3>
+          <Card>
+            <CardContent className="p-5">
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="class-name" className="block text-sm font-medium mb-1">Class Name (Optional)</Label>
+                  <Input 
+                    type="text" 
+                    id="class-name"
+                    placeholder="MyClassName"
+                    value={config.weaviateOptions?.className || ''}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      onChange({ 
+                        ...config, 
+                        weaviateOptions: {
+                          ...config.weaviateOptions,
+                          className: value
+                        }
+                      });
+                    }}
+                    className="w-full"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">Capitalized class name (defaults to collection name if not provided)</p>
+                </div>
+                
+                <div>
+                  <Label htmlFor="consistency-level" className="block text-sm font-medium mb-1">Consistency Level</Label>
+                  <Select 
+                    value={(config.weaviateOptions?.consistencyLevel as any) || 'ONE'} 
+                    onValueChange={(value) => {
+                      onChange({ 
+                        ...config, 
+                        weaviateOptions: {
+                          ...config.weaviateOptions,
+                          consistencyLevel: value as "ONE" | "QUORUM" | "ALL"
+                        }
+                      });
+                    }}
+                  >
+                    <SelectTrigger id="consistency-level" className="w-full">
+                      <SelectValue placeholder="Select Consistency Level" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ONE">ONE (Fastest)</SelectItem>
+                      <SelectItem value="QUORUM">QUORUM (Balanced)</SelectItem>
+                      <SelectItem value="ALL">ALL (Most Consistent)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="mt-1 text-xs text-gray-500">Consistency level for write operations</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {/* Operation-Specific Settings */}
       {selectedOperation === 'search' && (
         <div>

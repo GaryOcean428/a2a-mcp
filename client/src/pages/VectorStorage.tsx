@@ -340,13 +340,22 @@ export default function VectorStorage() {
               </CardHeader>
               <CardContent className="pt-0">
                 <p className="text-sm text-gray-500 mb-3">{preset.description}</p>
-                <div className="flex items-center mt-2">
+                <div className="flex items-center mt-2 flex-wrap gap-2">
                   <span className="text-xs py-1 px-2 rounded-full bg-primary/10 text-primary">
                     {preset.config.operation}
                   </span>
-                  <span className="text-xs ml-2 py-1 px-2 rounded-full bg-gray-100">
+                  <span className="text-xs py-1 px-2 rounded-full bg-gray-100">
                     {preset.config.collection}
                   </span>
+                  {preset.config.provider && (
+                    <span className={`text-xs py-1 px-2 rounded-full ${
+                      preset.config.provider === 'weaviate' 
+                        ? 'bg-blue-100 text-blue-700' 
+                        : 'bg-amber-100 text-amber-700'
+                    }`}>
+                      {preset.config.provider}
+                    </span>
+                  )}
                 </div>
                 <Button 
                   variant="ghost" 
@@ -412,11 +421,18 @@ export default function VectorStorage() {
   "id": "request-123",
   "name": "vector_storage",
   "parameters": {
+    "provider": "pinecone",  // or "weaviate"
     "operation": "search",
     "collection": "my_vectors",
     "query": "semantic search query",
     "filters": { "category": "article" },
-    "limit": 10
+    "limit": 10,
+    
+    // Weaviate-specific options (only needed for weaviate provider)
+    "weaviateOptions": {
+      "className": "CustomClassName",
+      "consistencyLevel": "ONE"  // ONE, QUORUM, or ALL
+    }
   }
 }`}
                 </pre>
@@ -430,11 +446,13 @@ export default function VectorStorage() {
       {
         "id": "doc-123",
         "score": 0.85,
-        "metadata": { "title": "Example Document" }
+        "metadata": { "title": "Example Document" },
+        "content": "Document text content"
       }
     ],
     "operation": "search",
     "collection": "my_vectors",
+    "provider": "pinecone",  // or "weaviate"
     "metadata": {
       "processingTime": 120,
       "timestamp": "2023-06-15T12:30:45.123Z"
