@@ -12,6 +12,7 @@ import DataScraping from "@/pages/DataScraping";
 import Settings from "@/pages/Settings";
 import Documentation from "@/pages/Documentation";
 import ClineIntegration from "@/pages/ClineIntegration";
+import AuthPage from "@/pages/auth-page";
 import NotFound from "@/pages/not-found";
 
 // Components
@@ -23,6 +24,7 @@ function Router() {
     <Layout>
       <Switch>
         <Route path="/" component={Home} />
+        <Route path="/auth" component={AuthPage} />
         <ProtectedRoute path="/web-search" component={WebSearch} />
         <ProtectedRoute path="/form-automation" component={FormAutomation} />
         <ProtectedRoute path="/vector-storage" component={VectorStorage} />

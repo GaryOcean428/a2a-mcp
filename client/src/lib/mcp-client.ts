@@ -52,8 +52,13 @@ export class MCPClient {
       // Construct a clean WebSocket URL with proper protocol
       const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       const host = window.location.host;
+      
+      // In production deployments, sometimes the port might be included in host but should be omitted
+      // This ensures we have a clean host string without any undefined ports
+      const cleanHost = host.includes(':undefined') ? host.split(':')[0] : host;
+      
       // Ensure we create a clean URL with no double slashes
-      const wsUrl = `${wsProtocol}//${host}/mcp-ws`;
+      const wsUrl = `${wsProtocol}//${cleanHost}/mcp-ws`;
       
       console.log(`Attempting to connect to WebSocket at: ${wsUrl}`);
       
@@ -226,9 +231,18 @@ export class MCPClient {
    * Helper function to create a clean URL with no double slashes
    */
   private createApiUrl(baseUrl: string, path: string): string {
+    // Clean up the base URL first (remove trailing slashes)
+    const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+    
+    // In case the baseUrl has ':undefined' in it (common deployment issue)
+    const fixedBaseUrl = cleanBaseUrl.includes(':undefined') 
+      ? cleanBaseUrl.split(':undefined').join('') 
+      : cleanBaseUrl;
+    
     // Ensure path starts with a slash
     const normalizedPath = path.startsWith('/') ? path : `/${path}`;
-    return baseUrl + normalizedPath;
+    
+    return fixedBaseUrl + normalizedPath;
   }
 
   /**
