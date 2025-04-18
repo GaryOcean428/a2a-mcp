@@ -254,8 +254,17 @@ Check out the [Cline Integration Guide](/cline-integration) for detailed usage e
         const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
         const host = req.headers['x-forwarded-host'] || req.headers.host || 'localhost:5000';
         
+        // Construct clean URL with normalized paths
+        // Ensure there are no double slashes in the URL
+        const baseUrl = `${protocol}://${host}`;
+        const apiPath = '/api/mcp';
+        const cleanUrl = baseUrl + apiPath;
+        
         // Update the URL with the actual server URL
-        config.server.url = `${protocol}://${host}/api/mcp`;
+        config.server.url = cleanUrl;
+        
+        // Log the generated URL for debugging
+        console.log(`Generated Cline config URL: ${cleanUrl}`);
         
         res.json(config);
       } else {

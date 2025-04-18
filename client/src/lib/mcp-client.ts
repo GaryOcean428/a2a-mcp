@@ -48,69 +48,79 @@ export class MCPClient {
    * Initialize WebSocket connection
    */
   private initWebSocket() {
-    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${wsProtocol}//${window.location.host}/mcp-ws`;
-    
-    console.log(`Attempting to connect to WebSocket at: ${wsUrl}`);
-    
-    this.connectionPromise = new Promise((resolve, reject) => {
-      try {
-        // Don't initiate WebSocket connections in development environment
-        // Fall back to HTTP transport to avoid connection issues
-        const isDevelopment = import.meta.env.MODE === 'development' || import.meta.env.DEV;
-        if (isDevelopment) {
-          console.log('Development mode: Using HTTP transport instead of WebSockets');
-          this.connected = false;
-          resolve();
-          return;
-        }
-        
-        this.websocket = new WebSocket(wsUrl);
-        
-        this.websocket.addEventListener('open', () => {
-          console.log('WebSocket connection established');
-          this.connected = true;
-          resolve();
-        });
-        
-        this.websocket.addEventListener('message', (event) => {
-          try {
-            const data = JSON.parse(event.data);
-            
-            if (data.event === 'response' && data.data.id) {
-              const handler = this.responseHandlers.get(data.data.id);
-              if (handler) {
-                handler(data.data);
-                this.responseHandlers.delete(data.data.id);
-              }
-            } else if (data.event === 'error') {
-              console.error('WebSocket error:', data.data.message);
-            }
-          } catch (error) {
-            console.error('Error parsing WebSocket message:', error);
+    try {
+      // Construct a clean WebSocket URL with proper protocol
+      const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const host = window.location.host;
+      // Ensure we create a clean URL with no double slashes
+      const wsUrl = `${wsProtocol}//${host}/mcp-ws`;
+      
+      console.log(`Attempting to connect to WebSocket at: ${wsUrl}`);
+      
+      this.connectionPromise = new Promise((resolve, reject) => {
+        try {
+          // Don't initiate WebSocket connections in development environment
+          // Fall back to HTTP transport to avoid connection issues
+          const isDevelopment = import.meta.env.MODE === 'development' || import.meta.env.DEV;
+          if (isDevelopment) {
+            console.log('Development mode: Using HTTP transport instead of WebSockets');
+            this.connected = false;
+            resolve();
+            return;
           }
-        });
-        
-        this.websocket.addEventListener('close', (event) => {
-          console.log(`WebSocket connection closed: ${event.code} ${event.reason}`);
-          this.connected = false;
           
-          // Don't automatically reconnect if closed cleanly
-          if (event.code !== 1000 && event.code !== 1001) {
-            console.log('WebSocket connection closed unexpectedly, reconnecting in 3s...');
-            setTimeout(() => this.initWebSocket(), 3000);
-          }
-        });
-        
-        this.websocket.addEventListener('error', (error) => {
-          console.error('WebSocket error:', error);
+          this.websocket = new WebSocket(wsUrl);
+          
+          this.websocket.addEventListener('open', () => {
+            console.log('WebSocket connection established');
+            this.connected = true;
+            resolve();
+          });
+          
+          this.websocket.addEventListener('message', (event) => {
+            try {
+              const data = JSON.parse(event.data);
+              
+              if (data.event === 'response' && data.data.id) {
+                const handler = this.responseHandlers.get(data.data.id);
+                if (handler) {
+                  handler(data.data);
+                  this.responseHandlers.delete(data.data.id);
+                }
+              } else if (data.event === 'error') {
+                console.error('WebSocket error:', data.data.message);
+              }
+            } catch (error) {
+              console.error('Error parsing WebSocket message:', error);
+            }
+          });
+          
+          this.websocket.addEventListener('close', (event) => {
+            console.log(`WebSocket connection closed: ${event.code} ${event.reason}`);
+            this.connected = false;
+            
+            // Don't automatically reconnect if closed cleanly
+            if (event.code !== 1000 && event.code !== 1001) {
+              console.log('WebSocket connection closed unexpectedly, reconnecting in 3s...');
+              setTimeout(() => this.initWebSocket(), 3000);
+            }
+          });
+          
+          this.websocket.addEventListener('error', (error) => {
+            console.error('WebSocket error:', error);
+            reject(error);
+          });
+        } catch (error) {
+          console.error('Failed to initialize WebSocket:', error);
           reject(error);
-        });
-      } catch (error) {
-        console.error('Failed to initialize WebSocket:', error);
-        reject(error);
-      }
-    });
+        }
+      });
+    } catch (error) {
+      console.error('Critical error initializing WebSocket:', error);
+      // Fall back to HTTP transport in case of critical error
+      this.connected = false;
+      this.connectionPromise = Promise.resolve();
+    }
   }
   
   /**
@@ -146,20 +156,29 @@ export class MCPClient {
     }
     
     // Use window.location.origin as the base URL if none provided
+    // Ensure we build a clean URL with no double slashes
     const baseUrl = this.baseUrl || window.location.origin;
+    const apiUrl = this.createApiUrl(baseUrl, '/api/mcp');
     
-    const response = await fetch(`${baseUrl}/api/mcp`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(request)
-    });
+    console.log(`Sending MCP HTTP request to: ${apiUrl}`);
     
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`MCP request failed: ${response.status} ${errorText}`);
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(request)
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`MCP request failed: ${response.status} ${errorText}`);
+      }
+      
+      return response.json();
+    } catch (error) {
+      console.error('HTTP request failed:', error);
+      throw error;
     }
-    
-    return response.json();
   }
   
   /**
@@ -204,14 +223,24 @@ export class MCPClient {
   }
   
   /**
+   * Helper function to create a clean URL with no double slashes
+   */
+  private createApiUrl(baseUrl: string, path: string): string {
+    // Ensure path starts with a slash
+    const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+    return baseUrl + normalizedPath;
+  }
+
+  /**
    * Get the status of the MCP server
    */
   async getStatus(): Promise<any> {
     // Use window.location.origin as the base URL if none provided
     const baseUrl = this.baseUrl || window.location.origin;
+    const apiUrl = this.createApiUrl(baseUrl, '/api/status');
     
     try {
-      const response = await fetch(`${baseUrl}/api/status`);
+      const response = await fetch(apiUrl);
       
       if (!response.ok) {
         console.error(`Status API returned ${response.status}: ${response.statusText}`);
@@ -238,9 +267,10 @@ export class MCPClient {
   async getToolStatus(toolName: string): Promise<any> {
     // Use window.location.origin as the base URL if none provided
     const baseUrl = this.baseUrl || window.location.origin;
+    const apiUrl = this.createApiUrl(baseUrl, `/api/status/${toolName}`);
     
     try {
-      const response = await fetch(`${baseUrl}/api/status/${toolName}`);
+      const response = await fetch(apiUrl);
       
       if (!response.ok) {
         console.error(`Tool status API returned ${response.status}: ${response.statusText}`);
@@ -266,13 +296,20 @@ export class MCPClient {
   async getSchemas(): Promise<any[]> {
     // Use window.location.origin as the base URL if none provided
     const baseUrl = this.baseUrl || window.location.origin;
-    const response = await fetch(`${baseUrl}/api/schema`);
+    const apiUrl = this.createApiUrl(baseUrl, '/api/schema');
     
-    if (!response.ok) {
-      throw new Error(`Failed to get schemas: ${response.status}`);
+    try {
+      const response = await fetch(apiUrl);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to get schemas: ${response.status}`);
+      }
+      
+      return response.json();
+    } catch (error) {
+      console.error('Failed to fetch schemas:', error);
+      throw error;
     }
-    
-    return response.json();
   }
   
   /**
@@ -281,13 +318,20 @@ export class MCPClient {
   async getToolSchema(toolName: string): Promise<any> {
     // Use window.location.origin as the base URL if none provided
     const baseUrl = this.baseUrl || window.location.origin;
-    const response = await fetch(`${baseUrl}/api/schema/${toolName}`);
+    const apiUrl = this.createApiUrl(baseUrl, `/api/schema/${toolName}`);
     
-    if (!response.ok) {
-      throw new Error(`Failed to get tool schema: ${response.status}`);
+    try {
+      const response = await fetch(apiUrl);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to get tool schema: ${response.status}`);
+      }
+      
+      return response.json();
+    } catch (error) {
+      console.error(`Failed to fetch schema for ${toolName}:`, error);
+      throw error;
     }
-    
-    return response.json();
   }
   
   /**

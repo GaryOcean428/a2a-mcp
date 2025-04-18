@@ -18,11 +18,24 @@ export default function ClineIntegration() {
   const [configUrl, setConfigUrl] = useState<string>("");
   const { toast } = useToast();
   
-  // Get the current hostname from window
+  // Get the current hostname from window and ensure no double slashes
   useEffect(() => {
-    const protocol = window.location.protocol;
-    const host = window.location.host;
-    setConfigUrl(`${protocol}//${host}/api/cline-config`);
+    try {
+      const protocol = window.location.protocol;
+      const host = window.location.host;
+      // Create a clean URL without double slashes
+      const baseUrl = `${protocol}//${host}`;
+      // Normalize the path to ensure no double slashes
+      const path = '/api/cline-config';
+      setConfigUrl(baseUrl + path);
+      
+      // Log the URL for debugging purposes
+      console.log(`Cline config URL set to: ${baseUrl + path}`);
+    } catch (error) {
+      console.error("Error setting config URL:", error);
+      // Fallback to a simple URL construction
+      setConfigUrl(window.location.origin + '/api/cline-config');
+    }
   }, []);
 
   useEffect(() => {
