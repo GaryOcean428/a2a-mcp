@@ -134,6 +134,57 @@ export default function VectorStorage() {
           </Button>
         </div>
       </div>
+      
+      {/* Pinecone Database Status */}
+      <Card className="mb-4 overflow-hidden">
+        <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 pb-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle className="flex items-center">
+                <Database className="h-5 w-5 mr-2 text-primary" />
+                Pinecone Vector Database
+              </CardTitle>
+              <CardDescription>
+                High-performance vector database for semantic search and AI applications
+              </CardDescription>
+            </div>
+            {toolStatus && (
+              <Badge 
+                variant={toolStatus.available ? "default" : "destructive"} 
+                className={`h-6 ${toolStatus.available ? 'bg-green-500 hover:bg-green-600' : ''}`}
+              >
+                {toolStatus.available ? "Connected" : "Disconnected"}
+              </Badge>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent className="pt-4">
+          <div className="grid md:grid-cols-3 gap-4">
+            <div className="bg-muted/30 p-3 rounded-md">
+              <h4 className="text-sm font-medium mb-1">Status</h4>
+              <p className="text-sm">
+                {isLoading ? (
+                  <RefreshCw className="h-4 w-4 animate-spin inline mr-2" />
+                ) : toolStatus?.available ? (
+                  <span className="text-green-600 font-medium">Ready for operations</span>
+                ) : (
+                  <span className="text-red-600 font-medium">{toolStatus?.error || "Not available"}</span>
+                )}
+              </p>
+            </div>
+            <div className="bg-muted/30 p-3 rounded-md">
+              <h4 className="text-sm font-medium mb-1">Response Time</h4>
+              <p className="text-sm">
+                {toolStatus?.latency ? `${toolStatus.latency}ms` : "N/A"}
+              </p>
+            </div>
+            <div className="bg-muted/30 p-3 rounded-md">
+              <h4 className="text-sm font-medium mb-1">Vector Dimensions</h4>
+              <p className="text-sm">1536 (text-embedding-3-small)</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Configuration Tabs */}
       <Card className="mb-6 overflow-hidden shadow-sm">

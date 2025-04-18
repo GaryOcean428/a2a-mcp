@@ -87,12 +87,11 @@ export function VectorStorageConfig({ config, onChange }: VectorStorageConfigPro
             >
               <CardContent className="p-4">
                 <div className="flex items-center mb-2">
-                  <RadioGroupItem 
-                    id={`operation-${operation}`}
-                    value={operation}
-                    checked={selectedOperation === operation}
-                    className="h-4 w-4 text-primary"
-                  />
+                  <div className="h-4 w-4 rounded-full border border-primary relative">
+                    {selectedOperation === operation && (
+                      <div className="absolute inset-0.5 rounded-full bg-primary" />
+                    )}
+                  </div>
                   <Label htmlFor={`operation-${operation}`} className="ml-2 font-medium capitalize">{operation}</Label>
                 </div>
                 <p className="text-gray-500 text-sm">
