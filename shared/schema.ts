@@ -117,14 +117,22 @@ export const formAutomationSchema = z.object({
 });
 
 export const vectorStorageSchema = z.object({
+  provider: z.enum(["pinecone", "weaviate"]).default("pinecone").describe("Vector database provider to use"),
   operation: z.enum(["search", "retrieve", "store", "delete"]).describe("Operation to perform"),
-  collection: z.string().describe("Vector collection to operate on"),
+  collection: z.string().describe("Vector collection/class to operate on"),
   query: z.string().optional().describe("Query text for semantic search"),
   embedding: z.array(z.number()).optional().describe("Pre-computed embedding vector (optional)"),
   filters: z.record(z.any()).optional().describe("Metadata filters for search"),
   limit: z.number().int().min(1).max(100).default(10).describe("Maximum number of results"),
   data: z.record(z.any()).optional().describe("Data to store (for store operations)"),
   ids: z.array(z.string()).optional().describe("Document IDs (for retrieve/delete operations)"),
+  
+  // Weaviate-specific options
+  weaviateOptions: z.object({
+    className: z.string().optional().describe("Class name (defaults to collection name if not provided)"),
+    consistencyLevel: z.enum(["ONE", "QUORUM", "ALL"]).default("ONE").optional().describe("Consistency level for write operations"),
+    vectorizer: z.enum(["none", "text2vec-openai"]).default("text2vec-openai").optional().describe("Vectorizer to use for automatic embeddings"),
+  }).optional().describe("Weaviate-specific configuration options"),
 });
 
 export const dataScraperSchema = z.object({
