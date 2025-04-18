@@ -17,15 +17,35 @@ export function ProtectedRoute({ path, component: Component }: ProtectedRoutePro
   useEffect(() => {
     // Only handle the authentication check once
     if (isLoading) {
-      // Check if user is authenticated - for development, always authenticate
-      const isDevelopment = process.env.NODE_ENV === 'development';
-      if (isDevelopment) {
-        console.log('Development mode: Bypassing authentication');
+      // Check if user is authenticated
+      // For consistency between development and production, check for a user first
+      const user = localStorage.getItem("user");
+      
+      // If we have a user, or if we're in development mode, or if BYPASS_AUTH is enabled via a flag
+      // This makes authentication behavior consistent across environments
+      const isDevelopment = import.meta.env.DEV || import.meta.env.MODE === 'development';
+      const bypassAuthFlag = localStorage.getItem("bypassAuth") === 'true';
+      
+      if (user || isDevelopment || bypassAuthFlag) {
+        if (isDevelopment || bypassAuthFlag) {
+          console.log('Authentication bypassed (development mode or bypass flag enabled)');
+          
+          // In development, create a mock user if one doesn't exist
+          if (!user && isDevelopment) {
+            localStorage.setItem("user", JSON.stringify({
+              id: 1,
+              username: "devuser",
+              role: "admin",
+              lastLogin: new Date().toISOString()
+            }));
+          }
+        }
+        
         setIsAuthenticated(true);
       } else {
-        const user = localStorage.getItem("user");
-        setIsAuthenticated(!!user);
+        setIsAuthenticated(false);
       }
+      
       setIsLoading(false);
     } 
     
@@ -52,7 +72,8 @@ export function ProtectedRoute({ path, component: Component }: ProtectedRoutePro
         }
         
         if (!isAuthenticated) {
-          return <Redirect to="/" />;
+          // Redirect to auth page instead of home page
+          return <Redirect to="/auth" />;
         }
         
         return <Component />;

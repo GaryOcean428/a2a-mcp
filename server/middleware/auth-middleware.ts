@@ -6,9 +6,10 @@ import { storage } from '../storage';
  */
 export const apiKeyAuth = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // Check if we're in development mode
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Development mode: bypassing API key authentication');
+    // Check if we're in development mode or if BYPASS_AUTH environment variable is set
+    // This helps ensure authentication works the same in both dev and production
+    if (process.env.NODE_ENV === 'development' || process.env.BYPASS_AUTH === 'true') {
+      console.log('Bypassing API key authentication (development mode or BYPASS_AUTH enabled)');
       // Create a mock user for development
       (req as any).user = {
         id: 1,

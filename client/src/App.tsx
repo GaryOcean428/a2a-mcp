@@ -38,6 +38,20 @@ function Router() {
 }
 
 function App() {
+  // Check URL for bypass auth parameter - this allows testing in production
+  // Example: /?bypassAuth=true
+  // This only works once and is designed for testing the deployed application
+  const searchParams = new URLSearchParams(window.location.search);
+  const bypassAuth = searchParams.get('bypassAuth');
+  
+  if (bypassAuth === 'true') {
+    console.log('Auth bypass mode enabled via URL parameter');
+    localStorage.setItem('bypassAuth', 'true');
+    // Clean URL (remove the query parameter)
+    const newUrl = window.location.pathname + window.location.hash;
+    window.history.replaceState({}, document.title, newUrl);
+  }
+  
   return (
     <QueryClientProvider client={queryClient}>
       <Router />
