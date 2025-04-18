@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { RefreshCw, ExternalLink } from 'lucide-react';
+import { RefreshCw, ExternalLink, HelpCircle, Database } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { VectorStorageConfig } from '@/components/tools/vector-storage-config';
 import { ToolSchema } from '@/components/ui/tool-schema';
@@ -9,6 +9,7 @@ import { TestConsole } from '@/components/ui/test-console';
 import { VectorStorageParams } from '@shared/schema';
 import { mcpClient } from '@/lib/mcp-client';
 import { useToast } from '@/hooks/use-toast';
+import { Badge } from '@/components/ui/badge';
 
 export default function VectorStorage() {
   const [config, setConfig] = useState<Partial<VectorStorageParams>>({
@@ -18,10 +19,13 @@ export default function VectorStorage() {
   });
   const [schema, setSchema] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('configuration');
+  const [toolStatus, setToolStatus] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
     fetchSchema();
+    fetchToolStatus();
   }, []);
 
   const fetchSchema = async () => {
@@ -35,6 +39,23 @@ export default function VectorStorage() {
         description: 'Failed to fetch tool schema',
         variant: 'destructive'
       });
+    }
+  };
+  
+  const fetchToolStatus = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/status/vector_storage');
+      if (response.ok) {
+        const statusData = await response.json();
+        setToolStatus(statusData[0]);
+      } else {
+        throw new Error('Failed to fetch tool status');
+      }
+    } catch (error) {
+      console.error('Failed to fetch tool status:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -75,7 +96,8 @@ export default function VectorStorage() {
               title: 'Example Document',
               tags: ['mcp', 'vector']
             }
-          }
+          },
+          query: 'Document content to generate embedding'
         };
       case 'delete':
         return {

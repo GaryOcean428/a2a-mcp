@@ -1,5 +1,7 @@
 import { VectorStorageParams } from '@shared/schema';
 import { storage } from '../storage';
+import { Pinecone } from '@pinecone-database/pinecone';
+import OpenAI from 'openai';
 
 interface VectorResult {
   id: string;
@@ -20,39 +22,115 @@ interface VectorResponse {
 }
 
 /**
- * In-memory vector database for development purposes
- * In production, this would be replaced with a connection to a real vector database
+ * Pinecone vector database implementation
  */
-class InMemoryVectorDB {
-  private collections: Map<string, Map<string, VectorResult>>;
+class PineconeVectorDB {
+  private pinecone: Pinecone;
+  private openai: OpenAI;
+  private indexCache: Set<string> = new Set();
+  private embeddingModel = 'text-embedding-3-small';
+  private dimensions = 1536; // Dimensions for text-embedding-3-small
   
-  constructor() {
-    this.collections = new Map();
+  constructor(apiKey: string, openaiApiKey: string) {
+    // Initialize Pinecone client
+    this.pinecone = new Pinecone({
+      apiKey: apiKey,
+    });
+    
+    // Initialize OpenAI client for embeddings
+    this.openai = new OpenAI({
+      apiKey: openaiApiKey
+    });
   }
   
   /**
-   * Get or create a collection
+   * Create an embedding vector from text using OpenAI
    */
-  private getCollection(name: string): Map<string, VectorResult> {
-    if (!this.collections.has(name)) {
-      this.collections.set(name, new Map());
+  private async createEmbedding(text: string): Promise<number[]> {
+    const response = await this.openai.embeddings.create({
+      model: this.embeddingModel,
+      input: text
+    });
+    
+    return response.data[0].embedding;
+  }
+  
+  /**
+   * Initialize a collection (index) if it doesn't exist
+   */
+  private async ensureIndex(name: string): Promise<void> {
+    // Skip if we've already checked this index
+    if (this.indexCache.has(name)) {
+      return;
     }
-    return this.collections.get(name)!;
+    
+    try {
+      // Check if index exists
+      const indexes = await this.pinecone.listIndexes();
+      const exists = indexes.some(index => index.name === name);
+      
+      if (!exists) {
+        // Create the index if it doesn't exist
+        await this.pinecone.createIndex({
+          name,
+          dimension: this.dimensions,
+          metric: 'cosine'
+        });
+        
+        // Wait for index to be ready
+        console.log(`Creating Pinecone index: ${name}`);
+        await new Promise(resolve => setTimeout(resolve, 5000));
+      }
+      
+      // Cache the index
+      this.indexCache.add(name);
+    } catch (error) {
+      console.error(`Error ensuring index: ${name}`, error);
+      throw new Error(`Failed to ensure index: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+  
+  /**
+   * Get the index (collection)
+   */
+  private async getIndex(name: string) {
+    await this.ensureIndex(name);
+    return this.pinecone.index(name);
   }
   
   /**
    * Store vectors in a collection
    */
   async store(collection: string, data: VectorResult | VectorResult[]): Promise<string[]> {
-    const col = this.getCollection(collection);
+    const index = await this.getIndex(collection);
     const items = Array.isArray(data) ? data : [data];
     const ids: string[] = [];
     
-    for (const item of items) {
+    // Prepare records for upsert
+    const records = await Promise.all(items.map(async (item) => {
       const id = item.id || this.generateId();
-      col.set(id, { ...item, id });
+      let vector = item.vector;
+      
+      // Generate embedding if vector is not provided but content is
+      if (!vector && item.content) {
+        vector = await this.createEmbedding(item.content);
+      }
+      
+      if (!vector) {
+        throw new Error('Vector or content is required for storage');
+      }
+      
       ids.push(id);
-    }
+      
+      return {
+        id,
+        values: vector,
+        metadata: item.metadata || {}
+      };
+    }));
+    
+    // Upsert records
+    await index.upsert(records);
     
     return ids;
   }
@@ -61,8 +139,14 @@ class InMemoryVectorDB {
    * Retrieve vectors by IDs
    */
   async retrieve(collection: string, ids: string[]): Promise<VectorResult[]> {
-    const col = this.getCollection(collection);
-    return ids.map(id => col.get(id)).filter(Boolean) as VectorResult[];
+    const index = await this.getIndex(collection);
+    const response = await index.fetch(ids);
+    
+    return Object.values(response.records).map(record => ({
+      id: record.id,
+      vector: record.values,
+      metadata: record.metadata,
+    }));
   }
   
   /**
@@ -72,51 +156,49 @@ class InMemoryVectorDB {
     collection: string, 
     query: string | number[], 
     filters?: any, 
-    limit?: number
+    limit: number = 10
   ): Promise<VectorResult[]> {
-    const col = this.getCollection(collection);
-    const items = Array.from(col.values());
+    const index = await this.getIndex(collection);
     
-    // In a real implementation, this would use proper vector search algorithms
-    // For this example, we'll just return a subset of items sorted by a random score
-    let results = items.map(item => ({
-      ...item,
-      score: Math.random() // Simulate relevance score
-    }));
-    
-    // Apply filters if provided
-    if (filters) {
-      results = results.filter(item => {
-        // Simple filter implementation
-        for (const [key, value] of Object.entries(filters)) {
-          if (!item.metadata || item.metadata[key] !== value) {
-            return false;
-          }
-        }
-        return true;
-      });
+    // Generate embedding from text query if needed
+    let vector: number[];
+    if (typeof query === 'string') {
+      vector = await this.createEmbedding(query);
+    } else {
+      vector = query;
     }
     
-    // Sort by score and limit results
-    results.sort((a, b) => (b.score || 0) - (a.score || 0));
-    return results.slice(0, limit || 10);
+    // Perform vector search
+    const searchRequest: any = {
+      vector,
+      topK: limit,
+      includeValues: true,
+      includeMetadata: true
+    };
+    
+    // Add filter if provided
+    if (filters) {
+      searchRequest.filter = filters;
+    }
+    
+    const response = await index.query(searchRequest);
+    
+    // Convert to VectorResult format
+    return (response.matches || []).map(match => ({
+      id: match.id,
+      score: match.score,
+      vector: match.values,
+      metadata: match.metadata
+    }));
   }
   
   /**
    * Delete vectors by IDs
    */
   async delete(collection: string, ids: string[]): Promise<string[]> {
-    const col = this.getCollection(collection);
-    const deletedIds: string[] = [];
-    
-    for (const id of ids) {
-      if (col.has(id)) {
-        col.delete(id);
-        deletedIds.push(id);
-      }
-    }
-    
-    return deletedIds;
+    const index = await this.getIndex(collection);
+    await index.deleteMany(ids);
+    return ids;
   }
   
   /**
@@ -126,30 +208,55 @@ class InMemoryVectorDB {
     return Math.random().toString(36).substring(2, 15) + 
            Math.random().toString(36).substring(2, 15);
   }
+  
+  /**
+   * Cleanup function
+   */
+  async cleanup() {
+    // No cleanup needed for Pinecone
+  }
 }
 
 /**
  * Service for vector storage operations
  */
 export class VectorStorageService {
-  private db: InMemoryVectorDB;
+  private db: PineconeVectorDB | null = null;
   
   constructor() {
-    // Initialize vector database
-    this.db = new InMemoryVectorDB();
-    
-    // Check if OpenAI API key is available for embeddings
+    this.initializeVectorDB();
+  }
+  
+  /**
+   * Initialize vector database
+   */
+  private async initializeVectorDB() {
+    const pineconeApiKey = process.env.PINECONE_API_KEY || '';
     const openaiApiKey = process.env.OPENAI_API_KEY || '';
-    if (openaiApiKey) {
-      console.log('OpenAI API key found, vector storage service available');
-      storage.updateToolStatus("vector_storage", { 
-        available: true 
-      });
+    
+    if (pineconeApiKey && openaiApiKey) {
+      try {
+        this.db = new PineconeVectorDB(pineconeApiKey, openaiApiKey);
+        console.log('Pinecone and OpenAI API keys found, vector storage service available');
+        await storage.updateToolStatus("vector_storage", { 
+          available: true 
+        });
+      } catch (error) {
+        console.error('Failed to initialize Pinecone:', error);
+        await storage.updateToolStatus("vector_storage", { 
+          available: false,
+          error: `Failed to initialize Pinecone: ${error instanceof Error ? error.message : String(error)}`
+        });
+      }
     } else {
-      console.log('OpenAI API key not found, vector storage functionality will be limited');
-      storage.updateToolStatus("vector_storage", { 
+      const missingKeys = [];
+      if (!pineconeApiKey) missingKeys.push('Pinecone');
+      if (!openaiApiKey) missingKeys.push('OpenAI');
+      
+      console.log(`${missingKeys.join(' and ')} API key(s) not found, vector storage functionality will be limited`);
+      await storage.updateToolStatus("vector_storage", { 
         available: false,
-        error: "OpenAI API key not configured for embeddings"
+        error: `${missingKeys.join(' and ')} API key(s) not configured for vector storage`
       });
     }
   }
@@ -161,6 +268,11 @@ export class VectorStorageService {
     const startTime = Date.now();
     
     try {
+      // Ensure db is initialized
+      if (!this.db) {
+        throw new Error('Vector database is not initialized. Check API keys.');
+      }
+      
       // Ensure collection is provided
       if (!params.collection) {
         throw new Error('Collection name is required');
