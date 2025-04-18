@@ -20,7 +20,7 @@ Add the following configuration to your `cascade.json` file for Cline:
 {
   "mcpServers": {
     "mcp-integration-platform": {
-      "url": "http://localhost:5000/api/mcp",
+      "url": "https://[YOUR-REPLIT-URL]/api/mcp",
       "headers": {
         "X-API-Key": "your-api-key-here"
       },
