@@ -183,7 +183,7 @@ export class WeaviateVectorDB implements VectorDB {
             id: id,
             vector: result.vector as number[],
             metadata: result.properties.metadata || {},
-            content: result.properties.content || ''
+            content: (result.properties.content || '').toString()
           });
         }
       } catch (error) {
@@ -240,8 +240,8 @@ export class WeaviateVectorDB implements VectorDB {
       id: item.id,
       score: item._additional?.distance !== undefined ? 1 - item._additional.distance : undefined, // Convert distance to similarity score
       vector: item._additional?.vector,
-      content: item.content,
-      metadata: item.metadata
+      content: item.content ? item.content.toString() : '',
+      metadata: item.metadata || {}
     }));
   }
   

@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 
 export default function VectorStorage() {
   const [config, setConfig] = useState<Partial<VectorStorageParams>>({
+    provider: 'pinecone', // Default to Pinecone
     operation: 'search',
     collection: 'default',
     limit: 10
