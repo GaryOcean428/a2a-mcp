@@ -73,9 +73,12 @@ export default function VectorStorage() {
   };
 
   const getDefaultParams = () => {
+    const provider = config.provider || 'pinecone';
+    
     switch (config.operation) {
       case 'search':
         return {
+          provider,
           operation: 'search',
           collection: config.collection || 'default',
           query: 'semantic search query',
@@ -83,12 +86,14 @@ export default function VectorStorage() {
         };
       case 'retrieve':
         return {
+          provider,
           operation: 'retrieve',
           collection: config.collection || 'default',
           ids: ['doc-123', 'doc-456']
         };
       case 'store':
         return {
+          provider,
           operation: 'store',
           collection: config.collection || 'default',
           data: {
@@ -102,12 +107,14 @@ export default function VectorStorage() {
         };
       case 'delete':
         return {
+          provider,
           operation: 'delete',
           collection: config.collection || 'default',
           ids: ['doc-123']
         };
       default:
         return {
+          provider,
           operation: 'search',
           collection: config.collection || 'default',
           query: 'semantic search query',
@@ -119,9 +126,10 @@ export default function VectorStorage() {
   // Configuration presets
   const presets = [
     {
-      name: 'Semantic Search',
+      name: 'Pinecone Semantic Search',
       description: 'Optimized for finding semantically similar content',
       config: {
+        provider: 'pinecone',
         operation: 'search',
         collection: 'semantic_search',
         query: '',
@@ -129,9 +137,24 @@ export default function VectorStorage() {
       }
     },
     {
+      name: 'Weaviate Semantic Search',
+      description: 'Search using Weaviate\'s GraphQL capabilities',
+      config: {
+        provider: 'weaviate',
+        operation: 'search',
+        collection: 'SearchArticles',
+        query: '',
+        limit: 10,
+        weaviateOptions: {
+          className: 'SearchArticles'
+        }
+      }
+    },
+    {
       name: 'Knowledge Base',
       description: 'Store and retrieve structured knowledge',
       config: {
+        provider: 'pinecone',
         operation: 'store',
         collection: 'knowledge_base',
         data: {
@@ -143,28 +166,22 @@ export default function VectorStorage() {
       }
     },
     {
-      name: 'Document Archive',
-      description: 'Archive and search long-form documents',
+      name: 'Weaviate Document Archive',
+      description: 'Archive and search documents with Weaviate',
       config: {
+        provider: 'weaviate',
         operation: 'store',
-        collection: 'documents',
+        collection: 'Documents',
         data: {
           title: 'Document Title',
           author: 'Author Name',
           date: new Date().toISOString().split('T')[0],
           category: 'Documentation'
         },
-        query: 'Document content goes here. This will be converted to an embedding vector.'
-      }
-    },
-    {
-      name: 'Q&A System',
-      description: 'Question and answer database',
-      config: {
-        operation: 'search',
-        collection: 'qa_pairs',
-        query: 'What is vector storage?',
-        limit: 5
+        query: 'Document content goes here. This will be converted to an embedding vector.',
+        weaviateOptions: {
+          className: 'Documents'
+        }
       }
     }
   ];
@@ -198,51 +215,109 @@ export default function VectorStorage() {
         </div>
       </div>
       
-      {/* Pinecone Database Status */}
-      <Card className="mb-4 overflow-hidden">
-        <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 pb-4">
-          <div className="flex justify-between items-center">
-            <div>
-              <CardTitle className="flex items-center">
-                <Database className="h-5 w-5 mr-2 text-primary" />
-                Pinecone Vector Database
-              </CardTitle>
-              <CardDescription>
-                High-performance vector database for semantic search and AI applications
-              </CardDescription>
+      {/* Vector Database Status Cards */}
+      <div className="grid md:grid-cols-2 gap-4 mb-4">
+        {/* Pinecone Database Status */}
+        <Card className="overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 pb-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle className="flex items-center">
+                  <Database className="h-5 w-5 mr-2 text-primary" />
+                  Pinecone Vector Database
+                </CardTitle>
+                <CardDescription>
+                  High-performance vector database for semantic search
+                </CardDescription>
+              </div>
+              {toolStatus && (
+                <Badge 
+                  variant={toolStatus.available ? "default" : "destructive"} 
+                  className={`h-6 ${toolStatus.available ? 'bg-green-500 hover:bg-green-600' : ''}`}
+                >
+                  {toolStatus.available ? "Connected" : "Disconnected"}
+                </Badge>
+              )}
             </div>
-            {toolStatus && (
-              <Badge 
-                variant={toolStatus.available ? "default" : "destructive"} 
-                className={`h-6 ${toolStatus.available ? 'bg-green-500 hover:bg-green-600' : ''}`}
-              >
-                {toolStatus.available ? "Connected" : "Disconnected"}
-              </Badge>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent className="pt-4">
-          <div className="grid md:grid-cols-3 gap-4">
-            <div className="bg-muted/30 p-3 rounded-md">
-              <h4 className="text-sm font-medium mb-1">Status</h4>
-              <p className="text-sm">
-                {isLoading ? (
-                  <RefreshCw className="h-4 w-4 animate-spin inline mr-2" />
-                ) : toolStatus?.available ? (
-                  <span className="text-green-600 font-medium">Ready for operations</span>
-                ) : (
-                  <span className="text-red-600 font-medium">{toolStatus?.error || "Not available"}</span>
-                )}
-              </p>
+          </CardHeader>
+          <CardContent className="pt-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-muted/30 p-3 rounded-md">
+                <h4 className="text-sm font-medium mb-1">Status</h4>
+                <p className="text-sm">
+                  {isLoading ? (
+                    <RefreshCw className="h-4 w-4 animate-spin inline mr-2" />
+                  ) : toolStatus?.available ? (
+                    <span className="text-green-600 font-medium">Ready</span>
+                  ) : (
+                    <span className="text-red-600 font-medium">{toolStatus?.error || "Not available"}</span>
+                  )}
+                </p>
+              </div>
+              <div className="bg-muted/30 p-3 rounded-md">
+                <h4 className="text-sm font-medium mb-1">Response Time</h4>
+                <p className="text-sm">
+                  {toolStatus?.latency ? `${toolStatus.latency}ms` : "N/A"}
+                </p>
+              </div>
             </div>
-            <div className="bg-muted/30 p-3 rounded-md">
-              <h4 className="text-sm font-medium mb-1">Response Time</h4>
-              <p className="text-sm">
-                {toolStatus?.latency ? `${toolStatus.latency}ms` : "N/A"}
-              </p>
+          </CardContent>
+        </Card>
+
+        {/* Weaviate Database Status */}
+        <Card className="overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-blue-500/10 to-blue-500/5 pb-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle className="flex items-center">
+                  <Database className="h-5 w-5 mr-2 text-blue-500" />
+                  Weaviate Vector Database
+                </CardTitle>
+                <CardDescription>
+                  Open-source vectorizer with GraphQL interface
+                </CardDescription>
+              </div>
+              {toolStatus && (
+                <Badge 
+                  variant={toolStatus.available ? "default" : "destructive"} 
+                  className={`h-6 ${toolStatus.available ? 'bg-green-500 hover:bg-green-600' : ''}`}
+                >
+                  {toolStatus.available ? "Connected" : "Disconnected"}
+                </Badge>
+              )}
             </div>
-            <div className="bg-muted/30 p-3 rounded-md">
-              <h4 className="text-sm font-medium mb-1">Vector Dimensions</h4>
+          </CardHeader>
+          <CardContent className="pt-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-muted/30 p-3 rounded-md">
+                <h4 className="text-sm font-medium mb-1">Status</h4>
+                <p className="text-sm">
+                  {isLoading ? (
+                    <RefreshCw className="h-4 w-4 animate-spin inline mr-2" />
+                  ) : toolStatus?.available ? (
+                    <span className="text-green-600 font-medium">Ready</span>
+                  ) : (
+                    <span className="text-red-600 font-medium">{toolStatus?.error || "Not available"}</span>
+                  )}
+                </p>
+              </div>
+              <div className="bg-muted/30 p-3 rounded-md">
+                <h4 className="text-sm font-medium mb-1">Response Time</h4>
+                <p className="text-sm">
+                  {toolStatus?.latency ? `${toolStatus.latency}ms` : "N/A"}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Common Info */}
+      <Card className="mb-4">
+        <CardContent className="py-3">
+          <div className="flex items-center">
+            <div className="bg-muted/30 py-2 px-3 rounded-md">
+              <h4 className="text-sm font-medium">Vector Dimensions</h4>
               <p className="text-sm">1536 (text-embedding-3-small)</p>
             </div>
           </div>

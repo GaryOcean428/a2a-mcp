@@ -105,6 +105,29 @@ export function VectorStorageConfig({ config, onChange }: VectorStorageConfigPro
         </div>
       </div>
       
+      {/* Database Provider Settings */}
+      <div>
+        <h3 className="text-lg font-medium mb-2">Database Settings</h3>
+        <div className="grid grid-cols-2 gap-6">
+          <div>
+            <Label htmlFor="provider" className="block text-sm font-medium mb-1">Vector Database Provider</Label>
+            <Select 
+              value={(config.provider as any) || 'pinecone'} 
+              onValueChange={(value) => onChange({ ...config, provider: value as "pinecone" | "weaviate" })}
+            >
+              <SelectTrigger id="provider" className="w-full">
+                <SelectValue placeholder="Select Provider" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="pinecone">Pinecone</SelectItem>
+                <SelectItem value="weaviate">Weaviate</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="mt-1 text-xs text-gray-500">Vector database provider to use</p>
+          </div>
+        </div>
+      </div>
+
       {/* Collection Settings */}
       <div>
         <h3 className="text-lg font-medium mb-2">Collection Settings</h3>
