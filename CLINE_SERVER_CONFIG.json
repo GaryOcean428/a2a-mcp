@@ -1,7 +1,7 @@
 {
   "server": {
     "name": "MCP Integration Platform",
-    "url": "http://localhost:5000/api/mcp",
+    "url": "https://[YOUR-REPLIT-URL]/api/mcp",
     "apiKey": "YOUR_API_KEY_HERE"
   },
   "schema": {

@@ -2,6 +2,18 @@
 
 This document explains how to connect [Cline VSCode Extension](https://docs.cline.bot/) to your MCP Integration Platform, enabling you to use capabilities like web search, form automation, vector storage, and data scraping directly from your IDE.
 
+## Finding Your Replit URL
+
+The MCP Integration Platform is hosted on Replit, and you'll need to use your specific Replit URL to connect the Cline extension to your deployed platform.
+
+1. **Get the Replit URL**: This is the URL of your running Replit application shown in your browser's address bar when viewing the MCP Integration Platform.
+2. **Replace placeholder with your URL**: In the configuration examples below, replace `[YOUR-REPLIT-URL]` with your actual Replit URL (without the brackets).
+
+For example, if your Replit URL is `https://mcp-integration-platform.username.repl.co`, then your MCP server URL in the configuration should be:
+```
+https://mcp-integration-platform.username.repl.co/api/mcp
+```
+
 ## Prerequisites
 
 1. You must have registered an account on the MCP Integration Platform
@@ -49,7 +61,7 @@ Add the following configuration to your `cascade.json` file for Cline:
         "-H", "Content-Type: application/json",
         "-H", "X-API-Key: your-api-key-here",
         "-d", "@-",
-        "http://localhost:5000/api/mcp"
+        "https://[YOUR-REPLIT-URL]/api/mcp"
       ],
       "autoApprove": ["web_search", "vector_storage", "form_automation", "data_scraper"]
     }
@@ -65,7 +77,7 @@ You can also connect to other popular MCP services alongside the MCP Integration
 {
   "mcpServers": {
     "mcp-integration-platform": {
-      "url": "http://localhost:5000/api/mcp",
+      "url": "https://[YOUR-REPLIT-URL]/api/mcp",
       "headers": {
         "X-API-Key": "your-api-key-here"
       },

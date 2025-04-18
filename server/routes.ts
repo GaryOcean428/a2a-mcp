@@ -229,8 +229,8 @@ Check out the [Cline Integration Guide](/cline-integration) for detailed usage e
         const host = req.headers['x-forwarded-host'] || req.headers.host || 'localhost:5000';
         const currentUrl = `${protocol}://${host}/api/mcp`;
         
-        // Replace localhost URLs with the current URL in the documentation
-        content = content.replace(/http:\/\/localhost:5000\/api\/mcp/g, currentUrl);
+        // Replace placeholder URLs with the current URL in the documentation
+        content = content.replace(/https:\/\/\[YOUR-REPLIT-URL\]\/api\/mcp/g, currentUrl);
         
         res.setHeader('Content-Type', 'text/markdown');
         res.send(content);
@@ -240,6 +240,30 @@ Check out the [Cline Integration Guide](/cline-integration) for detailed usage e
     } catch (error) {
       console.error('Error serving Cline integration guide:', error);
       res.status(500).send('Error loading Cline integration guide');
+    }
+  });
+  
+  // Provide the Cline configuration with current server URL
+  app.get('/api/cline-config', (req, res) => {
+    try {
+      const configPath = path.join(process.cwd(), 'CLINE_SERVER_CONFIG.json');
+      if (fs.existsSync(configPath)) {
+        const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+        
+        // Get the current host from the request
+        const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
+        const host = req.headers['x-forwarded-host'] || req.headers.host || 'localhost:5000';
+        
+        // Update the URL with the actual server URL
+        config.server.url = `${protocol}://${host}/api/mcp`;
+        
+        res.json(config);
+      } else {
+        res.status(404).json({ error: 'Cline server configuration not found' });
+      }
+    } catch (error) {
+      console.error('Failed to read Cline server configuration:', error);
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 
