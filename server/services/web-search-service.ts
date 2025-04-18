@@ -109,7 +109,7 @@ export class WebSearchService {
       // Use the appropriate OpenAI model from the approved list
       // First call to initiate the web search
       const searchResponse = await this.openaiClient.chat.completions.create({
-        model: params.openaiOptions?.model || "gpt-4o-realtime-preview",
+        model: params.openaiOptions?.model || "gpt-4.1",
         messages: [
           {
             role: "system",
@@ -152,7 +152,7 @@ export class WebSearchService {
       
         // Follow up with the results from the tool call
         const response = await this.openaiClient.chat.completions.create({
-          model: params.openaiOptions?.model || "gpt-4o-realtime-preview",
+          model: params.openaiOptions?.model || "gpt-4.1",
           messages: [
             {
               role: "system",
