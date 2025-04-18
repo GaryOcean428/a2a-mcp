@@ -30,7 +30,8 @@ export function StatusBar() {
       const response = await fetch(`${baseUrl}/api/status`);
       
       if (!response.ok) {
-        throw new Error(`Failed to get status: ${response.status}`);
+        // Silently fail without logging error to console to keep UI clean
+        return;
       }
       
       const systemStatus = await response.json();
@@ -50,8 +51,8 @@ export function StatusBar() {
         }
       }
     } catch (error) {
-      console.error('Failed to fetch system status:', error);
-      // Don't change the status state on error to keep displaying the last successful state
+      // Suppress error logging to keep console clean
+      // Status state remains unchanged on error to maintain last successful state
     }
   };
   

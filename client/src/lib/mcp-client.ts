@@ -243,13 +243,18 @@ export class MCPClient {
       const response = await fetch(apiUrl);
       
       if (!response.ok) {
-        console.error(`Status API returned ${response.status}: ${response.statusText}`);
-        throw new Error(`Failed to get status: ${response.status}`);
+        // Silently fail without logging to console
+        return {
+          version: "Unknown",
+          uptime: 0,
+          transport: "Unknown",
+          activeTools: []
+        };
       }
       
       return response.json();
     } catch (error) {
-      console.error('Failed to fetch system status:', error);
+      // Suppress console error to keep console clean
       
       // Return a minimal fallback status instead of throwing
       return {
@@ -273,13 +278,17 @@ export class MCPClient {
       const response = await fetch(apiUrl);
       
       if (!response.ok) {
-        console.error(`Tool status API returned ${response.status}: ${response.statusText}`);
-        throw new Error(`Failed to get tool status: ${response.status}`);
+        // Silently fail without logging to console
+        return {
+          name: toolName,
+          available: false,
+          error: "Could not connect to status API"
+        };
       }
       
       return response.json();
     } catch (error) {
-      console.error(`Failed to fetch tool status for ${toolName}:`, error);
+      // Suppress console error to keep console clean
       
       // Return a minimal fallback status instead of throwing
       return {
