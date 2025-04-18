@@ -31,22 +31,22 @@ export function ProtectedRoute({ path, component: Component }: ProtectedRoutePro
     );
   }
 
-  // Redirect to home page if not authenticated and show a notification
+  // Redirect to home page if not authenticated
   if (!isAuthenticated) {
+    // Show notification outside of the render function
+    useEffect(() => {
+      if (!isLoading && !isAuthenticated) {
+        toast({
+          title: "Authentication required",
+          description: "Please log in to access this feature",
+          variant: "destructive"
+        });
+      }
+    }, [isLoading, isAuthenticated, toast]);
+    
     return (
       <Route path={path}>
-        {() => {
-          // Only show the toast once when redirecting
-          useEffect(() => {
-            toast({
-              title: "Authentication required",
-              description: "Please log in to access this feature",
-              variant: "destructive"
-            });
-          }, []);
-          
-          return <Redirect to="/" />;
-        }}
+        <Redirect to="/" />
       </Route>
     );
   }
