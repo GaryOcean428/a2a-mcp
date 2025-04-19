@@ -1,5 +1,6 @@
 {pkgs}: {
   deps = [
+    pkgs.jq
     pkgs.alsa-lib
     pkgs.cairo
     pkgs.xorg.libXext

@@ -55,7 +55,18 @@ export class MCPClient {
       
       // In production deployments, sometimes the port might be included in host but should be omitted
       // This ensures we have a clean host string without any undefined ports
-      const cleanHost = host.includes(':undefined') ? host.split(':')[0] : host;
+      let cleanHost = host;
+      
+      // Check for common issues with host
+      if (host.includes(':undefined')) {
+        cleanHost = host.split(':')[0];
+      } else if (host.includes('undefined')) {
+        // Handle cases where 'undefined' appears elsewhere in the host
+        cleanHost = host.replace('undefined', '');
+      } else if (host.includes('localhost') && !host.includes(':')) {
+        // Add default port for localhost if missing
+        cleanHost = host + ':3000';
+      }
       
       // Ensure we create a clean URL with no double slashes
       const wsUrl = `${wsProtocol}//${cleanHost}/mcp-ws`;
@@ -234,10 +245,23 @@ export class MCPClient {
     // Clean up the base URL first (remove trailing slashes)
     const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
     
-    // In case the baseUrl has ':undefined' in it (common deployment issue)
-    const fixedBaseUrl = cleanBaseUrl.includes(':undefined') 
-      ? cleanBaseUrl.split(':undefined').join('') 
-      : cleanBaseUrl;
+    // Fix common issues with baseUrl
+    let fixedBaseUrl = cleanBaseUrl;
+    
+    // Handle undefined port issue
+    if (fixedBaseUrl.includes(':undefined')) {
+      fixedBaseUrl = fixedBaseUrl.split(':undefined').join('');
+    }
+    
+    // Handle other undefined occurrences
+    if (fixedBaseUrl.includes('undefined')) {
+      fixedBaseUrl = fixedBaseUrl.replace('undefined', '');
+    }
+    
+    // Handle localhost without port
+    if (fixedBaseUrl.includes('localhost') && !fixedBaseUrl.includes(':')) {
+      fixedBaseUrl = fixedBaseUrl + ':3000';
+    }
     
     // Ensure path starts with a slash
     const normalizedPath = path.startsWith('/') ? path : `/${path}`;
