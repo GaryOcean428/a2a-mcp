@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/useAuth";
 
 import {
   Card,
@@ -58,9 +58,8 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default function AuthPage() {
-  const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
-  const [, navigate] = useLocation();
+  const { login, register, isLoading } = useAuth();
   const { toast } = useToast();
 
   // Login form
@@ -85,74 +84,30 @@ export default function AuthPage() {
 
   // Handle login submission
   async function onLoginSubmit(values: LoginFormValues) {
-    setIsLoading(true);
-
     try {
-      const response = await apiRequest("POST", "/api/login", values);
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Login failed");
-      }
-
-      // Success message
-      toast({
-        title: "Login successful!",
-        description: `Welcome back, ${data.username}!`,
-      });
-
-      // Save user data
-      localStorage.setItem("user", JSON.stringify(data));
-      
-      // Navigate to home
-      navigate("/");
+      await login(values);
     } catch (error) {
+      // Error handling is done in the useAuth hook
       console.error("Login error:", error);
-      toast({
-        title: "Login failed",
-        description: error instanceof Error ? error.message : "An error occurred",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
     }
   }
 
   // Handle registration submission
   async function onRegisterSubmit(values: RegisterFormValues) {
-    setIsLoading(true);
-
     try {
       // Remove confirmPassword as it's not needed in the API call
       const { confirmPassword, ...registrationData } = values;
       
-      const response = await apiRequest("POST", "/api/register", registrationData);
-      const data = await response.json();
+      await register(registrationData);
 
-      if (!response.ok) {
-        throw new Error(data.error || "Registration failed");
-      }
-
-      // Success message
-      toast({
-        title: "Registration successful!",
-        description: "Your account has been created. You can now log in.",
-      });
-
-      // Switch to login tab
+      // Switch to login tab if needed
       setActiveTab("login");
       
       // Pre-fill the login form with the registered username
       loginForm.setValue("username", values.username);
     } catch (error) {
+      // Error handling is done in the useAuth hook
       console.error("Registration error:", error);
-      toast({
-        title: "Registration failed",
-        description: error instanceof Error ? error.message : "An error occurred",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
     }
   }
 

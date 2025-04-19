@@ -2,6 +2,7 @@ import { Switch, Route } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
+import { AuthProvider } from "@/hooks/useAuth";
 
 // Page imports
 import Home from "@/pages/Home";
@@ -40,14 +41,16 @@ function Router() {
 }
 
 function App() {
-  // We've replaced the auth bypass with proper session-based authentication
-  // The protected routes will now automatically redirect to the auth page if
-  // the user is not authenticated with the server
+  // We've implemented proper session-based authentication with PostgreSQL
+  // The AuthProvider handles authentication state and operations
+  // Protected routes automatically redirect to the auth page if the user is not authenticated
   
   return (
     <QueryClientProvider client={queryClient}>
-      <Router />
-      <Toaster />
+      <AuthProvider>
+        <Router />
+        <Toaster />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

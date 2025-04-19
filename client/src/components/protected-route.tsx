@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { Redirect, Route } from 'wouter';
+import { Redirect, Route, RouteComponentProps } from 'wouter';
 import { Loader2 } from 'lucide-react';
 
 interface ProtectedRouteProps {
   path: string;
-  component: React.ComponentType;
+  component: React.ComponentType<any>;
 }
 
 export function ProtectedRoute({ path, component: Component }: ProtectedRouteProps) {
@@ -18,10 +18,12 @@ export function ProtectedRoute({ path, component: Component }: ProtectedRoutePro
   if (isLoading) {
     return (
       <Route path={path}>
-        <div className="flex items-center justify-center min-h-screen">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <span className="ml-2 text-muted-foreground">Checking authentication...</span>
-        </div>
+        {() => (
+          <div className="flex items-center justify-center min-h-screen">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <span className="ml-2 text-muted-foreground">Checking authentication...</span>
+          </div>
+        )}
       </Route>
     );
   }
@@ -30,11 +32,15 @@ export function ProtectedRoute({ path, component: Component }: ProtectedRoutePro
   if (isError || !user) {
     return (
       <Route path={path}>
-        <Redirect to="/auth" />
+        {() => <Redirect to="/auth" />}
       </Route>
     );
   }
   
   // Render the protected component if authenticated
-  return <Route path={path} component={Component} />;
+  return (
+    <Route path={path}>
+      {(params) => <Component {...params} user={user} />}
+    </Route>
+  );
 }
