@@ -49,6 +49,18 @@ function App() {
   if (bypassAuth === 'true') {
     console.log('Auth bypass mode enabled via URL parameter');
     localStorage.setItem('bypassAuth', 'true');
+    
+    // Add a mock user to localStorage if one doesn't exist already
+    if (!localStorage.getItem("user")) {
+      console.log('Creating mock user for bypass authentication');
+      localStorage.setItem("user", JSON.stringify({
+        id: 1,
+        username: "testuser",
+        role: "admin",
+        lastLogin: new Date().toISOString()
+      }));
+    }
+    
     // Clean URL (remove the query parameter)
     const newUrl = window.location.pathname + window.location.hash;
     window.history.replaceState({}, document.title, newUrl);

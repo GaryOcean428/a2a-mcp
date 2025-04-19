@@ -290,110 +290,58 @@ export default function Header() {
             {/* Right Section with User Menu or Login Button */}
             <div className="flex items-center space-x-3">
               {isAuthenticated && (
-                <Dialog open={isConnectionDialogOpen} onOpenChange={setIsConnectionDialogOpen}>
-                  <DialogTrigger asChild>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
                     <Button 
                       className="hidden md:flex items-center bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
                     >
                       <PlusCircle className="h-4 w-4 mr-2" />
                       New Connection
                     </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[550px]">
-                    <DialogHeader>
-                      <DialogTitle>Create New Connection</DialogTitle>
-                      <DialogDescription>
-                        Set up a new connection to an AI service provider or vector database.
-                      </DialogDescription>
-                    </DialogHeader>
-                    
-                    <div className="grid grid-cols-2 gap-4 py-4">
-                      <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => {
-                        setIsConnectionDialogOpen(false);
-                        navigate("/vector-storage");
-                        toast({
-                          title: "Vector Database Selected",
-                          description: "Redirecting to Vector Storage configuration"
-                        });
-                      }}>
-                        <CardContent className="p-6">
-                          <div className="flex items-center gap-3 mb-2">
-                            <div className="bg-blue-100 p-2 rounded-md">
-                              <Database className="h-6 w-6 text-blue-600" />
-                            </div>
-                            <h3 className="font-medium">Vector Database</h3>
-                          </div>
-                          <p className="text-sm text-gray-500">
-                            Connect to Pinecone, Weaviate, or other vector databases for semantic search.
-                          </p>
-                        </CardContent>
-                      </Card>
-                      
-                      <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => {
-                        setIsConnectionDialogOpen(false);
-                        toast({
-                          title: "AI Service Selected",
-                          description: "This feature is coming soon!"
-                        });
-                      }}>
-                        <CardContent className="p-6">
-                          <div className="flex items-center gap-3 mb-2">
-                            <div className="bg-purple-100 p-2 rounded-md">
-                              <Code className="h-6 w-6 text-purple-600" />
-                            </div>
-                            <h3 className="font-medium">AI Service</h3>
-                          </div>
-                          <p className="text-sm text-gray-500">
-                            Connect to OpenAI, Anthropic, or other AI providers.
-                          </p>
-                        </CardContent>
-                      </Card>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => {
-                        setIsConnectionDialogOpen(false);
-                        navigate("/web-search");
-                        toast({
-                          title: "Search Provider Selected",
-                          description: "Redirecting to Web Search configuration"
-                        });
-                      }}>
-                        <CardContent className="p-6">
-                          <div className="flex items-center gap-3 mb-2">
-                            <div className="bg-green-100 p-2 rounded-md">
-                              <Search className="h-6 w-6 text-green-600" />
-                            </div>
-                            <h3 className="font-medium">Search Provider</h3>
-                          </div>
-                          <p className="text-sm text-gray-500">
-                            Connect to search providers for web search capabilities.
-                          </p>
-                        </CardContent>
-                      </Card>
-                      
-                      <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => {
-                        setIsConnectionDialogOpen(false);
-                        toast({
-                          title: "Custom Tool Selected",
-                          description: "This feature is coming soon!"
-                        });
-                      }}>
-                        <CardContent className="p-6">
-                          <div className="flex items-center gap-3 mb-2">
-                            <div className="bg-amber-100 p-2 rounded-md">
-                              <Settings className="h-6 w-6 text-amber-600" />
-                            </div>
-                            <h3 className="font-medium">Custom Tool</h3>
-                          </div>
-                          <p className="text-sm text-gray-500">
-                            Create a custom tool connection with your own API.
-                          </p>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel>Connection Types</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => {
+                      navigate("/vector-storage");
+                      toast({
+                        title: "Vector Database Selected",
+                        description: "Redirecting to Vector Storage configuration"
+                      });
+                    }}>
+                      <Database className="mr-2 h-4 w-4 text-blue-600" />
+                      <span>Vector Database</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => {
+                      toast({
+                        title: "AI Service Selected",
+                        description: "This feature is coming soon!"
+                      });
+                    }}>
+                      <Code className="mr-2 h-4 w-4 text-purple-600" />
+                      <span>AI Service</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => {
+                      navigate("/web-search");
+                      toast({
+                        title: "Search Provider Selected",
+                        description: "Redirecting to Web Search configuration"
+                      });
+                    }}>
+                      <Search className="mr-2 h-4 w-4 text-green-600" />
+                      <span>Search Provider</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => {
+                      toast({
+                        title: "Custom Tool Selected",
+                        description: "This feature is coming soon!"
+                      });
+                    }}>
+                      <Settings className="mr-2 h-4 w-4 text-amber-600" />
+                      <span>Custom Tool</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               )}
               
               {isAuthenticated ? (
