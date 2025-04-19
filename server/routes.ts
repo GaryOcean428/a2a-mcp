@@ -8,6 +8,7 @@ import path from "path";
 import fs from "fs";
 import { z } from "zod";
 import { insertUserSchema } from "@shared/schema";
+import { setupAuth, requireAuth } from "./auth";
 
 // Create authentication validation schemas
 const loginSchema = z.object({
@@ -30,70 +31,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Apply global rate limiter to all API routes
   app.use('/api', globalRateLimiter.middleware());
   
-  // Authentication routes
-  app.post('/api/register', async (req, res) => {
-    try {
-      // Validate input
-      const validatedData = registerSchema.parse(req.body);
-      
-      // Check if username already exists
-      const existingUserByName = await storage.getUserByUsername(validatedData.username);
-      if (existingUserByName) {
-        return res.status(400).json({ error: 'Username already taken' });
-      }
-      
-      // Check if email already exists
-      const existingUserByEmail = await storage.getUserByEmail(validatedData.email);
-      if (existingUserByEmail) {
-        return res.status(400).json({ error: 'Email already registered' });
-      }
-      
-      // Create new user
-      const user = await storage.createUser(validatedData);
-      
-      // Sanitize response (remove password)
-      const { password, ...userResponse } = user;
-      
-      res.status(201).json(userResponse);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: error.errors });
-      }
-      console.error('Registration error:', error);
-      res.status(500).json({ error: 'Registration failed' });
-    }
-  });
-  
-  app.post('/api/login', async (req, res) => {
-    try {
-      // Validate input
-      const validatedData = loginSchema.parse(req.body);
-      
-      // Authenticate user
-      const user = await storage.validateUserCredentials(
-        validatedData.username,
-        validatedData.password
-      );
-      
-      if (!user) {
-        return res.status(401).json({ error: 'Invalid credentials' });
-      }
-      
-      // Update last login time
-      await storage.updateUserLastLogin(user.id);
-      
-      // Sanitize response (remove password)
-      const { password, ...userResponse } = user;
-      
-      res.status(200).json(userResponse);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: error.errors });
-      }
-      console.error('Login error:', error);
-      res.status(500).json({ error: 'Login failed' });
-    }
-  });
+  // Set up authentication system with Passport
+  setupAuth(app);
   
   // API Key management routes
   app.post('/api/keys/generate', async (req, res) => {

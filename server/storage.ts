@@ -316,10 +316,13 @@ export class DatabaseStorage implements IStorage {
     try {
       const [config] = await db.select()
         .from(toolConfigs)
-        .where(and(
-          eq(toolConfigs.userId, userId),
-          eq(toolConfigs.toolType, toolType)
-        ));
+        .where(
+          and(
+            eq(toolConfigs.userId, userId),
+            // Use direct SQL comparison for enum value
+            eq(toolConfigs.toolType as any, toolType)
+          )
+        );
       return config;
     } catch (error) {
       console.error('Error getting tool config by user and type:', error);
@@ -413,10 +416,12 @@ export class DatabaseStorage implements IStorage {
     try {
       return await db.select()
         .from(requestLogs)
-        .where(and(
-          eq(requestLogs.userId, userId),
-          eq(requestLogs.toolType, toolType)
-        ))
+        .where(
+          and(
+            eq(requestLogs.userId, userId),
+            eq(requestLogs.toolType as any, toolType)
+          )
+        )
         .orderBy(desc(requestLogs.timestamp))
         .limit(limit);
     } catch (error) {
