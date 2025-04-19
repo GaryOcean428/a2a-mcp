@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Info } from 'lucide-react';
+import { Info, Database } from 'lucide-react';
 
 interface VectorStorageConfigProps {
   config: Partial<VectorStorageParams>;
@@ -107,7 +107,21 @@ export function VectorStorageConfig({ config, onChange }: VectorStorageConfigPro
       
       {/* Database Provider Settings */}
       <div>
-        <h3 className="text-lg font-medium mb-2">Database Settings</h3>
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-lg font-medium">Database Settings</h3>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => {
+              // Open connection modal or handle new connection click
+              alert('This feature is coming soon! It will allow creating new database connections.');
+            }}
+          >
+            <Database className="h-4 w-4 mr-1" />
+            New Connection
+          </Button>
+        </div>
+        
         <div className="grid grid-cols-2 gap-6">
           <div>
             <Label htmlFor="provider" className="block text-sm font-medium mb-1">Vector Database Provider</Label>
