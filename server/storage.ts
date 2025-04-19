@@ -47,24 +47,49 @@ export interface IStorage {
   updateToolStatus(toolName: string, status: Partial<ToolStatus>): Promise<void>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private toolConfigs: Map<number, ToolConfig>;
-  private requestLogs: Map<number, RequestLog>;
+import { db } from './db';
+import { eq, or, and, desc } from 'drizzle-orm';
+import { scrypt, randomBytes, timingSafeEqual } from 'crypto';
+import { promisify } from 'util';
+import session from 'express-session';
+import ConnectPg from 'connect-pg-simple';
+import { pool } from './db';
+
+// Session store setup
+const PostgresSessionStore = ConnectPg(session);
+
+// Async versions of crypto functions
+const scryptAsync = promisify(scrypt);
+
+/**
+ * Hash a password using scrypt
+ */
+async function hashPassword(password: string): Promise<string> {
+  const salt = randomBytes(16).toString('hex');
+  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+  return `${buf.toString('hex')}.${salt}`;
+}
+
+/**
+ * Compare a supplied password with a stored hash
+ */
+async function comparePasswords(supplied: string, stored: string): Promise<boolean> {
+  const [hashed, salt] = stored.split('.');
+  const hashedBuf = Buffer.from(hashed, 'hex');
+  const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
+  return timingSafeEqual(hashedBuf, suppliedBuf);
+}
+
+export class DatabaseStorage implements IStorage {
+  // Tool status tracking
   private toolStatus: Map<string, ToolStatus>;
   private systemStatus: SystemStatus;
-  private userIdCounter: number;
-  private configIdCounter: number;
-  private logIdCounter: number;
-
+  // Session store for authentication
+  public sessionStore: session.Store;
+  
   constructor() {
-    this.users = new Map();
-    this.toolConfigs = new Map();
-    this.requestLogs = new Map();
+    // Initialize in-memory tool status (this would be in the database in a production app)
     this.toolStatus = new Map();
-    this.userIdCounter = 1;
-    this.configIdCounter = 1;
-    this.logIdCounter = 1;
     
     // Initialize system status
     this.systemStatus = {
@@ -74,18 +99,24 @@ export class MemStorage implements IStorage {
       activeTools: []
     };
     
-    // Initialize default tool statuses - set them as unavailable by default
-    // Individual services will update their status to available if their dependencies are met
+    // Set up session store using the same database connection
+    this.sessionStore = new PostgresSessionStore({
+      pool: pool,
+      createTableIfMissing: true,
+      tableName: 'session' // Default
+    });
+    
+    // Initialize default tool statuses
     const defaultTools = ["web_search", "form_automation", "vector_storage", "data_scraper", "status"];
     defaultTools.forEach(tool => {
       this.toolStatus.set(tool, {
         name: tool,
-        available: false, // Start as unavailable
+        available: false,
         latency: 0
       });
     });
     
-    // Only the status tool is always available by default
+    // Status tool is always available
     this.toolStatus.set("status", {
       name: "status",
       available: true,
@@ -107,25 +138,45 @@ export class MemStorage implements IStorage {
   
   // User operations
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    try {
+      const [user] = await db.select().from(users).where(eq(users.id, id));
+      return user;
+    } catch (error) {
+      console.error('Error getting user by ID:', error);
+      return undefined;
+    }
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    try {
+      const [user] = await db.select().from(users).where(eq(users.username, username));
+      return user;
+    } catch (error) {
+      console.error('Error getting user by username:', error);
+      return undefined;
+    }
   }
   
   async getUserByEmail(email: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.email === email,
-    );
+    try {
+      const [user] = await db.select().from(users).where(eq(users.email, email));
+      return user;
+    } catch (error) {
+      console.error('Error getting user by email:', error);
+      return undefined;
+    }
   }
   
   async getUserByApiKey(apiKey: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.apiKey === apiKey && user.active,
-    );
+    try {
+      const [user] = await db.select()
+        .from(users)
+        .where(and(eq(users.apiKey, apiKey), eq(users.active, true)));
+      return user;
+    } catch (error) {
+      console.error('Error getting user by API key:', error);
+      return undefined;
+    }
   }
 
   // Creates a random API key string
@@ -139,166 +190,244 @@ export class MemStorage implements IStorage {
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.userIdCounter++;
-    const user: User = { 
-      ...insertUser, 
-      id, 
-      apiKey: this.createApiKeyString(),
-      role: 'user',
-      active: true,
-      lastLogin: null,
-      createdAt: new Date()
-    };
-    this.users.set(id, user);
-    return user;
+    try {
+      // Hash the password before storing
+      const hashedPassword = await hashPassword(insertUser.password);
+      
+      const [user] = await db.insert(users)
+        .values({
+          ...insertUser,
+          password: hashedPassword,
+          apiKey: this.createApiKeyString(),
+          role: 'user',
+          active: true,
+          createdAt: new Date()
+        })
+        .returning();
+      
+      return user;
+    } catch (error) {
+      console.error('Error creating user:', error);
+      throw new Error('Failed to create user');
+    }
   }
   
   async updateUserApiKey(userId: number, apiKey: string | null): Promise<void> {
-    const user = this.users.get(userId);
-    if (user) {
-      user.apiKey = apiKey;
-      this.users.set(userId, user);
+    try {
+      await db.update(users)
+        .set({ apiKey })
+        .where(eq(users.id, userId));
+    } catch (error) {
+      console.error('Error updating user API key:', error);
+      throw new Error('Failed to update API key');
     }
   }
   
   async validateUserCredentials(username: string, password: string): Promise<User | undefined> {
-    const user = await this.getUserByUsername(username);
-    // In a real app, we would verify the password hash here
-    // For demo purposes, we'll just check equality
-    if (user && user.password === password && user.active) {
+    try {
+      const user = await this.getUserByUsername(username);
+      
+      if (!user || !user.active) {
+        return undefined;
+      }
+      
+      const isPasswordValid = await comparePasswords(password, user.password);
+      
+      if (!isPasswordValid) {
+        return undefined;
+      }
+      
       return user;
+    } catch (error) {
+      console.error('Error validating user credentials:', error);
+      return undefined;
     }
-    return undefined;
   }
   
   async generateApiKey(userId: number): Promise<string> {
-    const user = await this.getUser(userId);
-    if (!user) {
-      throw new Error('User not found');
+    try {
+      const user = await this.getUser(userId);
+      if (!user) {
+        throw new Error('User not found');
+      }
+      
+      const apiKey = this.createApiKeyString();
+      await this.updateUserApiKey(userId, apiKey);
+      return apiKey;
+    } catch (error) {
+      console.error('Error generating API key:', error);
+      throw new Error('Failed to generate API key');
     }
-    
-    const apiKey = this.createApiKeyString();
-    await this.updateUserApiKey(userId, apiKey);
-    return apiKey;
   }
   
   async revokeApiKey(userId: number): Promise<void> {
-    const user = await this.getUser(userId);
-    if (!user) {
-      throw new Error('User not found');
+    try {
+      await this.updateUserApiKey(userId, null);
+    } catch (error) {
+      console.error('Error revoking API key:', error);
+      throw new Error('Failed to revoke API key');
     }
-    
-    await this.updateUserApiKey(userId, null);
   }
   
   async updateUserLastLogin(userId: number): Promise<void> {
-    const user = this.users.get(userId);
-    if (user) {
-      user.lastLogin = new Date();
-      this.users.set(userId, user);
+    try {
+      await db.update(users)
+        .set({ lastLogin: new Date() })
+        .where(eq(users.id, userId));
+    } catch (error) {
+      console.error('Error updating user last login:', error);
     }
   }
   
   async updateUserRole(userId: number, role: string): Promise<void> {
-    const user = this.users.get(userId);
-    if (user) {
-      user.role = role;
-      this.users.set(userId, user);
+    try {
+      await db.update(users)
+        .set({ role })
+        .where(eq(users.id, userId));
+    } catch (error) {
+      console.error('Error updating user role:', error);
+      throw new Error('Failed to update user role');
     }
   }
   
   async updateUserActiveStatus(userId: number, active: boolean): Promise<void> {
-    const user = this.users.get(userId);
-    if (user) {
-      user.active = active;
-      this.users.set(userId, user);
+    try {
+      await db.update(users)
+        .set({ active })
+        .where(eq(users.id, userId));
+    } catch (error) {
+      console.error('Error updating user active status:', error);
+      throw new Error('Failed to update user active status');
     }
   }
   
   // Tool configuration operations
   async getToolConfig(id: number): Promise<ToolConfig | undefined> {
-    return this.toolConfigs.get(id);
+    try {
+      const [config] = await db.select().from(toolConfigs).where(eq(toolConfigs.id, id));
+      return config;
+    } catch (error) {
+      console.error('Error getting tool config:', error);
+      return undefined;
+    }
   }
   
   async getToolConfigByUserAndType(userId: number, toolType: string): Promise<ToolConfig | undefined> {
-    return Array.from(this.toolConfigs.values()).find(
-      (config) => config.userId === userId && config.toolType === toolType,
-    );
+    try {
+      const [config] = await db.select()
+        .from(toolConfigs)
+        .where(and(
+          eq(toolConfigs.userId, userId),
+          eq(toolConfigs.toolType, toolType)
+        ));
+      return config;
+    } catch (error) {
+      console.error('Error getting tool config by user and type:', error);
+      return undefined;
+    }
   }
   
   async getAllToolConfigs(userId: number): Promise<ToolConfig[]> {
-    return Array.from(this.toolConfigs.values()).filter(
-      (config) => config.userId === userId,
-    );
+    try {
+      return await db.select()
+        .from(toolConfigs)
+        .where(eq(toolConfigs.userId, userId));
+    } catch (error) {
+      console.error('Error getting all tool configs:', error);
+      return [];
+    }
   }
   
   async createToolConfig(config: InsertToolConfig): Promise<ToolConfig> {
-    const id = this.configIdCounter++;
-    const now = new Date();
-    // Ensure all required fields are present
-    const toolConfig: ToolConfig = {
-      ...config,
-      id,
-      active: config.active ?? true,
-      userId: config.userId ?? null,
-      createdAt: now,
-      updatedAt: now
-    };
-    this.toolConfigs.set(id, toolConfig);
-    return toolConfig;
+    try {
+      const now = new Date();
+      const [toolConfig] = await db.insert(toolConfigs)
+        .values({
+          ...config,
+          active: config.active ?? true,
+          createdAt: now,
+          updatedAt: now
+        })
+        .returning();
+      return toolConfig;
+    } catch (error) {
+      console.error('Error creating tool config:', error);
+      throw new Error('Failed to create tool config');
+    }
   }
   
   async updateToolConfig(id: number, configUpdate: Partial<ToolConfig>): Promise<ToolConfig | undefined> {
-    const config = this.toolConfigs.get(id);
-    if (config) {
-      const updatedConfig = {
-        ...config,
-        ...configUpdate,
-        updatedAt: new Date()
-      };
-      this.toolConfigs.set(id, updatedConfig);
+    try {
+      const [updatedConfig] = await db.update(toolConfigs)
+        .set({
+          ...configUpdate,
+          updatedAt: new Date()
+        })
+        .where(eq(toolConfigs.id, id))
+        .returning();
       return updatedConfig;
+    } catch (error) {
+      console.error('Error updating tool config:', error);
+      return undefined;
     }
-    return undefined;
   }
   
   // Request logging operations
   async createRequestLog(log: InsertRequestLog): Promise<RequestLog> {
-    const id = this.logIdCounter++;
-    // Ensure all required fields are present
-    const requestLog: RequestLog = {
-      ...log,
-      id,
-      userId: log.userId ?? null,
-      statusCode: log.statusCode ?? null,
-      executionTimeMs: log.executionTimeMs ?? null,
-      responseData: log.responseData ?? null,
-      timestamp: new Date()
-    };
-    this.requestLogs.set(id, requestLog);
-    
-    // Update last request time in system status
-    this.systemStatus.lastRequest = new Date().toISOString();
-    
-    return requestLog;
+    try {
+      const [requestLog] = await db.insert(requestLogs)
+        .values({
+          ...log,
+          userId: log.userId ?? null,
+          statusCode: log.statusCode ?? null,
+          executionTimeMs: log.executionTimeMs ?? null,
+          responseData: log.responseData ?? null,
+          timestamp: new Date()
+        })
+        .returning();
+      
+      // Update last request time in system status
+      this.systemStatus.lastRequest = new Date().toISOString();
+      
+      return requestLog;
+    } catch (error) {
+      console.error('Error creating request log:', error);
+      throw new Error('Failed to create request log');
+    }
   }
   
   async getRequestLogs(userId: number, limit = 100): Promise<RequestLog[]> {
-    return Array.from(this.requestLogs.values())
-      .filter(log => log.userId === userId)
-      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-      .slice(0, limit);
+    try {
+      return await db.select()
+        .from(requestLogs)
+        .where(eq(requestLogs.userId, userId))
+        .orderBy(desc(requestLogs.timestamp))
+        .limit(limit);
+    } catch (error) {
+      console.error('Error getting request logs:', error);
+      return [];
+    }
   }
   
   async getRequestLogsByToolType(userId: number, toolType: string, limit = 100): Promise<RequestLog[]> {
-    return Array.from(this.requestLogs.values())
-      .filter(log => log.userId === userId && log.toolType === toolType)
-      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-      .slice(0, limit);
+    try {
+      return await db.select()
+        .from(requestLogs)
+        .where(and(
+          eq(requestLogs.userId, userId),
+          eq(requestLogs.toolType, toolType)
+        ))
+        .orderBy(desc(requestLogs.timestamp))
+        .limit(limit);
+    } catch (error) {
+      console.error('Error getting request logs by tool type:', error);
+      return [];
+    }
   }
   
   // Status operations
   async getSystemStatus(): Promise<SystemStatus> {
+    this.updateSystemStatus();
     return this.systemStatus;
   }
   
@@ -325,8 +454,7 @@ export class MemStorage implements IStorage {
     // Update active tools in system status
     this.systemStatus.activeTools = Array.from(this.toolStatus.values());
   }
-  
-  // This is intentionally left empty as we're using createApiKeyString instead
 }
 
-export const storage = new MemStorage();
+// Export singleton instance of DatabaseStorage for use throughout the application
+export const storage = new DatabaseStorage();
