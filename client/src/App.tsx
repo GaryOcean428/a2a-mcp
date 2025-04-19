@@ -40,31 +40,9 @@ function Router() {
 }
 
 function App() {
-  // Check URL for bypass auth parameter - this allows testing in production
-  // Example: /?bypassAuth=true
-  // This only works once and is designed for testing the deployed application
-  const searchParams = new URLSearchParams(window.location.search);
-  const bypassAuth = searchParams.get('bypassAuth');
-  
-  if (bypassAuth === 'true') {
-    console.log('Auth bypass mode enabled via URL parameter');
-    localStorage.setItem('bypassAuth', 'true');
-    
-    // Add a mock user to localStorage if one doesn't exist already
-    if (!localStorage.getItem("user")) {
-      console.log('Creating mock user for bypass authentication');
-      localStorage.setItem("user", JSON.stringify({
-        id: 1,
-        username: "testuser",
-        role: "admin",
-        lastLogin: new Date().toISOString()
-      }));
-    }
-    
-    // Clean URL (remove the query parameter)
-    const newUrl = window.location.pathname + window.location.hash;
-    window.history.replaceState({}, document.title, newUrl);
-  }
+  // We've replaced the auth bypass with proper session-based authentication
+  // The protected routes will now automatically redirect to the auth page if
+  // the user is not authenticated with the server
   
   return (
     <QueryClientProvider client={queryClient}>
