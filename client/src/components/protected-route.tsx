@@ -26,15 +26,33 @@ export function ProtectedRoute({ path, component: Component }: ProtectedRoutePro
       const isDevelopment = import.meta.env.DEV || import.meta.env.MODE === 'development';
       const bypassAuthFlag = localStorage.getItem("bypassAuth") === 'true';
       
+      // Check URL for bypass parameter (works anywhere in the app)
+      const urlParams = new URLSearchParams(window.location.search);
+      const bypassParam = urlParams.get('bypassAuth');
+      
+      // If bypass is in URL but not in localStorage yet, set it
+      if (bypassParam === 'true' && !bypassAuthFlag) {
+        console.log('ProtectedRoute: Auth bypass enabled via URL parameter');
+        localStorage.setItem('bypassAuth', 'true');
+        
+        // Remove the parameter from URL
+        const newUrl = window.location.pathname + window.location.hash;
+        window.history.replaceState({}, document.title, newUrl);
+        
+        // Force reload to apply changes
+        window.location.reload();
+        return;
+      }
+      
       if (user || isDevelopment || bypassAuthFlag) {
         if (isDevelopment || bypassAuthFlag) {
           console.log('Authentication bypassed (development mode or bypass flag enabled)');
           
-          // In development, create a mock user if one doesn't exist
-          if (!user && isDevelopment) {
+          // Create a mock user if one doesn't exist
+          if (!user) {
             localStorage.setItem("user", JSON.stringify({
               id: 1,
-              username: "devuser",
+              username: bypassAuthFlag ? "testuser" : "devuser",
               role: "admin",
               lastLogin: new Date().toISOString()
             }));

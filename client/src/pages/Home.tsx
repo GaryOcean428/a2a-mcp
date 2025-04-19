@@ -1,15 +1,52 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, FileText, Database, Code, ArrowRight, Activity, Sparkles, Layers, Zap } from 'lucide-react';
 import { mcpClient } from '@/lib/mcp-client';
 import { SystemStatus } from '@shared/schema';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Home() {
   const [status, setStatus] = useState<SystemStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [location, navigate] = useLocation();
+  const { toast } = useToast();
+
+  // Check for auth bypass on home page load
+  useEffect(() => {
+    const bypassAuth = localStorage.getItem('bypassAuth') === 'true';
+    const user = localStorage.getItem('user');
+    
+    // If we don't have a user and we're not in development mode
+    if (!user && !bypassAuth) {
+      // Check URL for bypass parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      const bypassParam = urlParams.get('bypassAuth');
+      
+      if (bypassParam === 'true') {
+        console.log('Home: Auth bypass enabled via URL parameter');
+        localStorage.setItem('bypassAuth', 'true');
+        
+        // Create a mock user
+        localStorage.setItem("user", JSON.stringify({
+          id: 1,
+          username: "testuser",
+          role: "admin",
+          lastLogin: new Date().toISOString()
+        }));
+        
+        // Reload the page to apply the auth changes
+        window.location.reload();
+        
+        toast({
+          title: "Authentication Bypassed",
+          description: "You are now using a testing account"
+        });
+      }
+    }
+  }, []);
 
   useEffect(() => {
     async function fetchStatus() {
