@@ -79,14 +79,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Login mutation
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginCredentials) => {
-      const response = await apiRequest('POST', '/api/login', credentials);
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Login failed');
+      try {
+        console.log('Attempting login for:', credentials.username);
+        const response = await apiRequest('POST', '/api/login', credentials);
+        
+        // Handle non-OK responses
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('Login error response:', errorData);
+          throw new Error(errorData.error || 'Login failed');
+        }
+        
+        // Parse and return successful response
+        const userData = await response.json();
+        console.log('Login successful, user data received');
+        return userData;
+      } catch (error) {
+        console.error('Login request failed:', error);
+        // Re-throw for proper handling in onError
+        throw error;
       }
-      return await response.json();
     },
     onSuccess: (user: User) => {
+      console.log('Login mutation success, updating cache');
       queryClient.setQueryData(['/api/user'], user);
       toast({
         title: 'Login successful!',
@@ -94,10 +109,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       navigate('/');
     },
-    onError: (error: Error) => {
+    onError: (error: any) => {
+      console.error('Login mutation error handler:', error);
       toast({
         title: 'Login failed',
-        description: error.message,
+        description: error.message || 'Unable to login. Please try again.',
         variant: 'destructive',
       });
     },

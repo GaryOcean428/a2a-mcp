@@ -27,12 +27,15 @@ declare global {
 export function setupAuth(app: Express) {
   // Create session settings
   const sessionSettings: session.SessionOptions = {
-    secret: process.env.SESSION_SECRET || 'mcp-session-secret',
+    secret: process.env.SESSION_SECRET || 'mcp-session-secret-production-key',
     resave: false,
     saveUninitialized: false,
     store: storage.sessionStore,
     cookie: {
+      // Only use secure cookies in production
       secure: process.env.NODE_ENV === 'production',
+      // Set SameSite attribute to lax for better compatibility
+      sameSite: 'lax',
       maxAge: 24 * 60 * 60 * 1000 // 24 hours
     }
   };
@@ -106,22 +109,37 @@ export function setupAuth(app: Express) {
   });
 
   app.post('/api/login', (req: Request, res: Response, next: NextFunction) => {
+    // Log incoming login request for debugging
+    console.log('Login attempt for username:', req.body.username);
+    
+    if (!req.body.username || !req.body.password) {
+      return res.status(400).json({ error: 'Username and password are required' });
+    }
+    
     passport.authenticate('local', (err: Error | null, user: Express.User | false, info: { message: string } | undefined) => {
       if (err) {
+        console.error('Login authentication error:', err);
         return next(err);
       }
+      
       if (!user) {
-        return res.status(401).json({ error: info?.message || 'Authentication failed' });
+        console.log('Login failed for username:', req.body.username, 'Message:', info?.message);
+        return res.status(401).json({ error: info?.message || 'Invalid username or password' });
       }
+      
       req.login(user, (loginErr) => {
         if (loginErr) {
+          console.error('Session login error:', loginErr);
           return next(loginErr);
         }
+        
         // Update last login time
         storage.updateUserLastLogin((user as any).id);
+        
         // Return user without sensitive data
         const userObj = user as any;
         const { password, ...userWithoutPassword } = userObj;
+        console.log('Login successful for user:', userObj.username);
         return res.json(userWithoutPassword);
       });
     })(req, res, next);

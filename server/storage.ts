@@ -74,10 +74,28 @@ async function hashPassword(password: string): Promise<string> {
  * Compare a supplied password with a stored hash
  */
 async function comparePasswords(supplied: string, stored: string): Promise<boolean> {
-  const [hashed, salt] = stored.split('.');
-  const hashedBuf = Buffer.from(hashed, 'hex');
-  const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
-  return timingSafeEqual(hashedBuf, suppliedBuf);
+  try {
+    // Handle case when stored password doesn't have the expected format
+    if (!stored || !stored.includes('.')) {
+      console.error('Invalid stored password format');
+      return false;
+    }
+    
+    const [hashed, salt] = stored.split('.');
+    const hashedBuf = Buffer.from(hashed, 'hex');
+    const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
+    
+    // Ensure both buffers are of the same length before comparison
+    if (hashedBuf.length !== suppliedBuf.length) {
+      console.error('Buffer length mismatch in password comparison');
+      return false;
+    }
+    
+    return timingSafeEqual(hashedBuf, suppliedBuf);
+  } catch (error) {
+    console.error('Error comparing passwords:', error);
+    return false;
+  }
 }
 
 export class DatabaseStorage implements IStorage {
