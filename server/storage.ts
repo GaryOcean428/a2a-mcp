@@ -67,7 +67,9 @@ const scryptAsync = promisify(scrypt);
 async function hashPassword(password: string): Promise<string> {
   const salt = randomBytes(16).toString('hex');
   const buf = (await scryptAsync(password, salt, 64)) as Buffer;
-  return `${buf.toString('hex')}.${salt}`;
+  const hashedStr = `${buf.toString('hex')}.${salt}`;
+  console.log('Generated password hash (last 10 chars):', hashedStr.slice(-10));
+  return hashedStr;
 }
 
 /**
@@ -75,6 +77,8 @@ async function hashPassword(password: string): Promise<string> {
  */
 async function comparePasswords(supplied: string, stored: string): Promise<boolean> {
   try {
+    console.log('Comparing password');
+    
     // Handle case when stored password doesn't have the expected format
     if (!stored || !stored.includes('.')) {
       console.error('Invalid stored password format');

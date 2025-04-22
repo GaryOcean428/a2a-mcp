@@ -115,9 +115,15 @@ export function setupAuth(app: Express) {
 
   app.post('/api/login', (req: Request, res: Response, next: NextFunction) => {
     // Log incoming login request for debugging
-    console.log('Login attempt for username:', req.body.username);
+    console.log('=== LOGIN ATTEMPT ===');
+    console.log('Login credentials received:', { 
+      username: req.body.username, 
+      passwordLength: req.body.password ? req.body.password.length : 0,
+      hasPassword: !!req.body.password
+    });
     
     if (!req.body.username || !req.body.password) {
+      console.log('Login rejected: Missing username or password');
       return res.status(400).json({ error: 'Username and password are required' });
     }
     
@@ -128,8 +134,32 @@ export function setupAuth(app: Express) {
       }
       
       if (!user) {
-        console.log('Login failed for username:', req.body.username, 'Message:', info?.message);
-        return res.status(401).json({ error: info?.message || 'Invalid username or password' });
+        console.log('Login failed for:', req.body.username);
+        console.log('Auth info:', info);
+        
+        // Check if the user exists but password is incorrect
+        storage.getUserByUsername(req.body.username).then(userRecord => {
+          if (userRecord) {
+            console.log('User exists but password is incorrect');
+            // For security, don't reveal which part of the credentials is incorrect
+            return res.status(401).json({ error: 'Invalid username or password' });
+          } else {
+            storage.getUserByEmail(req.body.username).then(emailRecord => {
+              if (emailRecord) {
+                console.log('Email exists but password is incorrect');
+                return res.status(401).json({ error: 'Invalid username or password' });
+              } else {
+                console.log('No matching user found for:', req.body.username);
+                return res.status(401).json({ error: 'Invalid username or password' });
+              }
+            });
+          }
+        }).catch(lookupErr => {
+          console.error('User lookup error:', lookupErr);
+          return res.status(401).json({ error: 'Authentication failed' });
+        });
+        
+        return;
       }
       
       req.login(user, (loginErr) => {
