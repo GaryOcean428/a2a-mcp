@@ -1,0 +1,46 @@
+[vite] connecting...
+DOMException {}
+stack: "SyntaxError: Failed to construct 'WebSocket': The URL 'wss://localhost:undefined/?token=48YBvA_Zzu41' is invalid.↵ at new t (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:218737)↵ at setupWebSocket (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@vite/client:536:19)↵ at fallback (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@vite/client:509:16)↵ at WebSocket.<anonymous> (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@vite/client:555:7)"
+get stack: ƒ ()
+length: 0
+name: ""
+[[Prototype]]: ƒ ()
+apply: ƒ apply()
+arguments: "'caller', 'callee', and 'arguments' properties may not be accessed on strict mode functions or the arguments objects for calls to them"
+get arguments: ƒ ()
+set arguments: ƒ ()
+bind: ƒ bind()
+call: ƒ call()
+caller: "'caller', 'callee', and 'arguments' properties may not be accessed on strict mode functions or the arguments objects for calls to them"
+get caller: ƒ ()
+set caller: ƒ ()
+constructor: ƒ Function()
+length: 1
+name: ""
+toString: ƒ toString()
+Symbol(Symbol.hasInstance): undefined
+[[Prototype]]: Object
+set stack: ƒ ()
+length: 1
+name: ""
+[[Prototype]]: ƒ ()
+[[Prototype]]: DOMException
+
+Development mode: Using default API key
+MCP client initialized with baseUrl: https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev
+Development mode: Using HTTP transport instead of WebSockets
+Login error: 
+Error {}
+message: "401: {"error":"Invalid username or password"}"
+stack: "Error: 401: {"error":"Invalid username or password"}↵ at throwIfResNotOk (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/lib/queryClient.ts:5:11)↵ at async apiRequest (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/lib/queryClient.ts:15:3)↵ at async Object.mutationFn (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/hooks/useAuth.tsx:55:24)"
+get stack: ƒ ()
+set stack: ƒ ()
+[[Prototype]]: Object
+
+Login error: 
+Error {}
+message: "401: {"error":"Invalid username or password"}"
+stack: "Error: 401: {"error":"Invalid username or password"}↵ at throwIfResNotOk (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/lib/queryClient.ts:5:11)↵ at async apiRequest (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/lib/queryClient.ts:15:3)↵ at async Object.mutationFn (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/hooks/useAuth.tsx:55:24)"
+get stack: ƒ ()
+set stack: ƒ ()
+[[Prototype]]: Object
