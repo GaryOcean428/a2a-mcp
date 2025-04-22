@@ -1,4 +1,6 @@
 import { MCPRequest, MCPResponse } from '@shared/schema';
+import { getApiBaseUrl } from '../config';
+import { websocket, ConnectionStatus } from './websocket';
 
 /**
  * MCP client for making requests to the MCP server
@@ -6,10 +8,8 @@ import { MCPRequest, MCPResponse } from '@shared/schema';
 export class MCPClient {
   private baseUrl: string;
   private apiKey: string | null;
-  private websocket: WebSocket | null = null;
   private responseHandlers: Map<string, (response: MCPResponse) => void> = new Map();
   private connected = false;
-  private connectionPromise: Promise<void> | null = null;
   
   /**
    * Create a new MCP client
@@ -20,8 +20,8 @@ export class MCPClient {
     apiKey?: string;
     useWebSocket?: boolean;
   } = {}) {
-    // Set base URL with fallback to current origin
-    this.baseUrl = options.baseUrl || window.location.origin;
+    // Set base URL with fallback to current origin using config
+    this.baseUrl = options.baseUrl || getApiBaseUrl();
     
     // For development, use a default API key
     const isDevelopment = import.meta.env.MODE === 'development' || import.meta.env.DEV;
@@ -36,9 +36,25 @@ export class MCPClient {
     console.log(`MCP client initialized with baseUrl: ${this.baseUrl}`);
     
     // Don't use WebSockets in development to avoid connection issues
-    // In development, always use HTTP transport
     if (options.useWebSocket && !isDevelopment) {
-      this.initWebSocket();
+      // Set up WebSocket connection with event listeners
+      websocket.onMessage('response', (data) => {
+        if (data.id) {
+          const handler = this.responseHandlers.get(data.id);
+          if (handler) {
+            handler(data);
+            this.responseHandlers.delete(data.id);
+          }
+        }
+      });
+      
+      // Monitor connection status
+      websocket.onStatusChange((status) => {
+        this.connected = status === ConnectionStatus.CONNECTED;
+      });
+      
+      // Connect websocket
+      websocket.connect();
     } else {
       console.log('Development mode: Using HTTP transport instead of WebSockets');
     }
@@ -140,7 +156,7 @@ export class MCPClient {
   }
   
   /**
-   * Send a request to the MCP server via HTTP
+   * Send a request to the MCP server via HTTP or WebSocket
    */
   async sendRequest(request: Omit<MCPRequest, 'id'>): Promise<MCPResponse> {
     // Generate a unique ID for the request
@@ -150,12 +166,12 @@ export class MCPClient {
       id
     };
     
-    // If WebSocket is connected, use it
-    if (this.websocket && this.connected) {
-      return this.sendWebSocketRequest(fullRequest);
-    }
+    // Only use WebSocket in production, and only if connected
+    const useWebSocket = !import.meta.env.DEV && 
+                          websocket.getStatus() === ConnectionStatus.CONNECTED && 
+                          this.connected;
     
-    // Otherwise, use HTTP
+    // Use HTTP as the default transport method
     return this.sendHttpRequest(fullRequest);
   }
   
@@ -171,10 +187,8 @@ export class MCPClient {
       headers['X-API-Key'] = this.apiKey;
     }
     
-    // Use window.location.origin as the base URL if none provided
-    // Ensure we build a clean URL with no double slashes
-    const baseUrl = this.baseUrl || window.location.origin;
-    const apiUrl = this.createApiUrl(baseUrl, '/api/mcp');
+    // Use configured base URL with clean path
+    const apiUrl = this.createApiUrl(this.baseUrl, '/api/mcp');
     
     console.log(`Sending MCP HTTP request to: ${apiUrl}`);
     
@@ -182,7 +196,8 @@ export class MCPClient {
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers,
-        body: JSON.stringify(request)
+        body: JSON.stringify(request),
+        credentials: 'include' // Include cookies for session auth
       });
       
       if (!response.ok) {
@@ -195,40 +210,6 @@ export class MCPClient {
       console.error('HTTP request failed:', error);
       throw error;
     }
-  }
-  
-  /**
-   * Send a request via WebSocket
-   */
-  private async sendWebSocketRequest(request: MCPRequest): Promise<MCPResponse> {
-    // Ensure WebSocket is connected
-    if (!this.websocket || !this.connected) {
-      if (this.connectionPromise) {
-        await this.connectionPromise;
-      } else {
-        throw new Error('WebSocket not connected');
-      }
-    }
-    
-    return new Promise((resolve, reject) => {
-      // Set timeout to prevent hanging requests
-      const timeout = setTimeout(() => {
-        this.responseHandlers.delete(request.id);
-        reject(new Error('MCP request timed out'));
-      }, 30000);
-      
-      // Register response handler
-      this.responseHandlers.set(request.id, (response) => {
-        clearTimeout(timeout);
-        resolve(response);
-      });
-      
-      // Send the request
-      this.websocket!.send(JSON.stringify({
-        type: 'mcp_request',
-        request
-      }));
-    });
   }
   
   /**
