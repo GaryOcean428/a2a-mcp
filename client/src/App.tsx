@@ -22,23 +22,34 @@ import Layout from "@/components/Layout";
 import { ProtectedRoute } from "@/components/protected-route";
 
 function Router() {
+  // Split routes: AuthPage doesn't use the main layout, everything else does
   return (
-    <Layout>
-      <Switch>
-        <Route path="/" component={Home} />
-        <Route path="/auth" component={AuthPage} />
-        <Route path="/login" component={LoginButton} />
-        <ProtectedRoute path="/web-search" component={WebSearch} />
-        <ProtectedRoute path="/form-automation" component={FormAutomation} />
-        <ProtectedRoute path="/vector-storage" component={VectorStorage} />
-        <ProtectedRoute path="/data-scraping" component={DataScraping} />
-        <ProtectedRoute path="/settings" component={Settings} />
-        <Route path="/documentation" component={Documentation} />
-        <Route path="/docs" component={Documentation} />
-        <Route path="/cline-integration" component={ClineIntegration} />
-        <Route component={NotFound} />
-      </Switch>
-    </Layout>
+    <Switch>
+      <Route path="/auth">
+        {() => <AuthPage />}
+      </Route>
+      
+      {/* All other routes use the main layout */}
+      <Route>
+        {() => (
+          <Layout>
+            <Switch>
+              <Route path="/" component={Home} />
+              <Route path="/login" component={LoginButton} />
+              <ProtectedRoute path="/web-search" component={WebSearch} />
+              <ProtectedRoute path="/form-automation" component={FormAutomation} />
+              <ProtectedRoute path="/vector-storage" component={VectorStorage} />
+              <ProtectedRoute path="/data-scraping" component={DataScraping} />
+              <ProtectedRoute path="/settings" component={Settings} />
+              <Route path="/documentation" component={Documentation} />
+              <Route path="/docs" component={Documentation} />
+              <Route path="/cline-integration" component={ClineIntegration} />
+              <Route component={NotFound} />
+            </Switch>
+          </Layout>
+        )}
+      </Route>
+    </Switch>
   );
 }
 
