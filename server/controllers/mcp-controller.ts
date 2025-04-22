@@ -25,40 +25,94 @@ export class MCPController {
       path: '/mcp-ws'
     });
     
-    this.wss.on('connection', (ws) => {
+    console.log('WebSocket server initialized at path: /mcp-ws');
+    
+    // Handle WebSocket server errors
+    this.wss.on('error', (error) => {
+      console.error('WebSocket server error:', error);
+    });
+    
+    this.wss.on('connection', (ws, req) => {
       const clientId = nanoid();
       this.clients.set(clientId, ws);
       
-      console.log(`New WebSocket client connected: ${clientId}`);
+      // Log client connection with IP and URL
+      const ip = req.socket.remoteAddress || 'unknown';
+      const url = req.url || 'unknown';
+      console.log(`New WebSocket client connected: ${clientId} from ${ip}, url: ${url}`);
       
-      // Send tool schema list on connection
-      const schemas = mcpService.getToolSchema();
-      ws.send(JSON.stringify({
-        event: 'schemas',
-        data: schemas
-      }));
+      // Check connection health with WebSocket ready state
+      if (ws.readyState === WebSocket.OPEN) {
+        console.log(`Client ${clientId} connection is OPEN`);
+        
+        // Send tool schema list on connection
+        try {
+          const schemas = mcpService.getToolSchema();
+          ws.send(JSON.stringify({
+            event: 'schemas',
+            data: schemas
+          }));
+          console.log(`Sent schemas to client ${clientId}`);
+        } catch (error) {
+          console.error(`Error sending schemas to client ${clientId}:`, error);
+        }
+      } else {
+        console.warn(`Client ${clientId} connection not open, state: ${ws.readyState}`);
+      }
+      
+      // Setup ping interval to keep connection alive
+      const pingInterval = setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.ping();
+        } else {
+          clearInterval(pingInterval);
+        }
+      }, 30000); // Send ping every 30 seconds
       
       ws.on('message', async (message) => {
         try {
+          // Log the raw message for debugging
+          console.log(`Received WebSocket message from ${clientId}: ${message.toString().substring(0, 100)}...`);
+          
           const data = JSON.parse(message.toString());
           
           if (data.type === 'mcp_request') {
             await this.handleWebSocketRequest(clientId, ws, data.request);
+          } else if (data.type === 'ping') {
+            // Respond to ping messages
+            ws.send(JSON.stringify({
+              event: 'pong',
+              timestamp: Date.now()
+            }));
           }
         } catch (error) {
-          console.error('Error processing WebSocket message:', error);
-          ws.send(JSON.stringify({
-            event: 'error',
-            data: {
-              message: error instanceof Error ? error.message : String(error)
-            }
-          }));
+          console.error(`Error processing WebSocket message from ${clientId}:`, error);
+          
+          // Only send error response if connection is still open
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({
+              event: 'error',
+              data: {
+                message: error instanceof Error ? error.message : String(error)
+              }
+            }));
+          }
         }
       });
       
-      ws.on('close', () => {
-        console.log(`WebSocket client disconnected: ${clientId}`);
+      ws.on('pong', () => {
+        // Handle pong responses to keep track of client latency
+        console.log(`Received pong from client ${clientId}`);
+      });
+      
+      ws.on('close', (code, reason) => {
+        console.log(`WebSocket client ${clientId} disconnected: code ${code}, reason: ${reason || 'none'}`);
         this.clients.delete(clientId);
+        clearInterval(pingInterval);
+      });
+      
+      ws.on('error', (error) => {
+        console.error(`WebSocket error for client ${clientId}:`, error);
       });
     });
   }

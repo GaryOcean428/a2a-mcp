@@ -26,12 +26,15 @@ export class WebSocketClient {
   private statusHandlers: ((status: ConnectionStatus) => void)[] = [];
 
   constructor(
-    path: string = '/ws',
+    path: string = '/mcp-ws',  // Match the server-side WebSocket path
     options = websocketConfig.connectionOptions
   ) {
     this.url = websocketConfig.getWebsocketUrl(path);
     this.maxReconnectAttempts = options.maxReconnectAttempts;
     this.reconnectInterval = options.reconnectInterval;
+    
+    // Log WebSocket URL for debugging
+    console.log(`WebSocket client configured with URL: ${this.url}`);
     
     // Fallback to HTTP transport in development if WebSocket fails
     if (import.meta.env.DEV) {
