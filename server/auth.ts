@@ -48,14 +48,19 @@ export function setupAuth(app: Express) {
 
   // Configure passport to use local strategy
   passport.use(
-    new LocalStrategy(async (username: string, password: string, done: any) => {
+    new LocalStrategy({
+      usernameField: 'username', // This can be email too now with our updated validation
+      passwordField: 'password'
+    }, async (usernameOrEmail: string, password: string, done: any) => {
       try {
-        const user = await storage.validateUserCredentials(username, password);
+        console.log('Passport authenticate with:', usernameOrEmail);
+        const user = await storage.validateUserCredentials(usernameOrEmail, password);
         if (!user) {
           return done(null, false, { message: 'Invalid username or password' });
         }
         return done(null, user);
       } catch (error) {
+        console.error('Passport authentication error:', error);
         return done(error);
       }
     })

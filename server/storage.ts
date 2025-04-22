@@ -241,20 +241,35 @@ export class DatabaseStorage implements IStorage {
     }
   }
   
-  async validateUserCredentials(username: string, password: string): Promise<User | undefined> {
+  async validateUserCredentials(usernameOrEmail: string, password: string): Promise<User | undefined> {
     try {
-      const user = await this.getUserByUsername(username);
+      // Check if the input is an email (contains @)
+      const isEmail = usernameOrEmail.includes('@');
+      
+      // Find the user by username or email
+      let user: User | undefined;
+      
+      if (isEmail) {
+        console.log('Authenticating with email:', usernameOrEmail);
+        user = await this.getUserByEmail(usernameOrEmail);
+      } else {
+        console.log('Authenticating with username:', usernameOrEmail);
+        user = await this.getUserByUsername(usernameOrEmail);
+      }
       
       if (!user || !user.active) {
+        console.log('User not found or inactive');
         return undefined;
       }
       
       const isPasswordValid = await comparePasswords(password, user.password);
       
       if (!isPasswordValid) {
+        console.log('Password invalid for user:', user.username);
         return undefined;
       }
       
+      console.log('Authentication successful for user:', user.username);
       return user;
     } catch (error) {
       console.error('Error validating user credentials:', error);
