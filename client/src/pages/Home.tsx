@@ -3,7 +3,7 @@ import { Link, useLocation } from 'wouter';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, FileText, Database, Code, ArrowRight, Activity, Sparkles, Layers, Zap } from 'lucide-react';
+import { Search, FileText, Database, Code, ArrowRight, Activity, Sparkles, Layers, Zap, LogIn } from 'lucide-react';
 import { mcpClient } from '@/lib/mcp-client';
 import { SystemStatus } from '@shared/schema';
 import { useToast } from '@/hooks/use-toast';
@@ -117,6 +117,11 @@ export default function Home() {
               <Button size="lg" variant="outline" className="border-purple-200 text-purple-700 hover:bg-purple-50">
                 <Link href="/documentation">
                   <span className="flex items-center">Documentation <FileText className="ml-2 h-5 w-5" /></span>
+                </Link>
+              </Button>
+              <Button size="lg" variant="secondary" className="bg-gray-100 hover:bg-gray-200">
+                <Link href="/auth">
+                  <span className="flex items-center">Sign In <LogIn className="ml-2 h-5 w-5" /></span>
                 </Link>
               </Button>
             </div>

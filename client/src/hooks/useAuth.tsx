@@ -107,7 +107,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         title: 'Login successful!',
         description: `Welcome back, ${user.username}!`,
       });
-      navigate('/');
+      
+      // Navigate to home page, ensuring we use a hard redirect if needed
+      // This helps with some production routing issues
+      const currentPath = window.location.pathname;
+      if (currentPath === '/auth' || currentPath === '/login') {
+        navigate('/');
+      }
     },
     onError: (error: any) => {
       console.error('Login mutation error handler:', error);

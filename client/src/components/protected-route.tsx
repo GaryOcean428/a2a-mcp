@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
-import { Redirect, Route, RouteComponentProps } from 'wouter';
+import { useAuth } from '@/hooks/useAuth';
+import { Redirect, Route } from 'wouter';
 import { Loader2 } from 'lucide-react';
 
 interface ProtectedRouteProps {
@@ -8,11 +8,8 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ path, component: Component }: ProtectedRouteProps) {
-  // Fetch the current user to check authentication
-  const { data: user, isLoading, isError } = useQuery({
-    queryKey: ['/api/user'],
-    retry: false
-  });
+  // Use the auth context directly to ensure consistent auth state
+  const { user, isLoading, isAuthenticated } = useAuth();
 
   // Show loading state while checking authentication
   if (isLoading) {
@@ -29,10 +26,19 @@ export function ProtectedRoute({ path, component: Component }: ProtectedRoutePro
   }
   
   // Redirect to auth page if not authenticated
-  if (isError || !user) {
+  if (!isAuthenticated) {
+    console.log("User not authenticated, redirecting to /auth");
     return (
       <Route path={path}>
-        {() => <Redirect to="/auth" />}
+        {() => {
+          // Ensure the auth page will be accessible
+          // Use window.location for hard redirect in production if needed
+          if (process.env.NODE_ENV === 'production') {
+            window.location.href = '/auth';
+            return null;
+          }
+          return <Redirect to="/auth" />;
+        }}
       </Route>
     );
   }
