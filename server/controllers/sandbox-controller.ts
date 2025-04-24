@@ -63,8 +63,7 @@ export class SandboxController {
           requestData: req.body,
           responseData: { error: error.message },
           executionTimeMs: executionTime,
-          statusCode: 500,
-          timestamp: new Date()
+          statusCode: 500
         });
         
         return res.status(500).json({

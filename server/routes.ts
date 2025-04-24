@@ -230,6 +230,16 @@ Check out the [Cline Integration Guide](/cline-integration) for detailed usage e
     });
   });
   
+  // Serve standalone auth page
+  app.get('/auth-standalone', (req, res) => {
+    const standaloneAuthPath = path.join(process.cwd(), 'client/standalone-auth.html');
+    if (fs.existsSync(standaloneAuthPath)) {
+      res.sendFile(standaloneAuthPath);
+    } else {
+      res.status(404).send('Authentication page not found');
+    }
+  });
+  
   // Add the catch-all route for production mode only
   if (process.env.NODE_ENV === 'production') {
     app.get('*', (req, res, next) => {

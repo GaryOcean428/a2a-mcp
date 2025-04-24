@@ -16,6 +16,7 @@ import ClineIntegration from "@/pages/ClineIntegration";
 import AuthPage from "@/pages/auth-page";
 import NotFound from "@/pages/not-found";
 import LoginButton from "@/pages/LoginButton";
+import LoginRouter from "@/pages/LoginRouter";
 
 // Components
 import Layout from "@/components/Layout";
@@ -28,6 +29,7 @@ function Router() {
       {/* Authentication Routes - These need to be defined first and consistently available */}
       <Route path="/auth" component={AuthPage} />
       <Route path="/login" component={LoginButton} />
+      <Route path="/login-router" component={LoginRouter} />
       
       {/* All other routes use the main layout */}
       <Route>
