@@ -29,15 +29,11 @@ export function Footer() {
           <div className="flex flex-col items-center md:items-start">
             <h3 className="font-semibold text-gray-800 mb-4">Resources</h3>
             <div className="flex flex-col space-y-2">
-              <Link href="/documentation">
-                <a className="text-sm text-gray-600 hover:text-purple-600 flex items-center">
-                  <BookOpen className="h-4 w-4 mr-2" /> Documentation
-                </a>
+              <Link href="/documentation" className="text-sm text-gray-600 hover:text-purple-600 flex items-center">
+                <BookOpen className="h-4 w-4 mr-2" /> Documentation
               </Link>
-              <Link href="/cline-integration">
-                <a className="text-sm text-gray-600 hover:text-purple-600 flex items-center">
-                  <Code className="h-4 w-4 mr-2" /> Cline Integration
-                </a>
+              <Link href="/cline-integration" className="text-sm text-gray-600 hover:text-purple-600 flex items-center">
+                <Code className="h-4 w-4 mr-2" /> Cline Integration
               </Link>
               <a 
                 href="https://github.com/cline-ai/cline" 
@@ -58,10 +54,8 @@ export function Footer() {
                 <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
                 System Status: Online
               </div>
-              <Link href="/settings">
-                <a className="text-sm text-gray-600 hover:text-purple-600 flex items-center">
-                  <HelpCircle className="h-4 w-4 mr-2" /> Support & Feedback
-                </a>
+              <Link href="/settings" className="text-sm text-gray-600 hover:text-purple-600 flex items-center">
+                <HelpCircle className="h-4 w-4 mr-2" /> Support & Feedback
               </Link>
               <div className="text-xs text-gray-500 mt-2">
                 API Version: v2.5.0
