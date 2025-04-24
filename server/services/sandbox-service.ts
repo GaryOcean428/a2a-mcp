@@ -35,28 +35,34 @@ export class SandboxService {
     // Get E2B API key from environment variables
     this.apiKey = process.env.E2B_API_KEY || '';
     
-    // Import E2B SDK using dynamic import for ESM compatibility
+    // Initialize the service
+    this.initialize();
+  }
+  
+  /**
+   * Initialize the E2B service and update status
+   */
+  private async initialize() {
     try {
       // Use dynamic import which works in both ESM and CommonJS
-      import('@e2b/sdk').then(module => {
-        this.e2b = module;
-        if (this.apiKey) {
-          this.isAvailable = true;
-          console.log('E2B API key found, Sandbox execution available');
-        } else {
-          console.warn('E2B API key not found, Sandbox execution disabled');
-        }
-      }).catch(error => {
-        console.error('Failed to import E2B SDK:', error);
+      const module = await import('@e2b/sdk');
+      this.e2b = module;
+      
+      if (this.apiKey) {
+        this.isAvailable = true;
+        console.log('E2B API key found, Sandbox execution available');
+        // Make sure to update tool status after initialization
+        await this.updateToolStatus(true);
+      } else {
+        console.warn('E2B API key not found, Sandbox execution disabled');
         this.isAvailable = false;
-      });
+        await this.updateToolStatus(false, 'E2B API key not found');
+      }
     } catch (error) {
-      console.error('Error setting up E2B SDK:', error);
+      console.error('Failed to import E2B SDK:', error);
       this.isAvailable = false;
+      await this.updateToolStatus(false, 'Failed to initialize E2B SDK');
     }
-    
-    // Update tool status
-    this.updateToolStatus(this.isAvailable);
   }
 
   /**
