@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MCP Integration Platform - Login</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to right, #f8f9fa, #e9ecef);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    .container {
+      max-width: 400px;
+      width: 100%;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
+      margin: 0 1rem;
+    }
+    h1 {
+      color: #333;
+      margin-top: 0;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #333;
+      font-weight: 500;
+    }
+    input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    input:focus {
+      border-color: #7b5dfa;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(123, 93, 250, 0.2);
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 0.75rem;
+      background-color: #7b5dfa;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .btn:hover {
+      background-color: #6242e4;
+    }
+    .btn:disabled {
+      background-color: #d1d1d1;
+      cursor: not-allowed;
+    }
+    .error {
+      color: #e53e3e;
+      margin-top: 0.25rem;
+      font-size: 0.875rem;
+    }
+    .tabs {
+      display: flex;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid #ddd;
+    }
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 0.75rem 0;
+      cursor: pointer;
+      color: #666;
+      border-bottom: 2px solid transparent;
+    }
+    .tab.active {
+      color: #7b5dfa;
+      border-bottom: 2px solid #7b5dfa;
+    }
+    .form {
+      display: none;
+    }
+    .form.active {
+      display: block;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 1.5rem;
+      color: #666;
+      font-size: 0.875rem;
+    }
+    .back-link {
+      color: #7b5dfa;
+      text-decoration: none;
+      display: inline-block;
+      margin-top: 1rem;
+    }
+    .back-link:hover {
+      text-decoration: underline;
+    }
+    .spinner {
+      display: inline-block;
+      width: 1rem;
+      height: 1rem;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 0.5rem;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .alert {
+      padding: 0.75rem;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+      background-color: #fee2e2;
+      border: 1px solid #fecaca;
+      color: #b91c1c;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>MCP Integration Platform</h1>
+    
+    <div id="errorContainer" class="alert" style="display: none;"></div>
+    
+    <div class="tabs">
+      <div class="tab active" id="loginTab">Login</div>
+      <div class="tab" id="registerTab">Register</div>
+    </div>
+    
+    <form id="loginForm" class="form active">
+      <div class="form-group">
+        <label for="loginUsername">Username</label>
+        <input type="text" id="loginUsername" name="username" required>
+        <div class="error" id="loginUsernameError"></div>
+      </div>
+      
+      <div class="form-group">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" name="password" required>
+        <div class="error" id="loginPasswordError"></div>
+      </div>
+      
+      <button type="submit" class="btn" id="loginButton">
+        Login
+      </button>
+    </form>
+    
+    <form id="registerForm" class="form">
+      <div class="form-group">
+        <label for="registerUsername">Username</label>
+        <input type="text" id="registerUsername" name="username" required>
+        <div class="error" id="registerUsernameError"></div>
+      </div>
+      
+      <div class="form-group">
+        <label for="registerEmail">Email</label>
+        <input type="email" id="registerEmail" name="email" required>
+        <div class="error" id="registerEmailError"></div>
+      </div>
+      
+      <div class="form-group">
+        <label for="registerPassword">Password</label>
+        <input type="password" id="registerPassword" name="password" required>
+        <div class="error" id="registerPasswordError"></div>
+      </div>
+      
+      <div class="form-group">
+        <label for="confirmPassword">Confirm Password</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" required>
+        <div class="error" id="confirmPasswordError"></div>
+      </div>
+      
+      <button type="submit" class="btn" id="registerButton">
+        Create Account
+      </button>
+    </form>
+    
+    <div class="footer">
+      <p>By continuing, you agree to the terms of service and privacy policy.</p>
+      <a href="/" class="back-link">Return to Home</a>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const loginTab = document.getElementById('loginTab');
+      const registerTab = document.getElementById('registerTab');
+      const loginForm = document.getElementById('loginForm');
+      const registerForm = document.getElementById('registerForm');
+      const loginButton = document.getElementById('loginButton');
+      const registerButton = document.getElementById('registerButton');
+      const errorContainer = document.getElementById('errorContainer');
+      
+      // Check if user is already logged in
+      async function checkAuth() {
+        try {
+          const response = await fetch('/api/user', {
+            credentials: 'include',
+            headers: {
+              'Cache-Control': 'no-cache',
+              'Pragma': 'no-cache'
+            }
+          });
+          
+          if (response.ok) {
+            // User is logged in, redirect to home
+            window.location.href = '/';
+          }
+        } catch (error) {
+          console.error('Error checking authentication:', error);
+        }
+      }
+      
+      checkAuth();
+      
+      // Tab switching
+      loginTab.addEventListener('click', function() {
+        loginTab.classList.add('active');
+        registerTab.classList.remove('active');
+        loginForm.classList.add('active');
+        registerForm.classList.remove('active');
+        errorContainer.style.display = 'none';
+      });
+      
+      registerTab.addEventListener('click', function() {
+        registerTab.classList.add('active');
+        loginTab.classList.remove('active');
+        registerForm.classList.add('active');
+        loginForm.classList.remove('active');
+        errorContainer.style.display = 'none';
+      });
+      
+      // Login form submission
+      loginForm.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        
+        // Reset errors
+        document.getElementById('loginUsernameError').textContent = '';
+        document.getElementById('loginPasswordError').textContent = '';
+        errorContainer.style.display = 'none';
+        
+        const username = document.getElementById('loginUsername').value;
+        const password = document.getElementById('loginPassword').value;
+        
+        // Validation
+        let hasError = false;
+        
+        if (username.length < 3) {
+          document.getElementById('loginUsernameError').textContent = 'Username must be at least 3 characters.';
+          hasError = true;
+        }
+        
+        if (password.length < 6) {
+          document.getElementById('loginPasswordError').textContent = 'Password must be at least 6 characters.';
+          hasError = true;
+        }
+        
+        if (hasError) return;
+        
+        // Show loading state
+        loginButton.disabled = true;
+        loginButton.innerHTML = '<span class="spinner"></span> Logging in...';
+        
+        try {
+          const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, password }),
+            credentials: 'include'
+          });
+          
+          if (response.ok) {
+            // Login successful, redirect to home
+            window.location.href = '/';
+          } else {
+            // Login failed
+            const data = await response.json();
+            errorContainer.textContent = data.error || 'Login failed. Please check your credentials.';
+            errorContainer.style.display = 'block';
+          }
+        } catch (error) {
+          console.error('Login error:', error);
+          errorContainer.textContent = 'An error occurred during login. Please try again.';
+          errorContainer.style.display = 'block';
+        } finally {
+          loginButton.disabled = false;
+          loginButton.textContent = 'Login';
+        }
+      });
+      
+      // Registration form submission
+      registerForm.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        
+        // Reset errors
+        document.getElementById('registerUsernameError').textContent = '';
+        document.getElementById('registerEmailError').textContent = '';
+        document.getElementById('registerPasswordError').textContent = '';
+        document.getElementById('confirmPasswordError').textContent = '';
+        errorContainer.style.display = 'none';
+        
+        const username = document.getElementById('registerUsername').value;
+        const email = document.getElementById('registerEmail').value;
+        const password = document.getElementById('registerPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        
+        // Validation
+        let hasError = false;
+        
+        if (username.length < 3) {
+          document.getElementById('registerUsernameError').textContent = 'Username must be at least 3 characters.';
+          hasError = true;
+        }
+        
+        if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+          document.getElementById('registerEmailError').textContent = 'Please enter a valid email address.';
+          hasError = true;
+        }
+        
+        if (password.length < 6) {
+          document.getElementById('registerPasswordError').textContent = 'Password must be at least 6 characters.';
+          hasError = true;
+        }
+        
+        if (password !== confirmPassword) {
+          document.getElementById('confirmPasswordError').textContent = 'Passwords do not match.';
+          hasError = true;
+        }
+        
+        if (hasError) return;
+        
+        // Show loading state
+        registerButton.disabled = true;
+        registerButton.innerHTML = '<span class="spinner"></span> Creating account...';
+        
+        try {
+          const response = await fetch('/api/register', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, email, password }),
+            credentials: 'include'
+          });
+          
+          if (response.ok) {
+            // Registration successful, redirect to home
+            window.location.href = '/';
+          } else {
+            // Registration failed
+            const data = await response.json();
+            errorContainer.textContent = data.error || 'Registration failed. Please try again.';
+            errorContainer.style.display = 'block';
+          }
+        } catch (error) {
+          console.error('Registration error:', error);
+          errorContainer.textContent = 'An error occurred during registration. Please try again.';
+          errorContainer.style.display = 'block';
+        } finally {
+          registerButton.disabled = false;
+          registerButton.textContent = 'Create Account';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
