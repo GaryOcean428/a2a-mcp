@@ -35,17 +35,23 @@ export class SandboxService {
     // Get E2B API key from environment variables
     this.apiKey = process.env.E2B_API_KEY || '';
     
-    // Dynamically import E2B SDK to avoid TypeScript errors
+    // Import E2B SDK using dynamic import for ESM compatibility
     try {
-      this.e2b = require('@e2b/sdk');
-      if (this.apiKey) {
-        this.isAvailable = true;
-        console.log('E2B API key found, Sandbox execution available');
-      } else {
-        console.warn('E2B API key not found, Sandbox execution disabled');
-      }
+      // Use dynamic import which works in both ESM and CommonJS
+      import('@e2b/sdk').then(module => {
+        this.e2b = module;
+        if (this.apiKey) {
+          this.isAvailable = true;
+          console.log('E2B API key found, Sandbox execution available');
+        } else {
+          console.warn('E2B API key not found, Sandbox execution disabled');
+        }
+      }).catch(error => {
+        console.error('Failed to import E2B SDK:', error);
+        this.isAvailable = false;
+      });
     } catch (error) {
-      console.error('Failed to import E2B SDK:', error);
+      console.error('Error setting up E2B SDK:', error);
       this.isAvailable = false;
     }
     
@@ -351,14 +357,14 @@ export class SandboxService {
    * Clean up resources
    */
   async cleanup(): Promise<void> {
-    // Close all sandboxes
-    for (const [id, sandbox] of this.sandboxes.entries()) {
+    // Close all sandboxes - using Array.from to avoid TypeScript downlevelIteration issues
+    Array.from(this.sandboxes.entries()).forEach(async ([id, sandbox]) => {
       try {
         await sandbox.close();
       } catch (error) {
         console.error(`Failed to close sandbox ${id}:`, error);
       }
-    }
+    });
     
     this.sandboxes.clear();
   }

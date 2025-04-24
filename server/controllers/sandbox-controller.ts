@@ -55,10 +55,16 @@ export class SandboxController {
       } catch (error: any) {
         // Handle errors
         const executionTime = Date.now() - startTime;
-        await storage.updateRequestLog(log.id, {
+        // Create a new log entry for the error instead of updating
+        // since the storage interface doesn't have an updateRequestLog method
+        await storage.createRequestLog({
+          userId: req.user?.id || 0,
+          toolType: 'sandbox',
+          requestData: req.body,
           responseData: { error: error.message },
           executionTimeMs: executionTime,
-          statusCode: 500
+          statusCode: 500,
+          timestamp: new Date()
         });
         
         return res.status(500).json({
