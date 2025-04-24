@@ -2,6 +2,7 @@ import { nanoid } from 'nanoid';
 import { storage } from '../storage';
 import { SandboxParams } from '@shared/schema';
 import * as fs from 'fs';
+import { Sandbox } from '@e2b/sdk';
 
 // Sandbox templates for different tasks
 export enum SandboxTemplate {
@@ -29,23 +30,17 @@ export class SandboxService {
   private sandboxes: Map<string, any> = new Map();
   private isAvailable: boolean = false;
   private apiKey: string;
-  private e2b: any;
 
   constructor() {
     // Get E2B API key from environment variables
     this.apiKey = process.env.E2B_API_KEY || '';
     
-    // Dynamically import E2B SDK to avoid TypeScript errors
-    try {
-      this.e2b = require('@e2b/sdk');
-      if (this.apiKey) {
-        this.isAvailable = true;
-        console.log('E2B API key found, Sandbox execution available');
-      } else {
-        console.warn('E2B API key not found, Sandbox execution disabled');
-      }
-    } catch (error) {
-      console.error('Failed to import E2B SDK:', error);
+    // Check if API key is available
+    if (this.apiKey) {
+      this.isAvailable = true;
+      console.log('E2B API key found, Sandbox execution available');
+    } else {
+      console.warn('E2B API key not found, Sandbox execution disabled');
       this.isAvailable = false;
     }
     
@@ -143,7 +138,7 @@ export class SandboxService {
       const sandboxId = nanoid();
       
       // Create a new sandbox with the specified template
-      const sandbox = await this.e2b.Sandbox.create({
+      const sandbox = await Sandbox.create({
         apiKey: this.apiKey,
         template: template,
         metadata: {
