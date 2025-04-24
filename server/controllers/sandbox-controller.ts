@@ -55,8 +55,11 @@ export class SandboxController {
       } catch (error: any) {
         // Handle errors
         const executionTime = Date.now() - startTime;
-        // We don't have updateRequestLog method, so just log the error
-        console.error(`Sandbox operation failed: ${error.message}, ID: ${log.id}, Time: ${executionTime}ms`);
+        await storage.updateRequestLog(log.id, {
+          responseData: { error: error.message },
+          executionTimeMs: executionTime,
+          statusCode: 500
+        });
         
         return res.status(500).json({
           error: error.message
