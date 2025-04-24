@@ -27,7 +27,8 @@ export const toolTypeEnum = pgEnum("tool_type", [
   "form_automation",
   "vector_storage",
   "data_scraper",
-  "status"
+  "status",
+  "sandbox"
 ]);
 
 // Provider types for web search
@@ -152,6 +153,18 @@ export const statusSchema = z.object({
   toolName: z.string().optional().describe("Name of the tool to check status for (optional, if not provided, returns all tool statuses)"),
 });
 
+export const sandboxSchema = z.object({
+  operation: z.enum(["create", "execute", "upload", "download", "install", "close", "list"]).describe("Operation to perform on the sandbox"),
+  template: z.enum(["base", "data-science", "development", "web"]).default("base").describe("Sandbox template to use"),
+  sandboxId: z.string().optional().describe("ID of an existing sandbox (required for operations other than 'create' and 'list')"),
+  code: z.string().optional().describe("Code to execute (required for 'execute' operation)"),
+  language: z.enum(["javascript", "typescript", "python"]).default("javascript").optional().describe("Programming language of the code"),
+  localFilePath: z.string().optional().describe("Local file path (for file operations)"),
+  sandboxFilePath: z.string().optional().describe("Sandbox file path (for file operations)"),
+  packageName: z.string().optional().describe("Package name to install (required for 'install' operation)"),
+  packageManager: z.enum(["npm", "pip"]).default("npm").optional().describe("Package manager to use for installation"),
+});
+
 // Type definitions
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -167,6 +180,7 @@ export type FormAutomationParams = z.infer<typeof formAutomationSchema>;
 export type VectorStorageParams = z.infer<typeof vectorStorageSchema>;
 export type DataScraperParams = z.infer<typeof dataScraperSchema>;
 export type StatusParams = z.infer<typeof statusSchema>;
+export type SandboxParams = z.infer<typeof sandboxSchema>;
 
 // Tool schemas with MCP annotations
 export const MCPToolSchemas = {
@@ -222,6 +236,18 @@ export const MCPToolSchemas = {
       title: "Status",
       readOnlyHint: true,
       openWorldHint: false
+    }
+  },
+  sandbox: {
+    name: "sandbox",
+    description: "Execute code in a secure isolated sandbox environment",
+    inputSchema: sandboxSchema,
+    annotations: {
+      title: "Secure Sandbox",
+      readOnlyHint: false,
+      destructiveHint: true,
+      idempotentHint: false,
+      openWorldHint: true
     }
   }
 };
