@@ -103,7 +103,7 @@ export default function Home() {
           <div className="max-w-3xl">
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
               <span className="bg-gradient-to-r from-purple-600 to-indigo-600 text-transparent bg-clip-text">
-                MCP Integration Platform
+                MCP Integration Platform v2.0
               </span>
             </h1>
             <p className="text-lg text-gray-600 mb-8 leading-relaxed">
