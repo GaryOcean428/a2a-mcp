@@ -2,6 +2,7 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { mcpController } from "./controllers/mcp-controller";
+import { sandboxController } from "./controllers/sandbox-controller";
 import { apiKeyAuth } from "./middleware/auth-middleware";
 import { globalRateLimiter, toolRateLimiter } from "./middleware/rate-limit-middleware";
 import path from "path";
@@ -116,6 +117,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Status routes
   app.get('/api/status', mcpController.getStatus.bind(mcpController));
   app.get('/api/status/:toolName', mcpController.getToolStatus.bind(mcpController));
+  
+  // Sandbox API endpoint
+  app.post('/api/sandbox', apiKeyAuth, toolRateLimiter.middleware(), sandboxController.handleRequest.bind(sandboxController));
   
   // Documentation API routes
   app.get('/api/documentation', (req, res) => {

@@ -1,15 +1,9 @@
-import { Sandbox } from '@e2b/sdk';
-import dotenv from 'dotenv';
 import { nanoid } from 'nanoid';
 import { storage } from '../storage';
+import { SandboxParams } from '@shared/schema';
 import * as fs from 'fs';
-import * as path from 'path';
 
-dotenv.config();
-
-/**
- * Sandbox templates for different tasks
- */
+// Sandbox templates for different tasks
 export enum SandboxTemplate {
   DEFAULT = 'base',
   DATA_SCIENCE = 'data-science',
@@ -17,9 +11,7 @@ export enum SandboxTemplate {
   WEB = 'web'
 }
 
-/**
- * Result of code execution in a sandbox
- */
+// Result of code execution in a sandbox
 export interface CodeExecutionResult {
   id: string;
   success: boolean;
@@ -34,29 +26,37 @@ export interface CodeExecutionResult {
  * Service for managing E2B sandboxes
  */
 export class SandboxService {
-  private sandboxes: Map<string, Sandbox> = new Map();
+  private sandboxes: Map<string, any> = new Map();
   private isAvailable: boolean = false;
   private apiKey: string;
+  private e2b: any;
 
   constructor() {
     // Get E2B API key from environment variables
     this.apiKey = process.env.E2B_API_KEY || '';
     
-    if (this.apiKey) {
-      this.isAvailable = true;
-      console.log('E2B API key found, Sandbox execution available');
-    } else {
-      console.warn('E2B API key not found, Sandbox execution disabled');
+    // Dynamically import E2B SDK to avoid TypeScript errors
+    try {
+      this.e2b = require('@e2b/sdk');
+      if (this.apiKey) {
+        this.isAvailable = true;
+        console.log('E2B API key found, Sandbox execution available');
+      } else {
+        console.warn('E2B API key not found, Sandbox execution disabled');
+      }
+    } catch (error) {
+      console.error('Failed to import E2B SDK:', error);
+      this.isAvailable = false;
     }
     
     // Update tool status
-    this.updateStatus(this.isAvailable);
+    this.updateToolStatus(this.isAvailable);
   }
 
   /**
    * Update tool status
    */
-  private async updateStatus(available: boolean, error?: string) {
+  private async updateToolStatus(available: boolean, error?: string) {
     await storage.updateToolStatus('sandbox', {
       name: 'sandbox',
       available,
@@ -66,11 +66,76 @@ export class SandboxService {
   }
   
   /**
+   * Handle sandbox operations
+   */
+  async handleOperation(params: SandboxParams): Promise<any> {
+    if (!this.isAvailable && params.operation !== 'list') {
+      throw new Error('Sandbox service is not available. E2B API key is required.');
+    }
+    
+    switch (params.operation) {
+      case 'create':
+        return this.createSandbox(params.template as SandboxTemplate);
+      
+      case 'execute':
+        if (!params.sandboxId) throw new Error('Sandbox ID is required');
+        if (!params.code) throw new Error('Code to execute is required');
+        return this.executeCode(
+          params.sandboxId, 
+          params.code, 
+          params.language || 'javascript'
+        );
+      
+      case 'upload':
+        if (!params.sandboxId) throw new Error('Sandbox ID is required');
+        if (!params.localFilePath) throw new Error('Local file path is required');
+        if (!params.sandboxFilePath) throw new Error('Sandbox file path is required');
+        return this.uploadFile(
+          params.sandboxId,
+          params.localFilePath,
+          params.sandboxFilePath
+        );
+      
+      case 'download':
+        if (!params.sandboxId) throw new Error('Sandbox ID is required');
+        if (!params.sandboxFilePath) throw new Error('Sandbox file path is required');
+        if (!params.localFilePath) throw new Error('Local file path is required');
+        return this.downloadFile(
+          params.sandboxId,
+          params.sandboxFilePath,
+          params.localFilePath
+        );
+      
+      case 'install':
+        if (!params.sandboxId) throw new Error('Sandbox ID is required');
+        if (!params.packageName) throw new Error('Package name is required');
+        return this.installPackage(
+          params.sandboxId,
+          params.packageName,
+          params.packageManager || 'npm'
+        );
+      
+      case 'close':
+        if (!params.sandboxId) throw new Error('Sandbox ID is required');
+        return this.closeSandbox(params.sandboxId);
+      
+      case 'list':
+        return {
+          sandboxes: this.listSandboxes(),
+          available: this.isAvailable
+        };
+      
+      default:
+        throw new Error(`Unknown sandbox operation: ${params.operation}`);
+    }
+  }
+
+  /**
    * Create a new sandbox
    */
-  async createSandbox(template: SandboxTemplate = SandboxTemplate.DEFAULT): Promise<string> {
+  private async createSandbox(template: SandboxTemplate = SandboxTemplate.DEFAULT): Promise<{ sandboxId: string }> {
     if (!this.isAvailable) {
-      throw new Error('Sandbox service is not available. Missing E2B API key.');
+      throw new Error('Sandbox service is not available');
     }
     
     try {
@@ -78,7 +143,7 @@ export class SandboxService {
       const sandboxId = nanoid();
       
       // Create a new sandbox with the specified template
-      const sandbox = await Sandbox.create({
+      const sandbox = await this.e2b.Sandbox.create({
         apiKey: this.apiKey,
         template: template,
         metadata: {
@@ -92,31 +157,24 @@ export class SandboxService {
       
       console.log(`Created sandbox ${sandboxId} with template ${template}`);
       
-      return sandboxId;
-    } catch (error) {
+      return { sandboxId };
+    } catch (error: any) {
       console.error('Failed to create sandbox:', error);
       throw new Error(`Failed to create sandbox: ${error.message}`);
     }
   }
   
   /**
-   * Get a sandbox by ID
-   */
-  getSandbox(sandboxId: string): Sandbox | undefined {
-    return this.sandboxes.get(sandboxId);
-  }
-  
-  /**
    * Execute code in a sandbox
    */
-  async executeCode(sandboxId: string, code: string, language: 'javascript' | 'typescript' | 'python' = 'javascript'): Promise<CodeExecutionResult> {
-    if (!this.isAvailable) {
-      throw new Error('Sandbox service is not available. Missing E2B API key.');
-    }
-    
-    const sandbox = this.getSandbox(sandboxId);
+  private async executeCode(
+    sandboxId: string, 
+    code: string, 
+    language: string = 'javascript'
+  ): Promise<CodeExecutionResult> {
+    const sandbox = this.sandboxes.get(sandboxId);
     if (!sandbox) {
-      throw new Error(`Sandbox ${sandboxId} not found.`);
+      throw new Error(`Sandbox ${sandboxId} not found`);
     }
     
     const startTime = Date.now();
@@ -128,7 +186,7 @@ export class SandboxService {
       if (language === 'python') {
         result = await sandbox.process.start({
           cmd: 'python3',
-          args: ['-c', code],
+          args: ['-c', code]
         });
       } else {
         // Use Node.js for JavaScript and TypeScript
@@ -143,13 +201,13 @@ export class SandboxService {
           // For TypeScript, use ts-node
           result = await sandbox.process.start({
             cmd: 'npx',
-            args: ['ts-node', filePath],
+            args: ['ts-node', filePath]
           });
         } else {
           // For JavaScript, use Node.js
           result = await sandbox.process.start({
             cmd: 'node',
-            args: [filePath],
+            args: [filePath]
           });
         }
       }
@@ -157,25 +215,22 @@ export class SandboxService {
       const executionTime = Date.now() - startTime;
       
       // Handle the result
-      const success = result.exit === 0;
       return {
         id: nanoid(),
-        success,
-        output: result.stdout,
-        error: success ? undefined : result.stderr,
+        success: result.exit === 0,
+        output: result.stdout || '',
+        error: result.stderr || undefined,
         executionTime,
         logs: [result.stdout, result.stderr].filter(Boolean)
       };
       
-    } catch (error) {
-      console.error(`Failed to execute code in sandbox ${sandboxId}:`, error);
-      
+    } catch (error: any) {
       return {
         id: nanoid(),
         success: false,
         output: '',
         error: `Failed to execute code: ${error.message}`,
-        executionTime: Date.now() - startTime,
+        executionTime: Date.now() - startTime
       };
     }
   }
@@ -183,58 +238,54 @@ export class SandboxService {
   /**
    * Upload a file to a sandbox
    */
-  async uploadFile(sandboxId: string, localFilePath: string, sandboxFilePath: string): Promise<boolean> {
-    if (!this.isAvailable) {
-      throw new Error('Sandbox service is not available. Missing E2B API key.');
-    }
-    
-    const sandbox = this.getSandbox(sandboxId);
+  private async uploadFile(sandboxId: string, localFilePath: string, sandboxFilePath: string): Promise<{ success: boolean }> {
+    const sandbox = this.sandboxes.get(sandboxId);
     if (!sandbox) {
-      throw new Error(`Sandbox ${sandboxId} not found.`);
+      throw new Error(`Sandbox ${sandboxId} not found`);
     }
     
     try {
-      await sandbox.filesystem.upload(localFilePath, sandboxFilePath);
-      return true;
-    } catch (error) {
+      await sandbox.filesystem.write(
+        sandboxFilePath,
+        await fs.promises.readFile(localFilePath, 'utf-8')
+      );
+      return { success: true };
+    } catch (error: any) {
       console.error(`Failed to upload file to sandbox ${sandboxId}:`, error);
-      return false;
+      return { success: false };
     }
   }
   
   /**
    * Download a file from a sandbox
    */
-  async downloadFile(sandboxId: string, sandboxFilePath: string, localFilePath: string): Promise<boolean> {
-    if (!this.isAvailable) {
-      throw new Error('Sandbox service is not available. Missing E2B API key.');
-    }
-    
-    const sandbox = this.getSandbox(sandboxId);
+  private async downloadFile(sandboxId: string, sandboxFilePath: string, localFilePath: string): Promise<{ success: boolean }> {
+    const sandbox = this.sandboxes.get(sandboxId);
     if (!sandbox) {
-      throw new Error(`Sandbox ${sandboxId} not found.`);
+      throw new Error(`Sandbox ${sandboxId} not found`);
     }
     
     try {
-      await sandbox.filesystem.download(sandboxFilePath, localFilePath);
-      return true;
-    } catch (error) {
+      const content = await sandbox.filesystem.read(sandboxFilePath);
+      await fs.promises.writeFile(localFilePath, content);
+      return { success: true };
+    } catch (error: any) {
       console.error(`Failed to download file from sandbox ${sandboxId}:`, error);
-      return false;
+      return { success: false };
     }
   }
   
   /**
    * Install a package in a sandbox
    */
-  async installPackage(sandboxId: string, packageName: string, packageManager: 'npm' | 'pip' = 'npm'): Promise<boolean> {
-    if (!this.isAvailable) {
-      throw new Error('Sandbox service is not available. Missing E2B API key.');
-    }
-    
-    const sandbox = this.getSandbox(sandboxId);
+  private async installPackage(
+    sandboxId: string, 
+    packageName: string, 
+    packageManager: string = 'npm'
+  ): Promise<{ success: boolean }> {
+    const sandbox = this.sandboxes.get(sandboxId);
     if (!sandbox) {
-      throw new Error(`Sandbox ${sandboxId} not found.`);
+      throw new Error(`Sandbox ${sandboxId} not found`);
     }
     
     try {
@@ -243,77 +294,67 @@ export class SandboxService {
       if (packageManager === 'npm') {
         result = await sandbox.process.start({
           cmd: 'npm',
-          args: ['install', packageName, '--save'],
+          args: ['install', packageName, '--save']
         });
       } else {
         result = await sandbox.process.start({
           cmd: 'pip',
-          args: ['install', packageName],
+          args: ['install', packageName]
         });
       }
       
       const success = result.exit === 0;
-      if (!success) {
-        console.error(`Failed to install ${packageName} in sandbox ${sandboxId}:`, result.stderr);
-      }
-      
-      return success;
-    } catch (error) {
+      return { success };
+    } catch (error: any) {
       console.error(`Failed to install ${packageName} in sandbox ${sandboxId}:`, error);
-      return false;
+      return { success: false };
     }
   }
   
   /**
    * Close a sandbox
    */
-  async closeSandbox(sandboxId: string): Promise<boolean> {
-    if (!this.isAvailable) {
-      return false;
-    }
-    
-    const sandbox = this.getSandbox(sandboxId);
+  private async closeSandbox(sandboxId: string): Promise<{ success: boolean }> {
+    const sandbox = this.sandboxes.get(sandboxId);
     if (!sandbox) {
-      return false;
+      return { success: false };
     }
     
     try {
       await sandbox.close();
       this.sandboxes.delete(sandboxId);
-      return true;
-    } catch (error) {
+      return { success: true };
+    } catch (error: any) {
       console.error(`Failed to close sandbox ${sandboxId}:`, error);
-      return false;
+      return { success: false };
     }
   }
   
   /**
    * List all sandboxes
    */
-  listSandboxes(): string[] {
-    return Array.from(this.sandboxes.keys());
+  private listSandboxes(): { id: string; template?: string; createdAt?: string }[] {
+    return Array.from(this.sandboxes.entries()).map(([id, sandbox]) => {
+      try {
+        return {
+          id,
+          template: sandbox.metadata?.template,
+          createdAt: sandbox.metadata?.createdAt
+        };
+      } catch {
+        return { id };
+      }
+    });
   }
   
   /**
-   * Get information about all sandboxes
+   * Clean up resources
    */
-  getSandboxesInfo(): { id: string; template: string; createdAt: string }[] {
-    return Array.from(this.sandboxes.entries()).map(([id, sandbox]) => ({
-      id,
-      template: sandbox.metadata?.template || 'unknown',
-      createdAt: sandbox.metadata?.createdAt || 'unknown'
-    }));
-  }
-  
-  /**
-   * Clean up function for service cleanup
-   */
-  async cleanup() {
+  async cleanup(): Promise<void> {
     // Close all sandboxes
     for (const [id, sandbox] of this.sandboxes.entries()) {
       try {
         await sandbox.close();
-        console.log(`Closed sandbox ${id}`);
       } catch (error) {
         console.error(`Failed to close sandbox ${id}:`, error);
       }
