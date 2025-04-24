@@ -40,11 +40,16 @@ export async function apiRequest(
   console.log(`API Request: ${method} ${fullUrl}`);
   
   try {
+    // Add more headers for better cross-domain cookie handling
     const res = await fetch(fullUrl, {
       method,
-      headers: data ? { "Content-Type": "application/json" } : {},
+      headers: {
+        ...(data ? { "Content-Type": "application/json" } : {}),
+        "Cache-Control": "no-cache",
+        "Pragma": "no-cache"
+      },
       body: data ? JSON.stringify(data) : undefined,
-      credentials: "include",
+      credentials: "include", // Essential for cookies
     });
     
     // Skip throwing for caller-handled errors
@@ -79,6 +84,10 @@ export const getQueryFn: <T>(options: {
       
       const res = await fetch(fullUrl, {
         credentials: "include",
+        headers: {
+          "Cache-Control": "no-cache",
+          "Pragma": "no-cache"
+        }
       });
 
       if (unauthorizedBehavior === "returnNull" && res.status === 401) {

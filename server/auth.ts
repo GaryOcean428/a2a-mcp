@@ -35,7 +35,11 @@ export function setupAuth(app: Express) {
       // Set secure to false to allow login on HTTP or HTTPS
       secure: false,
       // Set SameSite attribute to lax for better compatibility
-      sameSite: 'lax',
+      sameSite: 'none',
+      // Allow cookies to work across subdomains
+      domain: process.env.NODE_ENV === 'production' ? '.replit.app' : undefined,
+      path: '/',
+      httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000 // 24 hours
     }
   };
@@ -121,6 +125,9 @@ export function setupAuth(app: Express) {
       passwordLength: req.body.password ? req.body.password.length : 0,
       hasPassword: !!req.body.password
     });
+    console.log('Session ID:', req.sessionID);
+    console.log('Headers:', req.headers);
+    console.log('Environment:', process.env.NODE_ENV);
     
     if (!req.body.username || !req.body.password) {
       console.log('Login rejected: Missing username or password');
@@ -190,11 +197,21 @@ export function setupAuth(app: Express) {
   });
 
   app.get('/api/user', (req: Request, res: Response) => {
+    console.log('=== GET USER INFO ===');
+    console.log('Session ID:', req.sessionID);
+    console.log('Is Authenticated:', req.isAuthenticated());
+    console.log('Session:', req.session);
+    console.log('Cookie settings:', req.session.cookie);
+    console.log('Environment:', process.env.NODE_ENV);
+    
     if (!req.isAuthenticated()) {
+      console.log('User not authenticated, returning 401');
       return res.status(401).json({ error: 'Not authenticated' });
     }
+    
     // Return user without sensitive data
     const userObj = req.user as any;
+    console.log('User authenticated:', userObj.username);
     const { password, ...userWithoutPassword } = userObj;
     res.json(userWithoutPassword);
   });
