@@ -101,8 +101,8 @@ export default function Header() {
 
   return (
     <>
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
-        <div className="container mx-auto px-4 py-3">
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-sm backdrop-blur-sm bg-white/95">
+        <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             {/* Logo and Brand */}
             <div className="flex items-center">
@@ -112,10 +112,10 @@ export default function Header() {
                     <Code className="h-6 w-6 text-white" />
                   </div>
                   <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 text-transparent bg-clip-text hidden md:inline-block">
-                    MCP Integration Platform
+                    MCP Integration Platform <span className="text-sm font-medium ml-1 px-1.5 py-0.5 bg-indigo-100 text-indigo-700 rounded-md">v2.5</span>
                   </span>
                   <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 text-transparent bg-clip-text md:hidden">
-                    MCP
+                    MCP <span className="text-xs font-medium ml-1 px-1.5 py-0.5 bg-indigo-100 text-indigo-700 rounded-md">v2.5</span>
                   </span>
                 </div>
               </Link>

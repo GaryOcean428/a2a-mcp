@@ -98,13 +98,15 @@ export default function Home() {
   return (
     <div>
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-purple-50 via-indigo-50 to-white py-12 mb-6 rounded-lg shadow-sm">
-        <div className="container mx-auto px-6">
+      <div className="bg-gradient-to-br from-purple-50 via-indigo-50 to-white py-16 mb-8 rounded-xl shadow-lg border border-purple-100/50 relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid-gray-100/50 pointer-events-none"></div>
+        <div className="container mx-auto px-6 relative">
           <div className="max-w-3xl">
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
               <span className="bg-gradient-to-r from-purple-600 to-indigo-600 text-transparent bg-clip-text">
-                MCP Integration Platform v2.0
+                MCP Integration Platform 
               </span>
+              <span className="inline-block ml-2 px-3 py-1 bg-indigo-100 text-indigo-800 rounded-md text-xl">v2.5</span>
             </h1>
             <p className="text-lg text-gray-600 mb-8 leading-relaxed">
               A secure, high-performance Model Context Protocol (MCP) integration platform that provides standardized interfaces for AI-powered applications to leverage web search, form automation, vector storage, and data scraping.
@@ -358,7 +360,7 @@ ws.onmessage = (event) => {
             <span className="bg-gradient-to-r from-purple-600 to-indigo-600 text-transparent bg-clip-text">
               Available Tools
             </span>
-            <div className="h-px flex-1 bg-gradient-to-r from-purple-100 to-transparent ml-4"></div>
+            <div className="h-1 flex-1 bg-gradient-to-r from-purple-100 to-transparent ml-4 rounded-full"></div>
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {toolCards.map((card, index) => (
