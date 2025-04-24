@@ -110,8 +110,8 @@ export default function Home() {
             </p>
             <div className="flex flex-wrap gap-4">
               <Button size="lg" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
-                <Link href="/settings">
-                  <span className="flex items-center">Get Started <ArrowRight className="ml-2 h-5 w-5" /></span>
+                <Link href="/auth">
+                  <span className="flex items-center">Sign In / Register <LogIn className="ml-2 h-5 w-5" /></span>
                 </Link>
               </Button>
               <Button size="lg" variant="outline" className="border-purple-200 text-purple-700 hover:bg-purple-50">
@@ -120,8 +120,8 @@ export default function Home() {
                 </Link>
               </Button>
               <Button size="lg" variant="secondary" className="bg-gray-100 hover:bg-gray-200">
-                <Link href="/auth">
-                  <span className="flex items-center">Sign In <LogIn className="ml-2 h-5 w-5" /></span>
+                <Link href="/settings">
+                  <span className="flex items-center">Get Started <ArrowRight className="ml-2 h-5 w-5" /></span>
                 </Link>
               </Button>
             </div>

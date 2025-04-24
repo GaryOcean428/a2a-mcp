@@ -52,24 +52,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   } = useQuery<User | null, Error>({
     queryKey: ['/api/user'],
     retry: false,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes (was cacheTime in v4)
     queryFn: async ({ signal }) => {
       try {
-        const response = await fetch('/api/user', { signal });
+        console.log('Fetching user data from /api/user');
+        const response = await fetch('/api/user', { 
+          signal,
+          credentials: 'include',  // Important for cookies in production
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          }
+        });
         
         if (response.status === 401) {
+          console.log('Not authenticated (401), returning null');
           // Not authenticated, return null instead of throwing
           return null;
         }
         
         if (!response.ok) {
-          throw new Error('Failed to fetch user data');
+          console.error('Failed to fetch user data:', response.status, response.statusText);
+          throw new Error(`Failed to fetch user data: ${response.status} ${response.statusText}`);
         }
         
-        return await response.json();
+        const userData = await response.json();
+        console.log('User data received:', userData ? 'User authenticated' : 'No user data');
+        return userData;
       } catch (err) {
         // If it's a network error or abort, return null
-        if (err instanceof Error && (err.name === 'AbortError' || err.message.includes('fetch'))) {
-          return null;
+        if (err instanceof Error) {
+          console.error('Error fetching user data:', err.message);
+          if (err.name === 'AbortError' || err.message.includes('fetch')) {
+            return null;
+          }
         }
         throw err;
       }
