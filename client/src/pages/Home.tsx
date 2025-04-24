@@ -98,31 +98,62 @@ export default function Home() {
   return (
     <div>
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-purple-50 via-indigo-50 to-white py-16 mb-8 rounded-xl shadow-lg border border-purple-100/50 relative overflow-hidden">
-        <div className="absolute inset-0 bg-grid-gray-100/50 pointer-events-none"></div>
+      <div className="bg-gradient-to-br from-purple-50 via-indigo-50 to-white py-20 mb-12 rounded-xl shadow-lg border border-purple-100/50 relative overflow-hidden">
+        {/* Enhanced grid background with animations */}
+        <div className="absolute inset-0 bg-grid-gray-100 opacity-50 pointer-events-none"></div>
+        
+        {/* Animated decorative elements */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-200/20 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-purple-200/20 rounded-full translate-y-1/3 -translate-x-1/4 blur-3xl"></div>
+        
         <div className="container mx-auto px-6 relative">
           <div className="max-w-3xl">
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
+            {/* New badge element */}
+            <div className="inline-block mb-4 animate-fade-in-down">
+              <span className="px-3 py-1 text-sm font-medium text-indigo-800 bg-indigo-100 rounded-full border border-indigo-200 shadow-sm">
+                New in v2.5
+              </span>
+            </div>
+            
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 leading-tight">
               <span className="bg-gradient-to-r from-purple-600 to-indigo-600 text-transparent bg-clip-text">
                 MCP Integration Platform 
               </span>
-              <span className="inline-block ml-2 px-3 py-1 bg-indigo-100 text-indigo-800 rounded-md text-xl">v2.5</span>
+              <span className="inline-block ml-2 px-3 py-1 bg-indigo-100 text-indigo-800 rounded-md text-xl shadow-sm">v2.5</span>
             </h1>
-            <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+            
+            <p className="text-xl text-gray-600 mb-8 leading-relaxed max-w-2xl">
               A secure, high-performance Model Context Protocol (MCP) integration platform that provides standardized interfaces for AI-powered applications to leverage web search, form automation, vector storage, and data scraping.
             </p>
+            
+            {/* Featured labels */}
+            <div className="flex flex-wrap gap-3 mb-8">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                Secure API
+              </span>
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
+                <span className="w-2 h-2 bg-indigo-500 rounded-full mr-2"></span>
+                Multiple Providers
+              </span>
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                Vector Database
+              </span>
+            </div>
+            
             <div className="flex flex-wrap gap-4">
-              <Button size="lg" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
+              <Button size="lg" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all">
                 <a href="/auth">
                   <span className="flex items-center">Sign In / Register <LogIn className="ml-2 h-5 w-5" /></span>
                 </a>
               </Button>
-              <Button size="lg" variant="outline" className="border-purple-200 text-purple-700 hover:bg-purple-50">
+              <Button size="lg" variant="outline" className="border-purple-200 text-purple-700 hover:bg-purple-50 shadow-sm hover:shadow transition-all">
                 <Link href="/documentation">
                   <span className="flex items-center">Documentation <FileText className="ml-2 h-5 w-5" /></span>
                 </Link>
               </Button>
-              <Button size="lg" variant="secondary" className="bg-gray-100 hover:bg-gray-200">
+              <Button size="lg" variant="secondary" className="bg-gray-100 hover:bg-gray-200 shadow-sm hover:shadow transition-all">
                 <Link href="/settings">
                   <span className="flex items-center">Get Started <ArrowRight className="ml-2 h-5 w-5" /></span>
                 </Link>
