@@ -221,13 +221,31 @@ export default function Header() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                // User is not logged in - show login button
+                // User is not logged in - show login button (with high visibility)
                 <Link href="/auth">
-                  <Button variant="outline" className="flex items-center border-purple-200 text-purple-700 hover:bg-purple-50">
+                  <Button 
+                    className="flex items-center bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-sm"
+                  >
                     <LogIn className="h-4 w-4 mr-2" />
-                    Log in
+                    Sign In
                   </Button>
                 </Link>
+              )}
+              
+              {/* Always show login link for production environments as a backup */}
+              {!isAuthenticated && (process.env.NODE_ENV === 'production' || import.meta.env.PROD) && (
+                <div className="ml-2">
+                  <a 
+                    href="/auth" 
+                    className="text-xs text-purple-600 underline hover:text-purple-800"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigate('/auth');
+                    }}
+                  >
+                    Login Page
+                  </a>
+                </div>
               )}
               
               {/* Mobile menu button */}
@@ -265,7 +283,7 @@ export default function Header() {
               </Link>
             ))}
             
-            {isAuthenticated && (
+            {isAuthenticated ? (
               <div 
                 className="px-3 py-2 rounded-md text-base font-medium flex items-center bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-700 mt-4"
                 onClick={() => {
@@ -275,6 +293,18 @@ export default function Header() {
               >
                 <span className="mr-3"><PlusCircle className="h-5 w-5" /></span>
                 New Connection
+              </div>
+            ) : (
+              // Login button for mobile when not authenticated
+              <div 
+                className="px-3 py-2 rounded-md text-base font-medium flex items-center bg-gradient-to-r from-purple-600 to-indigo-600 text-white mt-4"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  navigate("/auth");
+                }}
+              >
+                <span className="mr-3"><LogIn className="h-5 w-5" /></span>
+                Sign In / Register
               </div>
             )}
           </nav>

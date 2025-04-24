@@ -7,6 +7,7 @@ import { Search, FileText, Database, Code, ArrowRight, Activity, Sparkles, Layer
 import { mcpClient } from '@/lib/mcp-client';
 import { SystemStatus } from '@shared/schema';
 import { useToast } from '@/hooks/use-toast';
+import LoginPrompt from '@/components/LoginPrompt';
 
 export default function Home() {
   const [status, setStatus] = useState<SystemStatus | null>(null);
@@ -97,7 +98,7 @@ export default function Home() {
   return (
     <div>
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-purple-50 via-indigo-50 to-white py-12 mb-12 rounded-lg shadow-sm">
+      <div className="bg-gradient-to-br from-purple-50 via-indigo-50 to-white py-12 mb-6 rounded-lg shadow-sm">
         <div className="container mx-auto px-6">
           <div className="max-w-3xl">
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
@@ -110,9 +111,9 @@ export default function Home() {
             </p>
             <div className="flex flex-wrap gap-4">
               <Button size="lg" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
-                <Link href="/auth">
+                <a href="/auth">
                   <span className="flex items-center">Sign In / Register <LogIn className="ml-2 h-5 w-5" /></span>
-                </Link>
+                </a>
               </Button>
               <Button size="lg" variant="outline" className="border-purple-200 text-purple-700 hover:bg-purple-50">
                 <Link href="/documentation">
@@ -127,6 +128,11 @@ export default function Home() {
             </div>
           </div>
         </div>
+      </div>
+      
+      {/* Authentication Prompt */}
+      <div className="container mx-auto px-6 mb-6">
+        <LoginPrompt />
       </div>
       
       {/* Features Section */}
