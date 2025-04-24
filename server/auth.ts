@@ -32,8 +32,8 @@ export function setupAuth(app: Express) {
     saveUninitialized: false,
     store: storage.sessionStore,
     cookie: {
-      // Only use secure cookies in production
-      secure: process.env.NODE_ENV === 'production',
+      // Set secure to false to allow login on HTTP or HTTPS
+      secure: false,
       // Set SameSite attribute to lax for better compatibility
       sameSite: 'lax',
       maxAge: 24 * 60 * 60 * 1000 // 24 hours
