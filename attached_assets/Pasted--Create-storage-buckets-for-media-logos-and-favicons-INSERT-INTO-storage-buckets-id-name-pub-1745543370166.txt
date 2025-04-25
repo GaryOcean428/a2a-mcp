@@ -1,0 +1,70 @@
+
+-- Create storage buckets for media, logos, and favicons
+INSERT INTO storage.buckets (id, name, public) 
+VALUES 
+  ('media', 'media', true),
+  ('logos', 'logos', true),
+  ('favicons', 'favicons', true),
+  ('content-images', 'content-images', true),
+  ('hero-images', 'hero-images', true),
+  ('profile-images', 'profile-images', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Create policies to allow public access to read from these buckets
+CREATE POLICY "Allow public read access to logos"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'logos');
+
+CREATE POLICY "Allow public read access to favicons"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'favicons');
+
+CREATE POLICY "Allow public read access to media"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'media');
+
+CREATE POLICY "Allow public read access to content-images"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'content-images');
+
+CREATE POLICY "Allow public read access to hero-images"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'hero-images');
+
+CREATE POLICY "Allow public read access to profile-images"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'profile-images');
+
+-- Create policies to allow authenticated users to upload to these buckets
+CREATE POLICY "Allow authenticated users to upload logos"
+  ON storage.objects FOR INSERT TO authenticated
+  WITH CHECK (bucket_id = 'logos');
+
+CREATE POLICY "Allow authenticated users to upload favicons"
+  ON storage.objects FOR INSERT TO authenticated
+  WITH CHECK (bucket_id = 'favicons');
+
+CREATE POLICY "Allow authenticated users to upload media"
+  ON storage.objects FOR INSERT TO authenticated
+  WITH CHECK (bucket_id = 'media');
+
+CREATE POLICY "Allow authenticated users to upload content-images"
+  ON storage.objects FOR INSERT TO authenticated
+  WITH CHECK (bucket_id = 'content-images');
+
+CREATE POLICY "Allow authenticated users to upload hero-images"
+  ON storage.objects FOR INSERT TO authenticated
+  WITH CHECK (bucket_id = 'hero-images');
+
+CREATE POLICY "Allow authenticated users to upload profile-images"
+  ON storage.objects FOR INSERT TO authenticated
+  WITH CHECK (bucket_id = 'profile-images');
+
+-- Create policies to allow authenticated users to update and delete their own objects
+CREATE POLICY "Allow authenticated users to update their uploads"
+  ON storage.objects FOR UPDATE TO authenticated
+  USING (auth.uid() = owner);
+
+CREATE POLICY "Allow authenticated users to delete their uploads"
+  ON storage.objects FOR DELETE TO authenticated
+  USING (auth.uid() = owner);

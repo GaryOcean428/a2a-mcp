@@ -4,6 +4,51 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
     <title>MCP Integration Platform</title>
+    <!-- Critical UI styles to ensure they're always loaded in production -->
+    <style>
+      /* Critical UI styles for production - PLEASE DO NOT REMOVE */
+      .bg-grid-gray-100 {
+        background-image: 
+          linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+        background-size: 24px 24px;
+      }
+      
+      .bg-blob-gradient {
+        background-image: radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.1) 0%, transparent 75%);
+        filter: blur(50px);
+      }
+      
+      .feature-card {
+        background-color: white;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(229, 231, 235);
+        transition: all 0.3s;
+      }
+      
+      .feature-card:hover {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        border-color: rgba(167, 139, 250, 0.4);
+        transform: translateY(-2px);
+      }
+      
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      .animate-fade-in-down {
+        animation: fadeInDown 0.5s ease-out;
+      }
+    </style>
     <style>
       /* Static landing page styles (used before React loads) */
       .static-landing {
