@@ -1,6 +1,10 @@
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
+import { VERSION } from './version';
+
+// Log version on startup to verify the correct version is deployed
+console.log(`MCP Integration Platform v${VERSION}`);
 
 // Workaround for Vite WebSocket connection errors
 // This prevents the WebSocket errors from being shown to users

@@ -11,6 +11,20 @@ import { z } from "zod";
 import { insertUserSchema } from "@shared/schema";
 import { setupAuth, requireAuth } from "./auth";
 
+// Cache control middleware for production static assets
+const cacheControl = (req: Request, res: Response, next: NextFunction) => {
+  // Add cache busting for CSS and JS files in production
+  if (process.env.NODE_ENV === 'production') {
+    if (req.path.endsWith('.css') || req.path.endsWith('.js')) {
+      // Set cache control headers to prevent caching
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    }
+  }
+  next();
+};
+
 // Create authentication validation schemas
 const loginSchema = z.object({
   username: z.string().min(3).max(30),
@@ -25,6 +39,9 @@ const registerSchema = insertUserSchema.extend({
 export async function registerRoutes(app: Express): Promise<Server> {
   // Create HTTP server
   const httpServer = createServer(app);
+  
+  // Apply cache control middleware to prevent caching of static assets in production
+  app.use(cacheControl);
   
   // Initialize MCP controller with WebSocket support
   mcpController.initialize(httpServer);

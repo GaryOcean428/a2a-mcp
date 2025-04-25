@@ -32,12 +32,12 @@ export function setupAuth(app: Express) {
     saveUninitialized: false,
     store: storage.sessionStore,
     cookie: {
-      // Set secure to false to allow login on HTTP or HTTPS
-      secure: false,
-      // Set SameSite attribute to lax for better compatibility
-      sameSite: 'none',
-      // Allow cookies to work across subdomains
-      domain: process.env.NODE_ENV === 'production' ? '.replit.app' : undefined,
+      // Use secure cookies in production, allow HTTP in development
+      secure: process.env.NODE_ENV === 'production',
+      // Use lax SameSite in production for better compatibility
+      sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'none',
+      // Domain setting for cookies
+      domain: undefined, // Let browser set this automatically
       path: '/',
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000 // 24 hours
