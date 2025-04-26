@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'wouter';
+import { useNavigation } from '@/hooks/use-navigation';
 import { 
   PlusCircle, 
   Code, 
@@ -80,6 +81,7 @@ export default function Header() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [location, navigate] = useLocation();
+  const { activeRoute, navigateToTool } = useNavigation();
   const { toast } = useToast();
 
   // Handle logout
