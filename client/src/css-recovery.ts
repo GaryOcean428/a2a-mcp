@@ -257,18 +257,48 @@
     }
   }
 
-  // Only run in production or when explicitly requested
-  if (process.env.NODE_ENV === 'production' || window.location.search.includes('fix-css=true')) {
-    // Check if document is already loaded
-    if (document.readyState === 'complete') {
+  // Always run - it's critical to have consistent UI everywhere
+  // If in development mode, only run verification without fixing unless explicitly requested
+  const shouldFix = process.env.NODE_ENV === 'production' || 
+                   window.location.search.includes('fix-css=true') ||
+                   window.location.hostname.includes('replit.app');
+
+  // Run immediately for fastest possible recovery
+  // Check if document is already loaded
+  if (document.readyState === 'complete') {
+    if (shouldFix) {
       recoverMissingStyles();
     } else {
-      // Otherwise wait for the document to load
-      window.addEventListener('load', () => {
-        // Small delay to ensure all styles are loaded
-        setTimeout(recoverMissingStyles, 100);
-      });
+      // In development, just verify but don't fix automatically
+      console.log('[CSS Recovery] Development mode - only verifying styles');
+      const missingClasses = Object.keys(CRITICAL_STYLES).filter(cls => !testClass(cls));
+      if (missingClasses.length > 0) {
+        console.warn('[CSS Recovery] Found missing styles in development:', missingClasses);
+        console.log('[CSS Recovery] Add ?fix-css=true to URL to auto-fix');
+      } else {
+        console.log('[CSS Recovery] All styles verified in development ✓');
+      }
     }
+  } else {
+    // Otherwise wait for the document to load
+    window.addEventListener('load', () => {
+      // Small delay to ensure all styles are loaded
+      setTimeout(() => {
+        if (shouldFix) {
+          recoverMissingStyles();
+        } else {
+          // In development, just verify
+          console.log('[CSS Recovery] Development mode - only verifying styles');
+          const missingClasses = Object.keys(CRITICAL_STYLES).filter(cls => !testClass(cls));
+          if (missingClasses.length > 0) {
+            console.warn('[CSS Recovery] Found missing styles in development:', missingClasses);
+            console.log('[CSS Recovery] Add ?fix-css=true to URL to auto-fix');
+          } else {
+            console.log('[CSS Recovery] All styles verified in development ✓');
+          }
+        }
+      }, 100);
+    });
   }
   
   // Expose the recovery function globally for manual triggering

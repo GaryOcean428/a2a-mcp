@@ -1,10 +1,12 @@
-/* 
- * MCP Integration Platform - Production CSS
- * This file contains critical styles that must be preserved in production
- * to ensure UI consistency with development environment
+/**
+ * MCP Integration Platform - Critical Production CSS
+ * 
+ * This file contains critical styles that must be preserved in production.
+ * It serves as a fallback mechanism for styles that might be purged by
+ * the build process despite safelist settings.
  */
 
-/* Grid and background styles */
+/* Grid and background patterns */
 .bg-grid-gray-100 {
   background-image: 
     linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
@@ -17,7 +19,23 @@
   filter: blur(50px);
 }
 
-/* Card styles */
+/* Animation styles - this is the critical one that causes issues */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-down {
+  animation: fadeInDown 0.5s ease-out;
+}
+
+/* Feature card styles */
 .feature-card {
   background-color: white;
   padding: 1.5rem;
@@ -33,20 +51,19 @@
   transform: translateY(-2px);
 }
 
-/* Animation styles */
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Gradient background styles */
+.from-purple-50 {
+  --tw-gradient-from: #faf5ff;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
 }
 
-.animate-fade-in-down {
-  animation: fadeInDown 0.5s ease-out;
+.via-indigo-50 {
+  --tw-gradient-via: #eef2ff;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to);
+}
+
+.to-white {
+  --tw-gradient-to: #ffffff;
 }
 
 /* Group hover effects */
@@ -64,7 +81,29 @@
   opacity: 1;
 }
 
-/* Hover effects */
+/* Text hover effects */
+.group-hover\:text-purple-700 {
+  transition: color 0.3s ease-out;
+}
+.group:hover .group-hover\:text-purple-700 {
+  color: rgba(126, 34, 206, 1);
+}
+
+.group-hover\:text-indigo-700 {
+  transition: color 0.3s ease-out;
+}
+.group:hover .group-hover\:text-indigo-700 {
+  color: rgba(67, 56, 202, 1);
+}
+
+.group-hover\:text-violet-700 {
+  transition: color 0.3s ease-out;
+}
+.group:hover .group-hover\:text-violet-700 {
+  color: rgba(109, 40, 217, 1);
+}
+
+/* Element hover effects */
 .hover\:shadow-lg:hover {
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
@@ -75,37 +114,4 @@
 
 .hover\:translate-y-\[-2px\]:hover {
   transform: translateY(-2px);
-}
-
-/* Gradient backgrounds */
-.from-purple-50 {
-  --tw-gradient-from: #faf5ff;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
-}
-.via-indigo-50 {
-  --tw-gradient-via: #eef2ff;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to);
-}
-.to-white {
-  --tw-gradient-to: #ffffff;
-}
-
-/* Text colors on hover */
-.group-hover\:text-purple-700 {
-  transition: color 0.3s ease-out;
-}
-.group:hover .group-hover\:text-purple-700 {
-  color: rgba(126, 34, 206, 1);
-}
-.group-hover\:text-indigo-700 {
-  transition: color 0.3s ease-out;
-}
-.group:hover .group-hover\:text-indigo-700 {
-  color: rgba(67, 56, 202, 1);
-}
-.group-hover\:text-violet-700 {
-  transition: color 0.3s ease-out;
-}
-.group:hover .group-hover\:text-violet-700 {
-  color: rgba(109, 40, 217, 1);
 }

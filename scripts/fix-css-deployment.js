@@ -8,6 +8,13 @@
  * 2. Creating a production-ready CSS file that bypasses Tailwind purging
  * 3. Injecting version-controlled references to CSS files in HTML
  * 4. Implementing multiple fallback mechanisms for style loading
+ * 5. Special handling for the problematic animate-fade-in-down class
+ * 
+ * Known Issues Fixed:
+ * - Missing animate-fade-in-down class in production
+ * - Inconsistent grid styles between environments
+ * - Feature cards losing hover effects
+ * - Missing gradient backgrounds in production
  */
 
 import fs from 'fs';

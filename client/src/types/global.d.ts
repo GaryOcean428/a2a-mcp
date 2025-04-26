@@ -1,25 +1,25 @@
-// Global type definitions for the MCP Integration Platform
+/**
+ * MCP Integration Platform Global TypeScript Definitions
+ * 
+ * These definitions extend the Window interface with custom properties and
+ * methods added by the MCP platform, particularly for CSS verification and
+ * runtime recovery.
+ */
 
 interface Window {
-  // Version identifiers for the application
-  MCP_VERSION: string;
-  mcpVersion: string;
+  // CSS recovery function exposed by css-recovery.ts
+  recoverMissingStyles: () => void;
   
-  // Style verification functions
-  verifyCriticalStyles?: () => void;
-  loadFallbackStyles?: () => void;
+  // CSS verification function exposed by CssVerification component
+  verifyCss: () => void;
+  
+  // Version tracking
+  MCP_VERSION: string;
 }
 
-// Extend the HTML element dataset to include version
-interface HTMLElementDataset {
-  mcpVersion?: string;
-}
-
-// Declare non-standard CSS properties for verification
-interface CSSStyleDeclaration {
-  // Tailwind CSS custom properties
-  '--tw-gradient-from': string;
-  '--tw-gradient-via': string;
-  '--tw-gradient-to': string;
-  '--tw-gradient-stops': string;
+// Extend document element with custom data attributes
+interface HTMLHtmlElement extends HTMLElement {
+  dataset: {
+    mcpVersion: string;
+  }
 }
