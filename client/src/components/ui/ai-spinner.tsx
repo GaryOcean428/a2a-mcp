@@ -235,7 +235,7 @@ function getServiceTheme(service: AIServiceType) {
       };
     case "azure":
       return {
-        icon: SiMicrosoftazure,
+        icon: Cloud,
         bgColor: "bg-blue-500",
         textColor: "text-blue-600",
         ringColor: "border-blue-500",

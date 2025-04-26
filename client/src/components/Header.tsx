@@ -13,7 +13,8 @@ import {
   FileText,
   Database,
   Settings,
-  HelpCircle
+  HelpCircle,
+  Loader
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -61,6 +62,11 @@ const navLinks: NavItem[] = [
     href: '/data-scraping',
     label: 'Data Scraping',
     icon: <Code className="h-5 w-5" />
+  },
+  {
+    href: '/spinners',
+    label: 'UI Components',
+    icon: <Loader className="h-5 w-5" />
   },
   {
     href: '/settings',
