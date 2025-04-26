@@ -1,5 +1,6 @@
-// Import CSS recovery system first to ensure it loads before anything else
+// Import CSS recovery and verification systems first 
 import './css-recovery';
+import './verification';
 
 import { createRoot } from "react-dom/client";
 import App from "./App";

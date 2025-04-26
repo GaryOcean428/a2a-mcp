@@ -4,13 +4,10 @@ export default {
   darkMode: ["class"],
   content: ["./client/index.html", "./client/src/**/*.{js,jsx,ts,tsx}"],
   safelist: [
-    // Background patterns and gradients
     'bg-grid-gray-100',
     'bg-blob-gradient',
     'feature-card',
     'animate-fade-in-down',
-    
-    // Gradient colors
     'from-purple-50',
     'from-purple-600',
     'from-purple-700',
@@ -19,8 +16,6 @@ export default {
     'to-indigo-600',
     'to-indigo-700',
     'bg-gradient-to-r',
-    
-    // Hover states
     'group-hover:scale-110',
     'group-hover:opacity-100',
     'group-hover:text-purple-700',
@@ -29,19 +24,13 @@ export default {
     'hover:shadow-lg',
     'hover:border-purple-200',
     'hover:translate-y-[-2px]',
-    
-    // Animation classes
     'animate-in',
     'fade-in',
     'animate-spin',
-    
-    // Component-specific classes
     'ai-spinner-dot',
     'spinner-border',
     'loader-with-spinners-container',
     'loader-spinner-pulse',
-    
-    // Shadcn UI classes that need protection
     'radix-side-top',
     'radix-side-right',
     'radix-side-bottom',
