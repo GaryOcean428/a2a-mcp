@@ -336,8 +336,7 @@ export default function VectorStorage() {
         <TabsContent value="configuration">
           <VectorStorageConfig
             config={config}
-            setConfig={setConfig}
-            onSave={handleSaveConfig}
+            onChange={setConfig}
           />
         </TabsContent>
         <TabsContent value="schema">

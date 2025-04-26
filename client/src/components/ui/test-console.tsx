@@ -84,7 +84,15 @@ export function TestConsole({ toolName, defaultParams = {}, inputSchema }: TestC
             disabled={isLoading}
             className="bg-primary hover:bg-opacity-90 text-white px-4 py-2 rounded-md flex items-center"
           >
-            <Play className="h-4 w-4 mr-2" />
+            {isLoading ? (
+              <AISpinner service={toolName === 'web_search' ? 'websearch' : 
+                            toolName === 'vector_storage' ? 'pinecone' : 'generic'} 
+                        size="xs" 
+                        type="ring" 
+                        className="mr-2" />
+            ) : (
+              <Play className="h-4 w-4 mr-2" />
+            )}
             {isLoading ? 'Executing...' : 'Execute Request'}
           </button>
         </div>
