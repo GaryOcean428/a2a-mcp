@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import App from "./App";
-import "./index.css";
+import './index.css';
+import './production.css'; // Critical CSS for production;
 import { VERSION } from './version';
 
 // Log version on startup to verify the correct version is deployed

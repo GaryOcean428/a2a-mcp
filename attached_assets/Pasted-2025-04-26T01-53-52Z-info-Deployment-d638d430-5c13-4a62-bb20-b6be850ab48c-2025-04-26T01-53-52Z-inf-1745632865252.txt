@@ -1,0 +1,75 @@
+2025-04-26T01:53:52Z info: Deployment: d638d430-5c13-4a62-bb20-b6be850ab48c
+2025-04-26T01:53:52Z info: Build: d59867ea-105d-4fa5-b94c-4b3bf48aa5a6
+2025-04-26T01:53:52Z info: Connecting to builder
+2025-04-26T01:53:52Z info: Deployment: d638d430-5c13-4a62-bb20-b6be850ab48c
+2025-04-26T01:53:52Z info: Build: d59867ea-105d-4fa5-b94c-4b3bf48aa5a6
+2025-04-26T01:53:52Z info: Connecting to builder
+2025-04-26T01:53:55Z info: Builder connected
+2025-04-26T01:53:56Z info: Installing packages
+2025-04-26T01:53:56Z info: Starting Build
+
+> rest-express@1.0.0 build
+> vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+
+vite v5.4.14 building for production...
+
+transforming...
+
+Browserslist: browsers data (caniuse-lite) is 6 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+
+✓ 1922 modules transformed.
+
+rendering chunks...
+
+computing gzip size...
+
+../dist/public/index.html                  17.54 kB │ gzip:   4.52 kB
+../dist/public/assets/index-DzcpbvTJ.css   99.70 kB │ gzip:  15.39 kB
+
+../dist/public/assets/index-8Es0a4ej.js   693.47 kB │ gzip: 199.95 kB
+
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+✓ built in 8.42s
+
+
+  dist/index.js  95.8kb
+
+⚡ Done in 127ms
+
+npm notice
+npm notice New major version of npm available! 10.8.2 -> 11.3.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.3.0
+npm notice To update run: npm install -g npm@11.3.0
+npm notice
+
+2025-04-26T01:54:10Z info: Pushing pid1 binary layer...
+2025-04-26T01:54:12Z info: Created pid1 binary layer
+2025-04-26T01:54:14Z info: Pushing hosting layer...
+2025-04-26T01:54:14Z info: Pushing Repl layer...
+2025-04-26T01:54:14Z info: Retrieved cached nix layer
+2025-04-26T01:54:14Z info: Created hosting layer
+2025-04-26T01:54:38Z info: Created Repl layer
+2025-04-26T01:54:39Z info: Pushed image manifest
+2025-04-26T01:54:39Z info: Pushed soci index manifest
+2025-04-26T01:54:44Z info: Creating Autoscale service
+forwarding local port 5000 to external port 80 (mapped as 1104)
+Form automation service initialized
+Data scraping service initialized
+starting up user application
+OpenAI API key found, initializing client
+E2B API key found, Sandbox execution available
+> rest-express@1.0.0 start
+> NODE_ENV=production node dist/index.js
+WebSocket server initialized at path: /mcp-ws
+Pinecone and OpenAI API keys found, Pinecone vector storage available
+1:55:47 AM [express] serving on port 5000
+2025-04-26T01:55:50Z info: Waiting for service to be ready
+2025-04-26T01:55:52Z info: Deployment successful

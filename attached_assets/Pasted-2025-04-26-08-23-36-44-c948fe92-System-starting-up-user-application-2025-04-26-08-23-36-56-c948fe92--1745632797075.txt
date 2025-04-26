@@ -1,0 +1,148 @@
+2025-04-26 08:23:36.44
+c948fe92
+System
+starting up user application
+2025-04-26 08:23:36.56
+c948fe92
+System
+forwarding local port 5000 to external port 80 (mapped as 1104)
+2025-04-26 08:23:37.77
+c948fe92
+User
+> rest-express@1.0.0 start
+2025-04-26 08:23:37.77
+c948fe92
+User
+> NODE_ENV=production node dist/index.js
+2025-04-26 08:23:40.04
+c948fe92
+User
+OpenAI API key found, initializing client
+2025-04-26 08:23:40.04
+c948fe92
+User
+Form automation service initialized
+2025-04-26 08:23:40.04
+c948fe92
+User
+Pinecone and OpenAI API keys found, Pinecone vector storage available
+2025-04-26 08:23:40.04
+c948fe92
+User
+Data scraping service initialized
+2025-04-26 08:23:40.06
+c948fe92
+User
+WebSocket server initialized at path: /mcp-ws
+2025-04-26 08:23:40.27
+c948fe92
+User
+E2B API key found, Sandbox execution available
+2025-04-26 08:23:40.41
+c948fe92
+User
+12:23:40 AM [express] serving on port 5000
+2025-04-26 08:43:11.50
+c948fe92
+System
+system: received signal terminated
+2025-04-26 08:43:11.51
+c948fe92
+System
+command finished with error [npm run start]: signal: terminated
+2025-04-26 08:43:11.59
+c948fe92
+System
+main done, exiting
+2025-04-26 08:45:48.75
+c948fe92
+System
+starting up user application
+2025-04-26 08:45:48.91
+c948fe92
+System
+forwarding local port 5000 to external port 80 (mapped as 1104)
+2025-04-26 08:45:49.92
+c948fe92
+User
+> rest-express@1.0.0 start
+2025-04-26 08:45:49.92
+c948fe92
+User
+> NODE_ENV=production node dist/index.js
+2025-04-26 08:45:51.17
+c948fe92
+User
+OpenAI API key found, initializing client
+2025-04-26 08:45:51.18
+c948fe92
+User
+Form automation service initialized
+2025-04-26 08:45:51.18
+c948fe92
+User
+Pinecone and OpenAI API keys found, Pinecone vector storage available
+2025-04-26 08:45:51.18
+c948fe92
+User
+Data scraping service initialized
+2025-04-26 08:45:51.18
+c948fe92
+User
+WebSocket server initialized at path: /mcp-ws
+2025-04-26 08:45:51.21
+c948fe92
+User
+E2B API key found, Sandbox execution available
+2025-04-26 08:45:51.25
+c948fe92
+User
+12:45:51 AM [express] serving on port 5000
+2025-04-26 09:55:43.54
+d59867ea
+System
+starting up user application
+2025-04-26 09:55:43.68
+d59867ea
+System
+forwarding local port 5000 to external port 80 (mapped as 1104)
+2025-04-26 09:55:44.94
+d59867ea
+User
+> rest-express@1.0.0 start
+2025-04-26 09:55:44.94
+d59867ea
+User
+> NODE_ENV=production node dist/index.js
+2025-04-26 09:55:47.37
+d59867ea
+User
+OpenAI API key found, initializing client
+2025-04-26 09:55:47.37
+d59867ea
+User
+Form automation service initialized
+2025-04-26 09:55:47.37
+d59867ea
+User
+Pinecone and OpenAI API keys found, Pinecone vector storage available
+2025-04-26 09:55:47.37
+d59867ea
+User
+Data scraping service initialized
+2025-04-26 09:55:47.38
+d59867ea
+User
+WebSocket server initialized at path: /mcp-ws
+2025-04-26 09:55:47.50
+d59867ea
+User
+E2B API key found, Sandbox execution available
+2025-04-26 09:55:47.57
+d59867ea
+User
+1:55:47 AM [express] serving on port 5000
+2025-04-26 09:58:04.19
+d59867ea
+User
+1:58:04 AM [express] GET /api/status 200 in 4ms :: {"version":"0.1.0-alpha","uptime":126,"transport"…
