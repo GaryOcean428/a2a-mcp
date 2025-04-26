@@ -10,6 +10,7 @@ import { VectorStorageParams } from '@shared/schema';
 import { mcpClient } from '@/lib/mcp-client';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
+import { AISpinner } from '@/components/ui/ai-spinner';
 
 export default function VectorStorage() {
   const [config, setConfig] = useState<Partial<VectorStorageParams>>({

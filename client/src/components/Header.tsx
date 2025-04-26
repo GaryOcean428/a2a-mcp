@@ -64,11 +64,6 @@ const navLinks: NavItem[] = [
     icon: <Code className="h-5 w-5" />
   },
   {
-    href: '/spinners',
-    label: 'UI Components',
-    icon: <Loader className="h-5 w-5" />
-  },
-  {
     href: '/settings',
     label: 'Settings',
     icon: <Settings className="h-5 w-5" />

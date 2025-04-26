@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Play } from 'lucide-react';
 import { mcpClient } from '@/lib/mcp-client';
+import { AISpinner } from '@/components/ui/ai-spinner';
 
 interface TestConsoleProps {
   toolName: string;
@@ -107,9 +108,19 @@ export function TestConsole({ toolName, defaultParams = {}, inputSchema }: TestC
               <pre className="whitespace-pre-wrap break-words">
                 {JSON.stringify(response, null, 2)}
               </pre>
+            ) : isLoading ? (
+              <div className="flex items-center justify-center h-full">
+                <AISpinner 
+                  service={toolName === 'web_search' ? 'websearch' : 
+                           toolName === 'vector_storage' ? 'pinecone' : 'generic'} 
+                  label="Processing request..." 
+                  size="md"
+                  type="wave"
+                />
+              </div>
             ) : (
               <div className="text-gray-400 italic">
-                {isLoading ? 'Executing request...' : 'Execute a request to see the response here'}
+                Execute a request to see the response here
               </div>
             )}
           </div>

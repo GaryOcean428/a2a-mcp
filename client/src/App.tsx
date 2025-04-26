@@ -14,7 +14,6 @@ import Settings from "@/pages/Settings";
 import Documentation from "@/pages/Documentation";
 import ClineIntegration from "@/pages/ClineIntegration";
 import AuthPage from "@/pages/auth-page";
-import SpinnerPage from "@/pages/spinner-page";
 import NotFound from "@/pages/not-found";
 import LoginButton from "@/pages/LoginButton";
 import LoginRouter from "@/pages/LoginRouter";
@@ -46,7 +45,6 @@ function Router() {
               <Route path="/documentation" component={Documentation} />
               <Route path="/docs" component={Documentation} />
               <Route path="/cline-integration" component={ClineIntegration} />
-              <Route path="/spinners" component={SpinnerPage} />
               <Route component={NotFound} />
             </Switch>
           </Layout>
