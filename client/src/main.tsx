@@ -1,8 +1,20 @@
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import './index.css';
-import './production.css'; // Critical CSS for production;
+import './production.css'; // Critical CSS for production
 import { VERSION } from './version';
+import CssVerification from './components/CssVerification';
+
+// CSS Verification will check critical styles are applied correctly
+// and apply fallbacks as needed - must run before any other components
+function AppWithVerification() {
+  return (
+    <>
+      <CssVerification />
+      <App />
+    </>
+  );
+}
 
 // Log version on startup to verify the correct version is deployed
 console.log(`MCP Integration Platform v${VERSION}`);
@@ -37,4 +49,19 @@ window.addEventListener('unhandledrejection', (event) => {
   }
 });
 
-createRoot(document.getElementById("root")!).render(<App />);
+// Set a global variable for the app version
+(window as any).MCP_VERSION = VERSION;
+
+// Add version to document for debugging
+document.documentElement.dataset.mcpVersion = VERSION;
+
+// Hide static landing page when app mounts
+const staticLanding = document.querySelector('.static-landing');
+if (staticLanding) {
+  createRoot(document.getElementById("root")!).render(<AppWithVerification />);
+  setTimeout(() => {
+    staticLanding.classList.add('hidden');
+  }, 500);
+} else {
+  createRoot(document.getElementById("root")!).render(<AppWithVerification />);
+}
