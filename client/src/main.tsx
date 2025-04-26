@@ -1,3 +1,6 @@
+// Import CSS recovery system first to ensure it loads before anything else
+import './css-recovery';
+
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import './index.css';
