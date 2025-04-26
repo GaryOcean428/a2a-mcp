@@ -11,6 +11,7 @@ import { mcpClient } from '@/lib/mcp-client';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { AISpinner } from '@/components/ui/ai-spinner';
+import { LoaderWithSpinners } from '@/components/ui/loader-with-spinners';
 
 export default function VectorStorage() {
   const [config, setConfig] = useState<Partial<VectorStorageParams>>({
@@ -246,13 +247,13 @@ export default function VectorStorage() {
               <div className="bg-muted/30 p-3 rounded-md">
                 <h4 className="text-sm font-medium mb-1">Status</h4>
                 <p className="text-sm">
-                  {isLoading ? (
-                    <RefreshCw className="h-4 w-4 animate-spin inline mr-2" />
-                  ) : toolStatus?.available ? (
-                    <span className="text-green-600 font-medium">Ready</span>
-                  ) : (
-                    <span className="text-red-600 font-medium">{toolStatus?.error || "Not available"}</span>
-                  )}
+                  <LoaderWithSpinners
+                    isLoading={isLoading}
+                    toolName="pinecone"
+                    isActive={toolStatus?.available}
+                    error={toolStatus?.error}
+                    size="xs"
+                  />
                 </p>
               </div>
               <div className="bg-muted/30 p-3 rounded-md">
@@ -293,13 +294,13 @@ export default function VectorStorage() {
               <div className="bg-muted/30 p-3 rounded-md">
                 <h4 className="text-sm font-medium mb-1">Status</h4>
                 <p className="text-sm">
-                  {isLoading ? (
-                    <RefreshCw className="h-4 w-4 animate-spin inline mr-2" />
-                  ) : toolStatus?.available ? (
-                    <span className="text-green-600 font-medium">Ready</span>
-                  ) : (
-                    <span className="text-red-600 font-medium">{toolStatus?.error || "Not available"}</span>
-                  )}
+                  <LoaderWithSpinners
+                    isLoading={isLoading}
+                    toolName="weaviate"
+                    isActive={toolStatus?.available}
+                    error={toolStatus?.error}
+                    size="xs"
+                  />
                 </p>
               </div>
               <div className="bg-muted/30 p-3 rounded-md">
@@ -326,6 +327,37 @@ export default function VectorStorage() {
       </Card>
 
       {/* Configuration Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+        <TabsList className="grid grid-cols-3 mb-4">
+          <TabsTrigger value="configuration">Configuration</TabsTrigger>
+          <TabsTrigger value="schema">Tool Schema</TabsTrigger>
+          <TabsTrigger value="test-console">Test Console</TabsTrigger>
+        </TabsList>
+        <TabsContent value="configuration">
+          <VectorStorageConfig
+            config={config}
+            setConfig={setConfig}
+            onSave={handleSaveConfig}
+          />
+        </TabsContent>
+        <TabsContent value="schema">
+          {schema ? (
+            <ToolSchema schema={schema} />
+          ) : (
+            <div className="flex items-center justify-center p-6">
+              <AISpinner type="dots" service="generic" size="md" />
+            </div>
+          )}
+        </TabsContent>
+        <TabsContent value="test-console">
+          <TestConsole
+            toolName="vector_storage"
+            defaultParams={getDefaultParams()}
+            inputSchema={schema?.inputSchema}
+          />
+        </TabsContent>
+      </Tabs>
+
       {/* Configuration Presets */}
       <div className="mb-6">
         <h3 className="text-lg font-medium mb-3">Configuration Presets</h3>
@@ -341,141 +373,50 @@ export default function VectorStorage() {
               </CardHeader>
               <CardContent className="pt-0">
                 <p className="text-sm text-gray-500 mb-3">{preset.description}</p>
-                <div className="flex items-center mt-2 flex-wrap gap-2">
-                  <span className="text-xs py-1 px-2 rounded-full bg-primary/10 text-primary">
+                <div className="flex justify-between items-center">
+                  <Badge variant="outline">
+                    {preset.config.provider}
+                  </Badge>
+                  <Badge variant="secondary">
                     {preset.config.operation}
-                  </span>
-                  <span className="text-xs py-1 px-2 rounded-full bg-gray-100">
-                    {preset.config.collection}
-                  </span>
-                  {preset.config.provider && (
-                    <span className={`text-xs py-1 px-2 rounded-full ${
-                      preset.config.provider === 'weaviate' 
-                        ? 'bg-blue-100 text-blue-700' 
-                        : 'bg-amber-100 text-amber-700'
-                    }`}>
-                      {preset.config.provider}
-                    </span>
-                  )}
+                  </Badge>
                 </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="w-full mt-3"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleApplyPreset(preset.config);
-                  }}
-                >
-                  <ZapIcon className="h-3 w-3 mr-1" />
-                  Apply Preset
-                </Button>
               </CardContent>
             </Card>
           ))}
         </div>
       </div>
-
-      <Card className="mb-6 overflow-hidden shadow-sm">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="border-b border-gray-200">
-            <TabsList className="border-b-0">
-              <TabsTrigger value="configuration">Configuration</TabsTrigger>
-              <TabsTrigger value="test-console">Test Console</TabsTrigger>
-              <TabsTrigger value="api-reference">API Reference</TabsTrigger>
-              <TabsTrigger value="logs">Logs</TabsTrigger>
-            </TabsList>
+      
+      {/* Tips Section */}
+      <Card className="mb-6">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center">
+            <ZapIcon className="h-5 w-5 mr-2 text-yellow-400" />
+            Vector Storage Tips
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="flex items-start">
+              <div className="mt-1 mr-3 text-primary">
+                <HelpCircle className="h-4 w-4" />
+              </div>
+              <div>
+                <h4 className="text-sm font-medium">Optimizing Vectors</h4>
+                <p className="text-xs text-gray-500">For high-quality search results, split longer documents into smaller chunks before vectorizing to improve retrieval precision.</p>
+              </div>
+            </div>
+            <div className="flex items-start">
+              <div className="mt-1 mr-3 text-primary">
+                <HelpCircle className="h-4 w-4" />
+              </div>
+              <div>
+                <h4 className="text-sm font-medium">Collection Names</h4>
+                <p className="text-xs text-gray-500">Use consistent naming conventions for your collections to organize data. The format "domain_purpose" works well (e.g., "legal_contracts").</p>
+              </div>
+            </div>
           </div>
-
-          <TabsContent value="configuration" className="p-6 m-0">
-            <VectorStorageConfig config={config} onChange={setConfig} />
-            {schema && (
-              <div className="mt-6">
-                <ToolSchema schema={schema} onRefresh={fetchSchema} />
-              </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="test-console" className="m-0">
-            <TestConsole 
-              toolName="vector_storage" 
-              defaultParams={getDefaultParams()}
-              inputSchema={schema?.inputSchema}
-            />
-          </TabsContent>
-
-          <TabsContent value="api-reference" className="p-6 m-0">
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">API Reference</h3>
-              <p className="text-gray-500">Details on how to integrate with the Vector Storage tool via MCP protocol.</p>
-              
-              <div className="bg-gray-50 p-4 rounded-md">
-                <h4 className="font-medium mb-2">Endpoint</h4>
-                <p className="font-mono text-sm bg-gray-100 p-2 rounded">POST /api/mcp</p>
-                
-                <h4 className="font-medium mt-4 mb-2">Authentication</h4>
-                <p className="text-sm">Requires API key in <code>X-API-Key</code> header.</p>
-                
-                <h4 className="font-medium mt-4 mb-2">Request Format</h4>
-                <pre className="font-mono text-sm bg-gray-100 p-2 rounded overflow-auto">
-{`{
-  "id": "request-123",
-  "name": "vector_storage",
-  "parameters": {
-    "provider": "pinecone",  // or "weaviate"
-    "operation": "search",
-    "collection": "my_vectors",
-    "query": "semantic search query",
-    "filters": { "category": "article" },
-    "limit": 10,
-    
-    // Weaviate-specific options (only needed for weaviate provider)
-    "weaviateOptions": {
-      "className": "CustomClassName",
-      "consistencyLevel": "ONE"  // ONE, QUORUM, or ALL
-    }
-  }
-}`}
-                </pre>
-                
-                <h4 className="font-medium mt-4 mb-2">Response Format</h4>
-                <pre className="font-mono text-sm bg-gray-100 p-2 rounded overflow-auto">
-{`{
-  "id": "request-123",
-  "results": {
-    "results": [
-      {
-        "id": "doc-123",
-        "score": 0.85,
-        "metadata": { "title": "Example Document" },
-        "content": "Document text content"
-      }
-    ],
-    "operation": "search",
-    "collection": "my_vectors",
-    "provider": "pinecone",  // or "weaviate"
-    "metadata": {
-      "processingTime": 120,
-      "timestamp": "2023-06-15T12:30:45.123Z"
-    }
-  }
-}`}
-                </pre>
-              </div>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="logs" className="p-6 m-0">
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Request Logs</h3>
-              <p className="text-gray-500">Recent Vector Storage tool requests and responses.</p>
-              
-              <div className="bg-gray-50 p-4 rounded-md text-center py-8">
-                <p className="text-gray-400">No recent logs available</p>
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
+        </CardContent>
       </Card>
     </div>
   );
