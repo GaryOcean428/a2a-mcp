@@ -26,22 +26,31 @@ MCP (Model Context Protocol) enables LLMs to access custom tools and services.
 
 ### Configure Cline with your MCP Integration Platform
 
-Add the following configuration to your `cascade.json` file for Cline:
+Add the following configuration to your `~/.cline/config.json` file:
 
 ```json
 {
   "mcpServers": {
-    "mcp-integration-platform": {
-      "url": "https://[YOUR-REPLIT-URL]/api/mcp",
-      "headers": {
-        "X-API-Key": "your-api-key-here"
-      },
+    "mcp-platform": {
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/mcp-platform-client",
+        "--url",
+        "https://[YOUR-REPLIT-URL]",
+        "--apiKey",
+        "your-api-key-here"
+      ],
       "autoApprove": [
         "web_search",
         "form_automation", 
         "vector_storage", 
-        "data_scraper"
-      ]
+        "data_scraper",
+        "status",
+        "sandbox"
+      ],
+      "disabled": false,
+      "timeout": 60,
+      "transportType": "websocket"
     }
   }
 }
@@ -49,39 +58,41 @@ Add the following configuration to your `cascade.json` file for Cline:
 
 ### Alternative Configuration Methods
 
-#### Using HTTP Request Format
+#### Using NPX Command Only (No API Key)
 
 ```json
 {
   "mcpServers": {
-    "mcp-integration-platform": {
-      "command": "curl",
+    "mcp-platform": {
+      "command": "npx",
       "args": [
-        "-X", "POST",
-        "-H", "Content-Type: application/json",
-        "-H", "X-API-Key: your-api-key-here",
-        "-d", "@-",
-        "https://[YOUR-REPLIT-URL]/api/mcp"
+        "@modelcontextprotocol/mcp-platform-client",
+        "--url",
+        "https://[YOUR-REPLIT-URL]"
       ],
-      "autoApprove": ["web_search", "vector_storage", "form_automation", "data_scraper"]
+      "autoApprove": ["web_search", "vector_storage", "form_automation", "data_scraper", "status", "sandbox"]
     }
   }
 }
 ```
 
-#### Other MCP Server Examples
+#### Using with Other MCP Servers
 
-You can also connect to other popular MCP services alongside the MCP Integration Platform:
+You can connect to other popular MCP services alongside the MCP Integration Platform:
 
 ```json
 {
   "mcpServers": {
-    "mcp-integration-platform": {
-      "url": "https://[YOUR-REPLIT-URL]/api/mcp",
-      "headers": {
-        "X-API-Key": "your-api-key-here"
-      },
-      "autoApprove": ["web_search", "form_automation", "vector_storage", "data_scraper"]
+    "mcp-platform": {
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/mcp-platform-client",
+        "--url",
+        "https://[YOUR-REPLIT-URL]",
+        "--apiKey",
+        "your-api-key-here"
+      ],
+      "autoApprove": ["web_search", "form_automation", "vector_storage", "data_scraper", "status", "sandbox"]
     },
     "filesystem": {
       "command": "npx",
@@ -90,14 +101,16 @@ You can also connect to other popular MCP services alongside the MCP Integration
     },
     "memory": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-memory"]
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "autoApprove": ["read_graph", "create_entities", "search_nodes"]
     },
     "github": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-github"],
       "env": {
         "GITHUB_PERSONAL_ACCESS_TOKEN": "<YOUR_TOKEN>"
-      }
+      },
+      "autoApprove": ["search_repositories", "get_file_contents", "create_issue"]
     }
   }
 }
