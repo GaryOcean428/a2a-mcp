@@ -1,1 +1,1 @@
-export const VERSION = "2.5.1745633080773";
+export const VERSION = "2.5." + Date.now();

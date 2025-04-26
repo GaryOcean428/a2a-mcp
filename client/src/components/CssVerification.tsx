@@ -79,16 +79,23 @@ export default function CssVerification() {
     
     // If any failed, try to recover
     const anyFailed = results.some(r => !r.result);
-    if (anyFailed && window.recoverMissingStyles) {
-      window.recoverMissingStyles();
+    if (anyFailed) {
+      const recoverFn = (window as any).recoverMissingStyles;
+      if (typeof recoverFn === 'function') {
+        recoverFn();
+      }
     }
   }
   
   // Force CSS recovery
   function recoverStyles() {
-    if (window.recoverMissingStyles) {
-      window.recoverMissingStyles();
+    // Safely call the global recovery function if it exists
+    const recoverFn = (window as any).recoverMissingStyles;
+    if (typeof recoverFn === 'function') {
+      recoverFn();
       setTimeout(verifyStyles, 100);
+    } else {
+      console.warn('CSS recovery function not available');
     }
   }
   
@@ -150,9 +157,4 @@ export default function CssVerification() {
   );
 }
 
-// Add window declarations
-declare global {
-  interface Window {
-    recoverMissingStyles?: () => void;
-  }
-}
+// No need to define explicit window interface since we're using type assertions
