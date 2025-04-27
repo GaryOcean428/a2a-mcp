@@ -1,11 +1,12 @@
 /**
- * MCP Integration Platform Production CSS
+ * Production Critical CSS
  * 
- * This file contains critical CSS classes that must be preserved in production.
- * It serves as a backup to ensure UI consistency between development and production.
+ * This file contains critical CSS styles that must be preserved in production builds.
+ * It is loaded directly in main.tsx to ensure these styles are available regardless
+ * of whether Tailwind purges them or not.
  */
 
-/* Background patterns and gradients */
+/* Grid and blob background patterns */
 .bg-grid-gray-100 {
   background-image: 
     linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
@@ -18,6 +19,7 @@
   filter: blur(50px);
 }
 
+/* Feature card styling */
 .feature-card {
   background-color: white;
   padding: 1.5rem;
@@ -33,7 +35,7 @@
   transform: translateY(-2px);
 }
 
-/* Animations */
+/* Animation keyframes */
 @keyframes fadeInDown {
   from {
     opacity: 0;
@@ -49,48 +51,10 @@
   animation: fadeInDown 0.5s ease-out;
 }
 
-/* Gradient colors */
-.from-purple-50 {
-  --tw-gradient-from: #faf5ff;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
-}
-
-.from-purple-600 {
-  --tw-gradient-from: #9333ea;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
-}
-
-.from-purple-700 {
-  --tw-gradient-from: #7e22ce;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
-}
-
-.via-indigo-50 {
-  --tw-gradient-via: #eef2ff;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to);
-}
-
-.to-white {
-  --tw-gradient-to: #ffffff;
-}
-
-.to-indigo-600 {
-  --tw-gradient-to: #4f46e5;
-}
-
-.to-indigo-700 {
-  --tw-gradient-to: #4338ca;
-}
-
-.bg-gradient-to-r {
-  background-image: linear-gradient(to right, var(--tw-gradient-stops));
-}
-
-/* Hover states */
+/* Card hover effects */
 .group-hover\:scale-110 {
   transition: transform 0.3s ease-out;
 }
-
 .group:hover .group-hover\:scale-110 {
   transform: scale(1.1);
 }
@@ -98,33 +62,8 @@
 .group-hover\:opacity-100 {
   transition: opacity 0.3s ease-out;
 }
-
 .group:hover .group-hover\:opacity-100 {
   opacity: 1;
-}
-
-.group-hover\:text-purple-700 {
-  transition: color 0.3s ease-out;
-}
-
-.group:hover .group-hover\:text-purple-700 {
-  color: rgba(126, 34, 206, 1);
-}
-
-.group-hover\:text-indigo-700 {
-  transition: color 0.3s ease-out;
-}
-
-.group:hover .group-hover\:text-indigo-700 {
-  color: rgba(67, 56, 202, 1);
-}
-
-.group-hover\:text-violet-700 {
-  transition: color 0.3s ease-out;
-}
-
-.group:hover .group-hover\:text-violet-700 {
-  color: rgba(109, 40, 217, 1);
 }
 
 .hover\:shadow-lg:hover {
@@ -139,7 +78,57 @@
   transform: translateY(-2px);
 }
 
-/* Animation classes */
+/* Gradient backgrounds */
+.from-purple-50 {
+  --tw-gradient-from: #faf5ff;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+.from-purple-600 {
+  --tw-gradient-from: #9333ea;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+.from-purple-700 {
+  --tw-gradient-from: #7e22ce;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+.via-indigo-50 {
+  --tw-gradient-via: #eef2ff;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to);
+}
+.to-white {
+  --tw-gradient-to: #ffffff;
+}
+.to-indigo-600 {
+  --tw-gradient-to: #4f46e5;
+}
+.to-indigo-700 {
+  --tw-gradient-to: #4338ca;
+}
+.bg-gradient-to-r {
+  background-image: linear-gradient(to right, var(--tw-gradient-stops));
+}
+
+/* Text colors on hover */
+.group-hover\:text-purple-700 {
+  transition: color 0.3s ease-out;
+}
+.group:hover .group-hover\:text-purple-700 {
+  color: rgba(126, 34, 206, 1);
+}
+.group-hover\:text-indigo-700 {
+  transition: color 0.3s ease-out;
+}
+.group:hover .group-hover\:text-indigo-700 {
+  color: rgba(67, 56, 202, 1);
+}
+.group-hover\:text-violet-700 {
+  transition: color 0.3s ease-out;
+}
+.group:hover .group-hover\:text-violet-700 {
+  color: rgba(109, 40, 217, 1);
+}
+
+/* Shadcn UI animation classes */
 .animate-in {
   animation-duration: 150ms;
   animation-timing-function: cubic-bezier(0.1, 0.99, 0.1, 0.99);
@@ -155,12 +144,28 @@
   to { opacity: 1; }
 }
 
-@keyframes spin {
+/* Spinner styles */
+.spinner-border {
+  display: inline-block;
+  width: 1.5rem;
+  height: 1.5rem;
+  vertical-align: text-bottom;
+  border: 0.2em solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spinner-border 0.75s linear infinite;
+}
+
+@keyframes spinner-border {
   to { transform: rotate(360deg); }
 }
 
 .animate-spin {
   animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 /* AI Spinner animation */
@@ -192,23 +197,7 @@
   }
 }
 
-/* Spinner styles */
-.spinner-border {
-  display: inline-block;
-  width: 1.5rem;
-  height: 1.5rem;
-  vertical-align: text-bottom;
-  border: 0.2em solid currentColor;
-  border-right-color: transparent;
-  border-radius: 50%;
-  animation: spinner-border 0.75s linear infinite;
-}
-
-@keyframes spinner-border {
-  to { transform: rotate(360deg); }
-}
-
-/* Loader with spinners */
+/* Loader spinners */
 .loader-with-spinners-container {
   display: flex;
   flex-direction: column;
@@ -249,25 +238,4 @@
     transform: scale(1.3);
     opacity: 0;
   }
-}
-
-/* Shadcn UI essential styles */
-.radix-side-top {
-  transform: translateY(-100%);
-}
-
-.radix-side-right {
-  transform: translateX(100%);
-}
-
-.radix-side-bottom {
-  transform: translateY(100%);
-}
-
-.radix-side-left {
-  transform: translateX(-100%);
-}
-
-.bg-background {
-  background-color: var(--background, white);
 }
