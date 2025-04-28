@@ -381,7 +381,7 @@ const { execSync } = require('child_process');
 console.log('🔄 Applying MCP Integration Platform Deployment Fixes...');
 
 // Run the comprehensive deployment fixes
-execSync('node deployment-fix.js', { stdio: 'inherit' });
+execSync('node deployment-fix.cjs', { stdio: 'inherit' });
 
 // Build the application for production
 console.log('🔄 Building application for production...');
@@ -398,7 +398,7 @@ console.log('✅ MCP Integration Platform is ready for deployment!');
       const clientPackage = JSON.parse(fs.readFileSync(PATHS.clientPackageJson, 'utf8'));
       
       if (!clientPackage.scripts.predeploy) {
-        clientPackage.scripts.predeploy = 'node ../fix-deployment.js';
+        clientPackage.scripts.predeploy = 'node ../fix-deployment.cjs';
         fs.writeFileSync(PATHS.clientPackageJson, JSON.stringify(clientPackage, null, 2));
         console.log('✅ Updated client package.json with deployment scripts');
       }
@@ -434,7 +434,7 @@ function applyAllFixes() {
     console.log('\n✅ All deployment fixes applied successfully!');
     console.log(`Version: ${VERSION}`);
     console.log('\nNext steps:');
-    console.log('1. Run node fix-deployment.js to prepare the application for deployment');
+    console.log('1. Run node fix-deployment.cjs to prepare the application for deployment');
     console.log('2. Deploy using the Replit Deploy button');
   } else {
     console.error('\n❌ Some deployment fixes failed. Please check the logs above.');
