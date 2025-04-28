@@ -79,10 +79,10 @@ function verifyFiles() {
   try {
     // Check that critical deployment files exist
     const requiredFiles = [
-      './deployment-fix.js',
+      './deployment-fix.cjs',
       './deploy-fix.cjs',
-      './fix-deployment.js',
-      './deploy-rebuild.js'
+      './fix-deployment.cjs',
+      './deploy-rebuild.cjs'
     ];
     
     let allFilesExist = true;

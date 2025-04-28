@@ -390,7 +390,7 @@ execSync('npm run build', { stdio: 'inherit' });
 console.log('✅ MCP Integration Platform is ready for deployment!');
 `;
 
-    fs.writeFileSync('fix-deployment.js', fixDeploymentScript);
+    fs.writeFileSync('fix-deployment.cjs', fixDeploymentScript);
     console.log('✅ Created deployment helper scripts');
     
     // Update client package.json to include a deploy script

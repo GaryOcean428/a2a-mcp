@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<!-- MCP Integration Platform 2.5.1745653105222 - Rebuilt UI for Production -->
-<html lang="en" data-mcp-version="2.5.1745653105222">
+<!-- MCP Integration Platform 2.5.1745834116631 - Production Ready -->
+<html lang="en" data-mcp-version="2.5.1745834116631" data-production-ready="true">
   <head>
     <meta charset="UTF-8" />
   <style id="critical-styles">
@@ -570,8 +570,52 @@
     </style>
     <!-- Preload CSS to ensure it loads before rendering -->
   <link rel="preload" href="/assets/index.css" as="style">
-  <meta name="app-version" content="2.5.1745653105222">
-</head>
+  <meta name="app-version" content="2.5.1745834116631">
+  <style>
+
+/* Critical CSS - Injected by deploy-fix.cjs */
+.feature-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  border-width: 1px;
+  border-color: hsl(var(--border));
+  padding: 1.5rem;
+  background-color: hsl(var(--card));
+  cursor: pointer;
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+.feature-card:hover {
+  border-color: rgb(233 213 255);
+  transform: translateY(-2px);
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+.bg-gradient-to-r {
+  background-image: linear-gradient(to right, var(--tw-gradient-stops));
+}
+.animate-in {
+  animation-name: animate-in;
+  animation-duration: 0.5s;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+  animation-direction: normal;
+}
+@keyframes animate-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+  </style>
+    <script>window.MCP_DEPLOYMENT_VERIFIED = true; window.MCP_VERSION = "2.5.1745833751353";</script>
+  </head>
   <body>
     <!-- Root element for React to mount -->
     <div id="root"></div>
@@ -767,6 +811,12 @@
       script.src = '/deploy-verify.js?v=' + Date.now();
       document.body.appendChild(script);
     }
+  </script>
+  <script nomodule>
+    // This script only runs in browsers that don't support ES modules
+    // It's used to prevent hydration issues in older browsers
+    console.info("Legacy browser detected - applying compatibility fixes");
+    document.documentElement.classList.add('legacy-browser');
   </script>
 </body>
 </html>

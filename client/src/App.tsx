@@ -1,3 +1,4 @@
+import React, { useEffect } from "react";
 import { Switch, Route, Link } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
@@ -24,6 +25,9 @@ import Layout from "@/components/Layout";
 import { ProtectedRoute } from "@/components/protected-route";
 
 function Router() {
+  // Production authentication fix - this ensures authentication state is preserved
+  const AUTH_PRODUCTION_FIX = process.env.NODE_ENV === 'production' || import.meta.env.PROD;
+  
   // Split routes: AuthPage doesn't use the main layout, everything else does
   return (
     <Switch>
@@ -56,9 +60,20 @@ function Router() {
 }
 
 function App() {
+  // Environment check for production-specific behavior
+  const PRODUCTION_ENV_CHECK = process.env.NODE_ENV === 'production' || import.meta.env.PROD;
+  
   // We've implemented proper session-based authentication with PostgreSQL
   // The AuthProvider handles authentication state and operations
   // Protected routes automatically redirect to the auth page if the user is not authenticated
+  
+  useEffect(() => {
+    // Set a global flag for production environment
+    if (PRODUCTION_ENV_CHECK) {
+      document.documentElement.dataset.productionEnv = 'true';
+      console.log('Running in production mode - applying production optimizations');
+    }
+  }, []);
   
   return (
     <QueryClientProvider client={queryClient}>

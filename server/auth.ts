@@ -27,21 +27,17 @@ declare global {
 export function setupAuth(app: Express) {
   // Create session settings
   const sessionSettings: session.SessionOptions = {
-    secret: process.env.SESSION_SECRET || 'mcp-session-secret-production-key',
-    resave: false,
-    saveUninitialized: false,
-    store: storage.sessionStore,
-    cookie: {
-      // Use secure cookies in production, allow HTTP in development
-      secure: process.env.NODE_ENV === 'production',
-      // Use lax SameSite in production for better compatibility
-      sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'none',
-      // Domain setting for cookies
-      domain: undefined, // Let browser set this automatically
-      path: '/',
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
-    }
+  secret: process.env.SESSION_SECRET || "mcp-integration-platform-secure-secret",
+  resave: false,
+  saveUninitialized: false,
+  store: storage.sessionStore,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    sameSite: 'lax'
+  }
+};
   };
 
   // Set up session middleware

@@ -77,10 +77,22 @@ const CRITICAL_CLASSES = [
 const CRITICAL_CSS = `
 /* Critical CSS - Injected by deploy-fix.cjs */
 .feature-card {
-  @apply relative overflow-hidden rounded-lg border border-border p-6 hover:shadow-lg transition-all duration-300 bg-card cursor-pointer group;
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  border-width: 1px;
+  border-color: hsl(var(--border));
+  padding: 1.5rem;
+  background-color: hsl(var(--card));
+  cursor: pointer;
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
 }
 .feature-card:hover {
-  @apply border-purple-200 translate-y-[-2px] shadow-xl;
+  border-color: rgb(233 213 255);
+  transform: translateY(-2px);
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 }
 .bg-gradient-to-r {
   background-image: linear-gradient(to right, var(--tw-gradient-stops));
