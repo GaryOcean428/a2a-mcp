@@ -646,6 +646,24 @@
 .to-indigo-600 {
   --tw-gradient-to: #4f46e5 !important;
 }
+/* Fix for missing critical classes */
+.feature-card {
+  background-color: white !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  padding: 1.5rem !important;
+  transition-property: all !important;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition-duration: 150ms !important;
+}
+.bg-gradient-to-r {
+  background-image: linear-gradient(to right, var(--tw-gradient-stops)) !important;
+}
+.animate-in {
+  animation-name: animate-in !important;
+  animation-duration: 150ms !important;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
 
   </style>
     <script>window.MCP_DEPLOYMENT_VERIFIED = true; window.MCP_VERSION = "2.5.1745835943600";</script>
