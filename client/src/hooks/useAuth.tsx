@@ -231,9 +231,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   // Production environment check to ensure consistent auth behavior
   const PRODUCTION_AUTH_CHECK = process.env.NODE_ENV === 'production' || import.meta.env.PROD;
-  
-  const context = useContext(AuthContext);
-  if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;

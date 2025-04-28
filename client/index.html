@@ -570,37 +570,43 @@
     </style>
     <!-- Preload CSS to ensure it loads before rendering -->
   <link rel="preload" href="/assets/index.css" as="style">
-  <meta name="app-version" content="2.5.1745834116631">
+  <meta name="app-version" content="2.5.1745835943600">
   <style>
 
-/* Critical CSS - Injected by deploy-fix.cjs */
+
+/* Critical CSS - MCP Production Build */
 .feature-card {
-  position: relative;
-  overflow: hidden;
-  border-radius: 0.5rem;
-  border-width: 1px;
-  border-color: hsl(var(--border));
-  padding: 1.5rem;
-  background-color: hsl(var(--card));
-  cursor: pointer;
-  transition-property: all;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 300ms;
+  position: relative !important;
+  overflow: hidden !important;
+  border-radius: 0.5rem !important;
+  border-width: 1px !important;
+  border-color: hsl(var(--border)) !important;
+  padding: 1.5rem !important;
+  background-color: hsl(var(--card)) !important;
+  cursor: pointer !important;
+  transition-property: all !important;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition-duration: 300ms !important;
 }
 .feature-card:hover {
-  border-color: rgb(233 213 255);
-  transform: translateY(-2px);
-  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  border-color: rgb(233 213 255) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1) !important;
 }
 .bg-gradient-to-r {
-  background-image: linear-gradient(to right, var(--tw-gradient-stops));
+  background-image: linear-gradient(to right, var(--tw-gradient-stops)) !important;
 }
 .animate-in {
-  animation-name: animate-in;
-  animation-duration: 0.5s;
-  animation-timing-function: ease-out;
-  animation-fill-mode: both;
-  animation-direction: normal;
+  animation-name: animate-in !important;
+  animation-duration: 0.5s !important;
+  animation-timing-function: ease-out !important;
+  animation-fill-mode: both !important;
+  animation-direction: normal !important;
+}
+.animate-fade-in-down {
+  animation-name: animate-fade-in-down !important;
+  animation-duration: 0.8s !important;
+  animation-fill-mode: both !important; 
 }
 @keyframes animate-in {
   from {
@@ -612,9 +618,37 @@
     transform: translateY(0);
   }
 }
+@keyframes animate-fade-in-down {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/* Target group-hover utilities */
+.group:hover .group-hover\:scale-110 {
+  transform: scale(1.1) !important;
+}
+/* Explicit gradient backgrounds */
+.from-purple-50 {
+  --tw-gradient-from: #faf5ff !important;
+  --tw-gradient-to: rgb(250 245 255 / 0) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+.from-purple-600 {
+  --tw-gradient-from: #9333ea !important;
+  --tw-gradient-to: rgb(147 51 234 / 0) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+.to-indigo-600 {
+  --tw-gradient-to: #4f46e5 !important;
+}
 
   </style>
-    <script>window.MCP_DEPLOYMENT_VERIFIED = true; window.MCP_VERSION = "2.5.1745833751353";</script>
+    <script>window.MCP_DEPLOYMENT_VERIFIED = true; window.MCP_VERSION = "2.5.1745835943600";</script>
   </head>
   <body>
     <!-- Root element for React to mount -->
