@@ -1,7 +1,7 @@
 /**
- * MCP Integration Platform - Production Server Launcher
+ * MCP Integration Platform - Production Server Launcher (CommonJS)
  * 
- * This script launches the correct production server based on the environment.
+ * This script launches the production server using CommonJS format.
  */
 
 const { spawn } = require('child_process');
@@ -13,10 +13,11 @@ function findProductionServer() {
   const cjsPath = path.join(__dirname, 'server/prod-server.cjs');
   const jsPath = path.join(__dirname, 'server/prod-server.js');
   
-  // Prefer the CommonJS version if it exists
+  // Always use the CommonJS version for maximum compatibility
   if (fs.existsSync(cjsPath)) {
     return cjsPath;
   } else if (fs.existsSync(jsPath)) {
+    console.warn('Warning: Using ESM server file, may cause compatibility issues');
     return jsPath;
   } else {
     throw new Error('No production server file found!');
@@ -29,12 +30,8 @@ function startServer() {
     const serverPath = findProductionServer();
     console.log('Starting production server: ' + serverPath);
     
-    // Launch the server with the appropriate Node.js flags
-    const isCommonJS = serverPath.endsWith('.cjs');
-    const args = isCommonJS ? [] : ['--experimental-modules'];
-    args.push(serverPath);
-    
-    const server = spawn('node', args, {
+    // CommonJS version doesn't need special flags
+    const server = spawn('node', [serverPath], {
       stdio: 'inherit',
       env: { ...process.env, NODE_ENV: 'production' }
     });

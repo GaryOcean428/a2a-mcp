@@ -128,6 +128,20 @@ After deployment, verify that all key components are working:
 3. Visit `/api/docs` to verify API documentation
 4. Check `/api/status` for system health
 
+
+### Automated Deployment Fix
+
+For convenience, we've included automated fix scripts that handle all compatibility issues:
+
+```bash
+# Comprehensive fix for all deployment issues
+node complete-deployment-fix.cjs
+
+# Deploy with compatibility fixes applied
+node deploy-fix.cjs
+```
+
+These scripts ensure that the correct module format is used, CSS is consistent, and all security checks pass.
 ## Troubleshooting
 
 If you encounter any issues not covered in this guide, check the application logs for error details. Common sources of deployment issues include:

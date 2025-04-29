@@ -1,0 +1,141 @@
+Search
+Time
+Deployment
+Source
+Log
+2025-04-29 10:06:09.13
+f5b277ab
+System
+command finished with error [npm run start]: signal: terminated
+2025-04-29 10:21:04.02
+95e8bbe4
+System
+command finished with error [npm run start]: signal: terminated
+2025-04-29 10:36:54.02
+95e8bbe4
+System
+command finished with error [npm run start]: signal: terminated
+2025-04-29 11:26:54.03
+95e8bbe4
+System
+command finished with error [npm run start]: signal: terminated
+2025-04-29 11:46:28.97
+68e00ba7
+User
+This file is being treated as an ES module because it has a '.js' file extension and '/home/runner/workspace/package.json' contains "type": "module". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.
+2025-04-29 11:46:28.97
+68e00ba7
+User
+at file:///home/runner/workspace/server/prod-server.js:5:17
+2025-04-29 11:46:28.97
+68e00ba7
+User
+at ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+2025-04-29 11:46:28.97
+68e00ba7
+User
+at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+2025-04-29 11:46:28.97
+68e00ba7
+User
+at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:122:5)
+2025-04-29 11:46:28.97
+68e00ba7
+User
+2025-04-29 11:46:28.97
+68e00ba7
+User
+Node.js v20.18.1
+2025-04-29 11:46:28.98
+68e00ba7
+System
+command finished with error [npm run start]: exit status 1
+2025-04-29 11:46:29.40
+68e00ba7
+User
+file:///home/runner/workspace/server/prod-server.js:5
+2025-04-29 11:46:29.40
+68e00ba7
+User
+const express = require('express');
+2025-04-29 11:46:29.40
+68e00ba7
+User
+^
+2025-04-29 11:46:29.40
+68e00ba7
+User
+2025-04-29 11:46:29.40
+68e00ba7
+User
+ReferenceError: require is not defined in ES module scope, you can use import instead
+2025-04-29 11:46:29.40
+68e00ba7
+User
+This file is being treated as an ES module because it has a '.js' file extension and '/home/runner/workspace/package.json' contains "type": "module". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.
+2025-04-29 11:46:29.40
+68e00ba7
+User
+at file:///home/runner/workspace/server/prod-server.js:5:17
+2025-04-29 11:46:29.40
+68e00ba7
+User
+at ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+2025-04-29 11:46:29.40
+68e00ba7
+User
+at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+2025-04-29 11:46:29.40
+68e00ba7
+User
+at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:122:5)
+2025-04-29 11:46:29.40
+68e00ba7
+User
+2025-04-29 11:46:29.40
+68e00ba7
+User
+Node.js v20.18.1
+2025-04-29 11:46:29.41
+68e00ba7
+System
+command finished with error [npm run start]: exit status 1
+2025-04-29 11:46:29.94
+68e00ba7
+User
+file:///home/runner/workspace/server/prod-server.js:5
+2025-04-29 11:46:29.94
+68e00ba7
+User
+const express = require('express');
+2025-04-29 11:46:29.94
+68e00ba7
+User
+^
+2025-04-29 11:46:29.94
+68e00ba7
+User
+2025-04-29 11:46:29.94
+68e00ba7
+User
+ReferenceError: require is not defined in ES module scope, you can use import instead
+2025-04-29 11:46:29.94
+68e00ba7
+User
+This file is being treated as an ES module because it has a '.js' file extension and '/home/runner/workspace/package.json' contains "type": "module". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.
+2025-04-29 11:46:29.94
+68e00ba7
+User
+at file:///home/runner/workspace/server/prod-server.js:5:17
+2025-04-29 11:46:29.94
+68e00ba7
+User
+at ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+2025-04-29 11:46:29.94
+68e00ba7
+User
+at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+2025-04-29 11:46:29.94
+68e00ba7
+User
+at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:122:5)

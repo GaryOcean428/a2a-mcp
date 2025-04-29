@@ -1,321 +1,183 @@
 /**
  * MCP Integration Platform - Deployment Fix
  * 
- * This script fixes issues that only appear in production deployments:
- * 1. Ensures proper MIME types are used
- * 2. Creates a fallback index.html that loads correctly
- * 3. Fixes path references in build files
+ * This script fixes the production server module compatibility issues
+ * by ensuring we're using the CommonJS version.
  */
 
 const fs = require('fs');
 const path = require('path');
+const { exec } = require('child_process');
 
-// Version for cache busting
-const VERSION = `2.5.${Date.now()}`;
+console.log('Applying deployment fixes for MCP Integration Platform...');
 
-console.log('🔧 Starting deployment fix...');
+// Paths
+const packageJsonPath = path.join(__dirname, 'package.json');
+const prodServerCjsPath = path.join(__dirname, 'server', 'prod-server.cjs');
+const startCjsPath = path.join(__dirname, 'start.cjs');
 
-// 1. Fix package.json to ensure proper build and start scripts
-function fixPackageJson() {
-  const packageJsonPath = './package.json';
-  
-  if (!fs.existsSync(packageJsonPath)) {
-    console.error('❌ package.json not found');
-    return false;
-  }
-  
-  try {
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-    
-    // Update scripts for production
-    packageJson.scripts = {
-      ...packageJson.scripts,
-      "build": "vite build && node fix-production-ui.cjs && cp -r public/* dist/",
-      "start": "node dist/server/index.js",
-      "deploy": "npm run build && npm run start"
-    };
-    
-    fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
-    console.log('✅ Updated package.json with proper build and start scripts');
-    return true;
-  } catch (err) {
-    console.error('❌ Failed to update package.json:', err);
-    return false;
-  }
+// Check if prod-server.cjs exists
+if (!fs.existsSync(prodServerCjsPath)) {
+  console.error('Error: prod-server.cjs not found. Please run scripts/fix-production-server.cjs first.');
+  process.exit(1);
 }
 
-// 2. Create .replit.deployConfig.js to ensure proper deployment
-function createDeployConfig() {
-  const deployConfigPath = './.replit.deployConfig.js';
-  const deployConfigContent = `/**
- * MCP Integration Platform - Replit Deployment Configuration
+// Create a deployment script that includes all fixes for production
+const deployScriptPath = path.join(__dirname, 'deploy-fix.cjs');
+const deployScriptContent = `/**
+ * MCP Integration Platform - Deployment Fix
  * 
- * This script is executed automatically by Replit before deployment.
- * It ensures consistent UI between development and production environments.
+ * This script applies all necessary fixes for production deployment.
  */
 
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
-// Update version for cache busting
-const version = "2.5.${Date.now()}";
+console.log('Applying all production deployment fixes...');
 
-/**
- * Update the version.ts file with the current deployment version
- */
-function updateVersion(version) {
-  const versionFile = './client/src/version.ts';
-  if (fs.existsSync(versionFile)) {
-    const content = \`/**
- * MCP Integration Platform Version Tracker
- * Auto-generated file - DO NOT EDIT MANUALLY
- */
-
-export const VERSION = "\${version}";
-export const TIMESTAMP = \${Date.now()};
-export const PRODUCTION_READY = true;
-\`;
-    fs.writeFileSync(versionFile, content);
-    console.log(\`✅ Updated version to \${version}\`);
-  }
+// 1. Run the build with production optimizations
+console.log('\n1. Building the application for production...');
+try {
+  execSync('npm run build', { stdio: 'inherit' });
+  console.log('✅ Build completed successfully');
+} catch (error) {
+  console.error('❌ Build failed:', error.message);
+  process.exit(1);
 }
 
-/**
- * Update the HTML file with the current deployment version
- */
-function updateHtml(version) {
-  const htmlPath = './client/index.html';
-  if (fs.existsSync(htmlPath)) {
-    let html = fs.readFileSync(htmlPath, 'utf8');
-    
-    // Add version attribute
-    html = html.replace(
-      '<html lang="en"',
-      \`<html lang="en" data-mcp-version="\${version}"\`
-    );
-    
-    // Ensure the verification script is loaded
-    if (!html.includes('deploy-verify.js')) {
-      html = html.replace(
-        '</head>',
-        \`  <script src="/deploy-verify.js?v=\${Date.now()}"></script>\\n  </head>\`
-      );
-    }
-    
-    fs.writeFileSync(htmlPath, html);
-    console.log('✅ Updated index.html with version and verification');
-  }
-}
-
-/**
- * Verify that all required files exist
- */
-function verifyFiles() {
-  // List of critical files
-  const requiredFiles = [
-    './client/src/version.ts',
-    './public/production.css',
-    './public/deploy-verify.js',
-    './fix-production-ui.cjs'
-  ];
-  
-  const missing = [];
-  
-  for (const file of requiredFiles) {
-    if (!fs.existsSync(file)) {
-      missing.push(file);
-    }
-  }
-  
-  if (missing.length > 0) {
-    console.error('❌ Missing required files:', missing.join(', '));
-    
-    // Create any missing files
-    if (missing.includes('./public/production.css')) {
-      // Run the production UI fix script if it exists
-      if (fs.existsSync('./fix-production-ui.cjs')) {
-        console.log('🔄 Running production UI fix script to create missing files');
-        require('./fix-production-ui.cjs');
-      }
-    }
-  } else {
-    console.log('✅ All required files present');
-  }
-}
-
-// Run deployment preparation
-updateVersion(version);
-updateHtml(version);
-verifyFiles();
-
-console.log('✅ Deployment configuration complete!');
-
-// No need to export anything as this is run directly
-`;
-
-  fs.writeFileSync(deployConfigPath, deployConfigContent);
-  console.log('✅ Created .replit.deployConfig.js');
-  return true;
-}
-
-// 3. Create fallback index.js server for production
-function createProductionServer() {
-  const serverPath = './server/production.js';
-  const serverContent = `/**
- * MCP Integration Platform - Production Server Fallback
- * This is a simplified server for production deployments
- */
-
-const express = require('express');
-const path = require('path');
-const fs = require('fs');
-
-// Create Express app
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-// Serve static files from 'dist' directory
-app.use(express.static(path.join(__dirname, '../client/dist')));
-
-// API endpoint to check status
-app.get('/api/status', (req, res) => {
-  res.json({
-    version: '0.1.0-alpha',
-    uptime: process.uptime(),
-    transport: 'http',
-    env: 'production',
-    time: new Date().toISOString()
-  });
-});
-
-// Fallback for SPA - always serve index.html for any unknown routes
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
-});
-
-// Start server
-app.listen(PORT, () => {
-  console.log(\`Production server running on port \${PORT}\`);
-});
-`;
-
-  // Create directory if it doesn't exist
-  const dir = path.dirname(serverPath);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-
-  fs.writeFileSync(serverPath, serverContent);
-  console.log('✅ Created production server fallback');
-  return true;
-}
-
-// 4. Create a production-specific Vite config
-function createProductionViteConfig() {
-  const configPath = './vite.prod.config.ts';
-  const configContent = `import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import { resolve } from 'path';
-
-// https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [react()],
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, './client/src'),
-      '@assets': resolve(__dirname, './attached_assets'),
-      '@shared': resolve(__dirname, './shared'),
-    },
-  },
-  build: {
-    outDir: 'dist',
-    emptyOutDir: true,
-    sourcemap: true,
-    rollupOptions: {
-      input: {
-        main: resolve(__dirname, 'client/index.html'),
-      },
-      output: {
-        manualChunks: {
-          react: ['react', 'react-dom'],
-          vendor: ['zod', 'wouter', 'clsx', 'date-fns'],
-        },
-      },
-    },
-  },
-  server: {
-    port: 3000,
-    strictPort: true,
-  },
-});
-`;
-
-  fs.writeFileSync(configPath, configContent);
-  console.log('✅ Created production-specific Vite config');
-  return true;
-}
-
-// 5. Update index.html for production build
-function updateIndexHtml() {
-  const indexPath = './client/index.html';
-  
-  if (!fs.existsSync(indexPath)) {
-    console.error('❌ index.html not found');
-    return false;
-  }
-  
+// 2. Verify the CommonJS server version is available
+console.log('\n2. Verifying server compatibility...');
+const prodServerCjsPath = path.join(__dirname, 'server', 'prod-server.cjs');
+if (!fs.existsSync(prodServerCjsPath)) {
+  console.error('❌ CommonJS server version not found');
+  console.log('Running production server fix...');
   try {
-    let content = fs.readFileSync(indexPath, 'utf8');
+    execSync('node scripts/fix-production-server.cjs', { stdio: 'inherit' });
+    console.log('✅ Server compatibility fixes applied');
+  } catch (error) {
+    console.error('❌ Failed to apply server compatibility fixes:', error.message);
+    process.exit(1);
+  }
+} else {
+  console.log('✅ CommonJS server version is available');
+}
+
+// 3. Start the production server using the CommonJS version
+console.log('\n3. Starting production server...');
+try {
+  console.log('\nStarting server with: node start.cjs');
+  console.log('--------------------------------------------');
+  execSync('node start.cjs', { stdio: 'inherit' });
+} catch (error) {
+  console.error('❌ Server failed to start:', error.message);
+  process.exit(1);
+}
+`;
+
+// Write the deployment script
+fs.writeFileSync(deployScriptPath, deployScriptContent, 'utf8');
+console.log(`Created deployment script: ${deployScriptPath}`);
+
+// Create a comprehensive solution script that fixes all issues
+const completeFixPath = path.join(__dirname, 'complete-deployment-fix.cjs');
+const completeFixContent = `/**
+ * MCP Integration Platform - Complete Deployment Fix
+ * 
+ * This script applies all necessary fixes for production deployment.
+ */
+
+const fs = require('fs');
+const path = require('path');
+const { execSync } = require('child_process');
+
+console.log('Applying comprehensive deployment fixes...');
+
+// 1. Ensure production server compatibility
+console.log('\n1. Fixing production server compatibility...');
+try {
+  execSync('node scripts/fix-production-server.cjs', { stdio: 'inherit' });
+  console.log('✅ Server compatibility fixes applied');
+} catch (error) {
+  console.error('❌ Failed to apply server compatibility fixes:', error.message);
+  process.exit(1);
+}
+
+// 2. Fix CSS inconsistencies
+console.log('\n2. Fixing CSS inconsistencies...');
+try {
+  const cssFixScript = path.join(__dirname, 'scripts', 'fix-ui-inconsistencies.js');
+  if (fs.existsSync(cssFixScript)) {
+    execSync('node scripts/fix-ui-inconsistencies.js', { stdio: 'inherit' });
+    console.log('✅ CSS consistency fixes applied');
+  } else {
+    console.log('⚠️ CSS fix script not found, skipping');
+  }
+} catch (error) {
+  console.warn('⚠️ Warning: CSS fixes encountered an issue:', error.message);
+  // Continue despite CSS issues
+}
+
+// 3. Run security checks
+console.log('\n3. Running security checks...');
+try {
+  execSync('node scripts/check-for-secrets.cjs', { stdio: 'inherit' });
+  console.log('✅ Security checks passed');
+} catch (error) {
+  console.error('❌ Security check failed:', error.message);
+  console.log('\nPlease review and fix security issues before deploying');
+  process.exit(1);
+}
+
+// 4. Create deployment fix script
+console.log('\n4. Creating deployment scripts...');
+try {
+  execSync('node fix-deployment.cjs', { stdio: 'inherit' });
+  console.log('✅ Deployment scripts created');
+} catch (error) {
+  console.error('❌ Failed to create deployment scripts:', error.message);
+  process.exit(1);
+}
+
+console.log('\nAll fixes applied successfully! ✨');
+console.log('\nTo deploy:');
+console.log('1. Run: npm run build');
+console.log('2. Run: node start.cjs');
+console.log('\nOr use the automatic deployment script:');
+console.log('node deploy-fix.cjs');
+`;
+
+// Write the comprehensive fix script
+fs.writeFileSync(completeFixPath, completeFixContent, 'utf8');
+console.log(`Created comprehensive fix script: ${completeFixPath}`);
+
+// Update the deployment documentation to mention the fix scripts
+const deploymentMdPath = path.join(__dirname, 'DEPLOYMENT.md');
+if (fs.existsSync(deploymentMdPath)) {
+  let deploymentMd = fs.readFileSync(deploymentMdPath, 'utf8');
+  
+  // Only add if not already present
+  if (!deploymentMd.includes('### Automated Deployment Fix')) {
+    const deploymentInfo = `\n### Automated Deployment Fix\n\nFor convenience, we've included automated fix scripts that handle all compatibility issues:\n\n\`\`\`bash\n# Comprehensive fix for all deployment issues\nnode complete-deployment-fix.cjs\n\n# Deploy with compatibility fixes applied\nnode deploy-fix.cjs\n\`\`\`\n\nThese scripts ensure that the correct module format is used, CSS is consistent, and all security checks pass.\n`;
     
-    // Ensure we have the base tag for proper path resolution
-    if (!content.includes('<base href=')) {
-      content = content.replace(
-        '<head>',
-        '<head>\n    <base href="/">'
-      );
+    // Find a good place to insert this info
+    const troubleshootingSection = deploymentMd.indexOf('## Troubleshooting');
+    if (troubleshootingSection !== -1) {
+      // Insert before the Troubleshooting section
+      deploymentMd = deploymentMd.substring(0, troubleshootingSection) + deploymentInfo + deploymentMd.substring(troubleshootingSection);
+    } else {
+      // Append to the end of the file
+      deploymentMd += deploymentInfo;
     }
     
-    // Add preload for critical resources
-    if (!content.includes('rel="preload"')) {
-      content = content.replace(
-        '</head>',
-        '  <link rel="preload" href="/production.css" as="style">\n  </head>'
-      );
-    }
-    
-    // Add fallback content that will show before JS loads
-    if (!content.includes('noscript')) {
-      content = content.replace(
-        '<body>',
-        `<body>
-  <noscript>
-    <div style="padding: 2rem; text-align: center; font-family: system-ui, sans-serif;">
-      <h1>JavaScript Required</h1>
-      <p>This application requires JavaScript to be enabled in your browser.</p>
-    </div>
-  </noscript>`
-      );
-    }
-    
-    fs.writeFileSync(indexPath, content);
-    console.log('✅ Updated index.html for production');
-    return true;
-  } catch (err) {
-    console.error('❌ Failed to update index.html:', err);
-    return false;
+    fs.writeFileSync(deploymentMdPath, deploymentMd, 'utf8');
+    console.log('Updated deployment documentation with fix scripts');
   }
 }
 
-// Run all fixes
-function main() {
-  fixPackageJson();
-  createDeployConfig();
-  createProductionServer();
-  createProductionViteConfig();
-  updateIndexHtml();
-  console.log('✅ Deployment fix complete!');
-  console.log('🚀 You can now build and deploy the application with:');
-  console.log('   npm run build && npm run start');
-}
-
-main();
+console.log('\nDeployment fixes applied successfully! ✨');
+console.log('\nTo deploy:');
+console.log('1. Run: npm run build');
+console.log('2. Run: node start.cjs');
+console.log('\nOr use the automatic deployment script:');
+console.log('node deploy-fix.cjs');
