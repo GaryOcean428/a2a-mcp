@@ -1,69 +1,36 @@
 /**
- * CSS Verification Script
+ * MCP Integration Platform - CSS Verification System
  * 
- * This module contains utility functions for verifying and recovering CSS styles
- * to ensure consistent rendering between development and production environments.
- * 
- * It's imported early in the application lifecycle to ensure styles are verified
- * before any components render.
+ * Simple system to log CSS information in development or production
  */
 
-import { VERSION } from './version';
+// Production environment detection
+const isProd = process.env.NODE_ENV === 'production' || import.meta.env.PROD;
 
-// Execute verification on load
-document.addEventListener('DOMContentLoaded', () => {
-  // Log initialization for debugging
-  console.log(`MCP Integration Platform v${VERSION} (Production Verified)`);
-  
-  // Set a custom data attribute to mark the verification has run
-  document.documentElement.dataset.cssVerified = 'true';
-  
-  // Create a verification script that will run on each page load
-  // This ensures the CSS is still valid after navigation
-  const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      if (mutation.type === 'childList' && 
-          mutation.addedNodes.length && 
-          document.readyState === 'complete') {
-        
-        // Check if critical styles are present
-        const criticalStyles = document.getElementById('critical-styles');
-        const recoveryStyles = document.getElementById('critical-styles-recovery');
-        
-        if (!criticalStyles && !recoveryStyles) {
-          console.warn('Critical styles missing after DOM mutation - verification needed');
-          
-          // This would automatically trigger the CSS verification component
-          // which is mounted as part of the root React tree
-        }
-      }
-    });
-  });
-  
-  // Start observing
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true
-  });
-});
+// Production verification information
+console.log(`🎮 MCP Integration Platform ${isProd ? 'Production' : 'Development'} Environment`);
 
-// Export a function to manually trigger recovery if needed
-export function triggerStyleRecovery() {
-  console.log('%c🔄 Manual style recovery triggered', 'color: blue; font-weight: bold;');
+// Check core styling is working
+setTimeout(() => {
+  console.log('🔎 Verifying core styling');
   
-  // Create style element if it doesn't exist
-  if (!document.getElementById('critical-styles-recovery')) {
-    const link = document.createElement('link');
-    link.id = 'critical-styles-recovery';
-    link.rel = 'stylesheet';
-    link.href = `/production.css?v=${VERSION}`;
-    document.head.appendChild(link);
-    
-    console.log('💉 Injected production.css for style recovery');
-  } else {
-    console.log('✅ Recovery style element already exists');
-  }
-}
+  // Create test element to verify CSS
+  const testEl = document.createElement('div');
+  testEl.className = 'feature-card';
+  testEl.style.position = 'absolute';
+  testEl.style.left = '-9999px';
+  testEl.style.visibility = 'hidden';
+  document.body.appendChild(testEl);
+  
+  // Get computed style
+  const style = window.getComputedStyle(testEl);
+  const hasStyle = style.backgroundColor !== 'rgba(0, 0, 0, 0)' || 
+                   style.borderRadius !== '0px';
+  
+  console.log(`CSS verification: ${hasStyle ? '✅ Styles OK' : '⚠️ Styles missing'}`);
+  
+  // Clean up
+  document.body.removeChild(testEl);
+}, 1000);
 
-// Expose for debugging
-(window as any).mcpTriggerStyleRecovery = triggerStyleRecovery;
+export {};
