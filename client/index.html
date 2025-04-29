@@ -1,15 +1,73 @@
 <!DOCTYPE html>
-<html lang="en" data-mcp-version="2.5.1745892181115">
+<html lang="en" data-mcp-version="2.5.1745893471256">
   <head>
     <meta charset="UTF-8" />
+    <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MCP Integration Platform</title>
-    <meta name="description" content="Model Context Protocol Integration Platform" />
+    <meta name="description" content="Model Context Protocol Integration Platform for AI applications" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <script src="/deploy-verify.js?v=1745892181127"></script>
+    
+    <!-- Critical CSS for immediate rendering -->
+    <style>
+      :root {
+        --background: 0 0% 100%;
+        --foreground: 222.2 84% 4.9%;
+        --primary: 263 70% 50%;
+      }
+      body {
+        font-family: system-ui, sans-serif;
+        background-color: hsl(var(--background));
+        color: hsl(var(--foreground));
+        margin: 0;
+        padding: 0;
+      }
+      .loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        height: 100vh;
+        width: 100%;
+      }
+      .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top-color: hsl(var(--primary));
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/production.css" as="style">
+    <link rel="stylesheet" href="/production.css?v=2.5.1745893471256">
+    
+    <!-- Verification script to ensure CSS is working -->
+    <script src="/deploy-verify.js?v=2.5.1745893471256"></script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Fallback content that will show while JS loads -->
+      <div class="loading">
+        <div class="loading-spinner"></div>
+        <p style="margin-top: 1rem;">Loading MCP Integration Platform...</p>
+      </div>
+    </div>
+    
+    <noscript>
+      <div style="padding: 2rem; text-align: center; font-family: system-ui, sans-serif;">
+        <h1>JavaScript Required</h1>
+        <p>This application requires JavaScript to be enabled in your browser.</p>
+      </div>
+    </noscript>
+    
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
