@@ -3,11 +3,12 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage/index";
 import { mcpController } from "./controllers/mcp-controller";
 import { sandboxController } from "./controllers/sandbox-controller";
-import { healthController } from "./controllers/health-controller";
+import { statusController } from "./controllers/status-controller";
 import { databaseMonitor } from "./utils/db-monitor";
 import { apiKeyAuth } from "./middleware/auth-middleware";
 import { globalRateLimiter, toolRateLimiter } from "./middleware/rate-limit-middleware";
 import { setupApiDocs } from "./middleware/api-docs";
+import staticAssets from "./middleware/static-assets";
 import path from "path";
 import fs from "fs";
 import { z } from "zod";
@@ -140,12 +141,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/schema', mcpController.getAllSchemas.bind(mcpController));
   app.get('/api/schema/:toolName', mcpController.getSchema.bind(mcpController));
   
-  // Status routes
-  app.get('/api/status', mcpController.getStatus.bind(mcpController));
-  app.get('/api/status/:toolName', mcpController.getToolStatus.bind(mcpController));
-  
-  // Health check route (unrestricted for monitoring services)
-  app.get('/api/health', healthController.getHealth.bind(healthController));
+  // Status and health routes
+  app.get('/api/status', statusController.getSystemStatus.bind(statusController));
+  app.get('/api/status/:toolName', statusController.getToolStatus.bind(statusController));
+  app.get('/api/health', statusController.getHealthMetrics.bind(statusController));
+  app.get('/api/metrics', statusController.getHealthMetrics.bind(statusController)); // Alias for compatibility
   
   // Sandbox API endpoint
   app.post('/api/sandbox', apiKeyAuth, toolRateLimiter.middleware(), sandboxController.handleRequest.bind(sandboxController));

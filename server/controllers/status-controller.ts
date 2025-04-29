@@ -1,105 +1,126 @@
 import { Request, Response } from 'express';
-import { mcpService } from '../services/mcp-service';
-import { storage } from '../storage/index';
+import { storage } from '../storage';
+import { databaseMonitor } from '../utils/db-monitor';
+import logger from '../utils/logger';
+
+// Create a specialized logger for status operations
+const statusLogger = logger.child('Status');
 
 /**
- * Controller for handling status and schema endpoints
+ * Controller for system and tool status endpoints
  */
 export class StatusController {
   /**
-   * Get the schema for a specific tool
+   * Get the overall system status including available tools
    */
-  getSchema(req: Request, res: Response): Response | void {
+  async getSystemStatus(req: Request, res: Response): Promise<Response | void> {
     try {
-      const toolName = req.params.toolName;
-      const schema = mcpService.getToolSchema(toolName);
+      const systemStatus = await storage.getSystemStatus();
       
-      if (!schema) {
-        return res.status(404).json({
-          error: {
-            message: `Tool '${toolName}' not found`,
-            code: 'TOOL_NOT_FOUND'
-          }
-        });
-      }
+      // Add additional runtime information
+      const enhancedStatus = {
+        ...systemStatus,
+        nodeVersion: process.version,
+        platform: process.platform,
+        hostname: req.hostname,
+        memoryUsage: process.memoryUsage(),
+        environment: process.env.NODE_ENV || 'development'
+      };
       
-      res.json(schema);
-    } catch (error) {
-      console.error('Error getting tool schema:', error);
-      
-      res.status(500).json({
-        error: {
-          message: error instanceof Error ? error.message : String(error),
-          code: 'SERVER_ERROR'
-        }
+      statusLogger.debug('System status requested', { 
+        client: req.ip,
+        uptime: systemStatus.uptime
       });
+      
+      return res.status(200).json(enhancedStatus);
+    } catch (error) {
+      statusLogger.error('Error getting system status:', error);
+      return res.status(500).json({ error: 'Failed to retrieve system status' });
     }
   }
   
   /**
-   * Get all tool schemas
-   */
-  getAllSchemas(_req: Request, res: Response): Response | void {
-    try {
-      const schemas = mcpService.getToolSchema();
-      res.json(schemas);
-    } catch (error) {
-      console.error('Error getting all tool schemas:', error);
-      
-      res.status(500).json({
-        error: {
-          message: error instanceof Error ? error.message : String(error),
-          code: 'SERVER_ERROR'
-        }
-      });
-    }
-  }
-  
-  /**
-   * Get system status
-   */
-  async getStatus(_req: Request, res: Response): Promise<Response | void> {
-    try {
-      const status = await storage.getSystemStatus();
-      res.json(status);
-    } catch (error) {
-      console.error('Error getting system status:', error);
-      
-      res.status(500).json({
-        error: {
-          message: error instanceof Error ? error.message : String(error),
-          code: 'SERVER_ERROR'
-        }
-      });
-    }
-  }
-  
-  /**
-   * Get tool status
+   * Get the status of a specific tool or all tools
    */
   async getToolStatus(req: Request, res: Response): Promise<Response | void> {
     try {
       const toolName = req.params.toolName;
-      const status = await storage.getToolStatus(toolName);
+      const toolStatus = await storage.getToolStatus(toolName);
       
-      if (status.length === 0) {
-        return res.status(404).json({
-          error: {
-            message: `Tool '${toolName}' not found`,
-            code: 'TOOL_NOT_FOUND'
-          }
-        });
+      if (toolName && toolStatus.length === 0) {
+        statusLogger.warn('Tool status requested for unknown tool', { toolName });
+        return res.status(404).json({ error: `Tool '${toolName}' not found` });
       }
       
-      res.json(status[0]);
-    } catch (error) {
-      console.error('Error getting tool status:', error);
+      statusLogger.debug('Tool status requested', { 
+        client: req.ip,
+        toolName: toolName || 'all',
+        toolCount: toolStatus.length
+      });
       
-      res.status(500).json({
-        error: {
-          message: error instanceof Error ? error.message : String(error),
-          code: 'SERVER_ERROR'
+      return res.status(200).json(toolStatus);
+    } catch (error) {
+      statusLogger.error('Error getting tool status:', error);
+      return res.status(500).json({ error: 'Failed to retrieve tool status' });
+    }
+  }
+  
+  /**
+   * Get detailed system health metrics including database status
+   */
+  async getHealthMetrics(req: Request, res: Response): Promise<Response | void> {
+    try {
+      // Add database health check
+      const dbHealthy = await databaseMonitor.performHealthCheck();
+      const dbStats = databaseMonitor.getPoolStatistics();
+      
+      // Get memory usage
+      const memoryUsage = process.memoryUsage();
+      
+      // Get uptime from system status
+      const systemStatus = await storage.getSystemStatus();
+      
+      // Get active tools count
+      const activeTools = await storage.getToolStatus();
+      const activeToolsCount = activeTools.filter(tool => tool.available).length;
+      
+      // Format health data
+      const healthData = {
+        status: dbHealthy ? 'healthy' : 'unhealthy',
+        timestamp: new Date().toISOString(),
+        uptime: systemStatus.uptime,
+        environment: process.env.NODE_ENV || 'development',
+        hostname: req.hostname,
+        database: {
+          healthy: dbHealthy,
+          ...dbStats
+        },
+        memory: {
+          rss: `${Math.round(memoryUsage.rss / 1024 / 1024)} MB`,
+          heapTotal: `${Math.round(memoryUsage.heapTotal / 1024 / 1024)} MB`,
+          heapUsed: `${Math.round(memoryUsage.heapUsed / 1024 / 1024)} MB`,
+          external: `${Math.round(memoryUsage.external / 1024 / 1024)} MB`,
+        },
+        tools: {
+          total: activeTools.length,
+          active: activeToolsCount
         }
+      };
+      
+      statusLogger.debug('Health metrics requested', { 
+        client: req.ip, 
+        healthy: dbHealthy
+      });
+      
+      // Return 200 if healthy, 503 if not
+      return res.status(dbHealthy ? 200 : 503).json(healthData);
+    } catch (error) {
+      statusLogger.error('Error getting health status:', error);
+      
+      return res.status(500).json({
+        status: 'error',
+        message: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
       });
     }
   }
