@@ -1,98 +1,144 @@
 # MCP Integration Platform - Deployment Guide
 
-This guide explains how to deploy the MCP Integration Platform correctly to ensure UI consistency between development and production environments.
+## Overview
 
-## Understanding the Issues
+This guide provides detailed instructions for deploying the MCP Integration Platform to ensure consistent UI and functionality between development and production environments.
 
-The platform uses modern CSS features that can sometimes be inconsistently processed between development and production environments, causing styling differences. Key problematic CSS classes include:
+## Prerequisites
 
-- `feature-card`
-- `animate-fade-in-down`
-- `bg-gradient-to-r` 
-- `bg-grid-gray-100`
-- `bg-blob-gradient`
+- Node.js v18+ installed
+- PostgreSQL database configured
+- Required API keys for services (OpenAI, Pinecone, etc.)
+- Git repository access
 
-## Fix Scripts
+## Environment Variables
 
-We've created multiple deployment scripts to address different aspects of the deployment process:
+Ensure these environment variables are properly set in your production environment:
 
-1. **fix-production-css.cjs**: Addresses PostCSS parsing errors by simplifying CSS structure
-2. **fix-production-ui.cjs**: Ensures critical CSS classes are available in production
-3. **fix-deployment.cjs**: Fixes path resolution and MIME type issues
-4. **complete-deployment-fix.cjs**: Comprehensive solution that combines all fixes
+```
+DATABASE_URL=postgres://username:password@hostname:port/database
+SESSION_SECRET=your_session_secret
+OPENAI_API_KEY=your_openai_api_key
+PINCONE_API_KEY=your_pinecone_api_key
+PINCONE_ENVIRONMENT=your_pinecone_environment
+E2B_API_KEY=your_e2b_api_key
+```
 
-## Deployment Process
+## Deployment Steps
 
-### Option 1: Automatic Deployment (Recommended)
+### 1. Clone Repository
 
-1. Run the comprehensive fix script:
-   ```bash
-   node complete-deployment-fix.cjs
-   ```
+```bash
+git clone https://github.com/your-org/mcp-integration-platform.git
+cd mcp-integration-platform
+```
 
-2. Build the application:
-   ```bash
-   npm run build
-   ```
+### 2. Install Dependencies
 
-3. Start the production server:
-   ```bash
-   npm run start
-   ```
+```bash
+npm install
+```
 
-Alternatively, you can use Replit's deployment feature, which will automatically apply these fixes through the `.replit.deployConfig.js` file.
+### 3. Build the Application
 
-### Option 2: Manual Deployment Steps
+```bash
+npm run build
+```
 
-If you need to troubleshoot specific issues:
+This runs the following processes:
+- Transpiles TypeScript files
+- Bundles React components
+- Processes CSS with Tailwind
+- Copies static assets
 
-1. Fix CSS parsing errors:
-   ```bash
-   node fix-production-css.cjs
-   ```
+### 4. Database Setup
 
-2. Fix UI inconsistencies:
-   ```bash
-   node fix-production-ui.cjs
-   ```
+Run database migrations:
 
-3. Fix deployment-specific issues:
-   ```bash
-   node fix-deployment.cjs
-   ```
+```bash
+npx drizzle-kit push
+```
 
-4. Build the application:
-   ```bash
-   npm run build
-   ```
+### 5. Start the Production Server
 
-5. Start the production server:
-   ```bash
-   node server/prod-server.js
-   ```
+```bash
+npm run start
+```
+
+## Addressing UI Inconsistencies
+
+The most common deployment issues involve CSS styling inconsistencies between development and production environments. We've implemented several solutions to address these:
+
+### CSS Processing
+
+1. **Critical CSS Inline Injection**: Essential styles are inlined in the HTML to ensure immediate rendering without waiting for CSS files to load.
+
+2. **CSS Safelist**: We've explicitly defined a safelist in `tailwind.config.ts` to prevent Tailwind from purging critical CSS classes in production builds.
+
+3. **Verification Component**: A runtime verification component checks for missing CSS and recovers if necessary.
+
+### Build-time Fixes
+
+If you encounter UI inconsistencies, run the deployment fix script:
+
+```bash
+node fix-deployment.cjs
+```
+
+This script automatically addresses common issues:
+- Fixes CSS class purging in production
+- Ensures all assets are properly included
+- Updates cache control headers
+- Verifies MIME types are set correctly
 
 ## Verification
 
-After deployment, the application automatically verifies that critical CSS classes are working correctly through the built-in verification system. If any issues are detected, emergency CSS recovery will be applied automatically.
+After deployment, verify the following:
+
+1. **API Endpoints**: Test `/api/status` to ensure backend is functioning
+2. **Authentication**: Verify login functionality works correctly
+3. **UI Components**: Check that all UI elements render as expected
+4. **Tool Integration**: Test each MCP tool to ensure proper functionality
 
 ## Troubleshooting
 
-If you see a blank white page after deployment:
+### Blank Page in Production
 
-1. Check browser console for errors related to MIME types or path resolution
-2. Ensure all static assets are correctly copied to the dist folder
-3. Verify the production server is properly serving the static files
-4. Run the complete deployment fix script again and redeploy
+If you encounter a blank page in production:
 
-## Architecture
+1. Check browser console for JavaScript errors
+2. Verify MIME types are set correctly
+3. Run `node complete-deployment-fix.cjs` to apply comprehensive fixes
 
-The deployment solution works through several mechanisms:
+### Missing Styles
 
-1. Critical CSS inline in the HTML for immediate rendering
-2. Production-specific CSS file with all required classes
-3. Runtime verification and recovery system
-4. Fallback static content for initial load
-5. Correct MIME type handling for all static assets
-6. Proper path resolution with base href tag
+If styles appear to be missing:
 
-By using these mechanisms, we ensure consistent rendering across all environments.
+1. Check that the CSS file is being loaded correctly
+2. Verify the class names in the safelist
+3. Run `node fix-production-ui.cjs` to rebuild the UI with style fixes
+
+### Authentication Issues
+
+If users can't log in:
+
+1. Check that the session store is configured correctly
+2. Verify cookies are being set with proper domain and path
+3. Ensure CORS settings are appropriate for your deployment
+
+## CI/CD Integration
+
+For automated deployments, we recommend setting up a CI/CD pipeline with:
+
+1. **Testing Stage**: Run tests before deployment
+2. **Build Stage**: Build the application with production settings
+3. **Verification Stage**: Run automated UI tests to verify consistency
+4. **Deployment Stage**: Deploy to production server
+
+## Version Control
+
+All deployments are versioned with a timestamp to help track and debug issues. The current version can be found at `/api/status`.
+
+## Support
+
+If you encounter issues not covered by this guide, please contact the development team at support@mcp-platform.example.com.

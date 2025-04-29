@@ -1,0 +1,588 @@
+openapi: 3.0.0
+info:
+  title: MCP Integration Platform API
+  description: |
+    API for the Model Context Protocol (MCP) Integration Platform, providing standardized interfaces for AI tools
+    including web search, form automation, vector storage, data scraping, and secure sandbox environments.
+  version: 0.1.0-alpha
+  contact:
+    name: MCP Integration Team
+    email: support@mcp-platform.example.com
+
+servers:
+  - url: https://api.mcp-platform.example.com
+    description: Production server
+  - url: http://localhost:5000
+    description: Development server
+
+security:
+  - BearerAuth: []
+  - ApiKeyAuth: []
+  - SessionAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    SessionAuth:
+      type: apiKey
+      in: cookie
+      name: connect.sid
+
+  schemas:
+    # User and Authentication
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        username:
+          type: string
+          example: "johnsmith"
+        email:
+          type: string
+          format: email
+          example: "john@example.com"
+        role:
+          type: string
+          enum: ["user", "admin"]
+          example: "user"
+        apiKey:
+          type: string
+          nullable: true
+          example: "mcp_XYZ123abc456def789ghi"
+        active:
+          type: boolean
+          example: true
+        lastLogin:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        username:
+          type: string
+          example: "johnsmith"
+        email:
+          type: string
+          format: email
+          example: "john@example.com"
+        role:
+          type: string
+          enum: ["user", "admin"]
+          example: "user"
+
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          description: "Username or email"
+          example: "johnsmith"
+        password:
+          type: string
+          format: password
+          example: "securepassword123"
+
+    RegisterRequest:
+      type: object
+      required:
+        - username
+        - email
+        - password
+      properties:
+        username:
+          type: string
+          example: "johnsmith"
+        email:
+          type: string
+          format: email
+          example: "john@example.com"
+        password:
+          type: string
+          format: password
+          example: "securepassword123"
+
+    # MCP Schemas
+    WebSearchParams:
+      type: object
+      required:
+        - query
+      properties:
+        query:
+          type: string
+          description: "The search query to execute"
+          example: "latest advancements in artificial intelligence"
+        provider:
+          type: string
+          enum: ["openai", "tavily", "perplexity"]
+          default: "openai"
+          description: "Search provider to use"
+        resultCount:
+          type: integer
+          minimum: 1
+          maximum: 50
+          default: 5
+          description: "Number of results to return"
+        openaiOptions:
+          type: object
+          properties:
+            model:
+              type: string
+              enum: ["gpt-4.1", "chatgpt-4.1", "gpt-4.1-mini", "o1", "o1-mini", "o1-pro", "o3", "o3-mini-2025-01-31", "o4-mini"]
+              default: "gpt-4.1"
+              description: "OpenAI model to use"
+            searchContextSize:
+              type: string
+              enum: ["low", "medium", "high"]
+              default: "medium"
+              description: "Amount of search context to retrieve"
+
+    FormAutomationParams:
+      type: object
+      required:
+        - url
+        - formData
+      properties:
+        url:
+          type: string
+          format: uri
+          description: "URL of the form to automate"
+          example: "https://example.com/contact"
+        formData:
+          type: object
+          additionalProperties: true
+          description: "Key-value pairs of form fields and values"
+          example:
+            name: "John Smith"
+            email: "john@example.com"
+            message: "Hello, I'm interested in your services."
+        submitForm:
+          type: boolean
+          default: true
+          description: "Whether to submit the form after filling"
+        waitForNavigation:
+          type: boolean
+          default: true
+          description: "Whether to wait for page navigation after submission"
+        timeout:
+          type: integer
+          minimum: 1000
+          maximum: 30000
+          default: 5000
+          description: "Maximum time to wait for operation completion (ms)"
+
+    VectorStorageParams:
+      type: object
+      required:
+        - operation
+        - collection
+      properties:
+        provider:
+          type: string
+          enum: ["pinecone", "weaviate"]
+          default: "pinecone"
+          description: "Vector database provider to use"
+        operation:
+          type: string
+          enum: ["search", "retrieve", "store", "delete"]
+          description: "Operation to perform"
+        collection:
+          type: string
+          description: "Vector collection/class to operate on"
+          example: "product-data"
+        query:
+          type: string
+          description: "Query text for semantic search"
+          example: "comfortable ergonomic office chair"
+        embedding:
+          type: array
+          items:
+            type: number
+          description: "Pre-computed embedding vector (optional)"
+        filters:
+          type: object
+          additionalProperties: true
+          description: "Metadata filters for search"
+          example:
+            category: "furniture"
+            price_range: "mid"
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 10
+          description: "Maximum number of results"
+
+    DataScraperParams:
+      type: object
+      required:
+        - url
+      properties:
+        url:
+          type: string
+          format: uri
+          description: "URL to scrape"
+          example: "https://example.com/products"
+        selectors:
+          type: object
+          additionalProperties:
+            type: string
+          description: "Named CSS selectors to extract data"
+          example:
+            title: ".product-title"
+            price: ".product-price"
+            description: ".product-description"
+        format:
+          type: string
+          enum: ["json", "csv", "text"]
+          default: "json"
+          description: "Output format"
+        pagination:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+              default: false
+            nextSelector:
+              type: string
+              example: ".pagination .next"
+            maxPages:
+              type: integer
+              default: 1
+        javascript:
+          type: boolean
+          default: true
+          description: "Whether to execute JavaScript on the page"
+
+    StatusParams:
+      type: object
+      properties:
+        toolName:
+          type: string
+          description: "Name of the tool to check status for (optional)"
+          example: "web_search"
+
+    SandboxParams:
+      type: object
+      required:
+        - operation
+      properties:
+        operation:
+          type: string
+          enum: ["create", "execute", "upload", "download", "install", "close", "list"]
+          description: "Operation to perform on the sandbox"
+        template:
+          type: string
+          enum: ["base", "data-science", "development", "web"]
+          default: "base"
+          description: "Sandbox template to use"
+        sandboxId:
+          type: string
+          description: "ID of an existing sandbox"
+        code:
+          type: string
+          description: "Code to execute"
+          example: "console.log('Hello world');"
+        language:
+          type: string
+          enum: ["javascript", "typescript", "python"]
+          default: "javascript"
+          description: "Programming language of the code"
+
+    # Response schemas
+    MCPRequest:
+      type: object
+      required:
+        - id
+        - name
+        - parameters
+      properties:
+        id:
+          type: string
+          description: "Unique request identifier"
+          example: "req_1234567890"
+        name:
+          type: string
+          description: "Name of the tool/operation to execute"
+          enum: ["web_search", "form_automation", "vector_storage", "data_scraper", "status", "sandbox"]
+        parameters:
+          oneOf:
+            - $ref: '#/components/schemas/WebSearchParams'
+            - $ref: '#/components/schemas/FormAutomationParams'
+            - $ref: '#/components/schemas/VectorStorageParams'
+            - $ref: '#/components/schemas/DataScraperParams'
+            - $ref: '#/components/schemas/StatusParams'
+            - $ref: '#/components/schemas/SandboxParams'
+
+    MCPResponse:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: "Request identifier that this response corresponds to"
+          example: "req_1234567890"
+        results:
+          type: object
+          description: "Tool-specific results data"
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+              description: "Error message"
+              example: "Unable to connect to search provider"
+            code:
+              type: string
+              description: "Error code"
+              example: "PROVIDER_CONNECTION_ERROR"
+
+    ToolStatus:
+      type: object
+      properties:
+        name:
+          type: string
+          description: "Tool name"
+          example: "web_search"
+        available:
+          type: boolean
+          description: "Whether the tool is currently available"
+          example: true
+        latency:
+          type: number
+          description: "Average latency in milliseconds"
+          example: 234.5
+        error:
+          type: string
+          description: "Error message if the tool is unavailable"
+          example: "API quota exceeded"
+        lastUsed:
+          type: string
+          format: date-time
+          description: "When the tool was last used"
+
+    SystemStatus:
+      type: object
+      properties:
+        version:
+          type: string
+          description: "API version"
+          example: "0.1.0-alpha"
+        uptime:
+          type: number
+          description: "System uptime in seconds"
+          example: 86400
+        transport:
+          type: string
+          enum: ["STDIO", "SSE"]
+          description: "Transport protocol being used"
+          example: "STDIO"
+        activeTools:
+          type: array
+          items:
+            $ref: "#/components/schemas/ToolStatus"
+        lastRequest:
+          type: string
+          format: date-time
+          description: "When the last request was processed"
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: "Error message"
+          example: "Not authenticated"
+        code:
+          type: string
+          description: "Error code"
+          example: "AUTHENTICATION_REQUIRED"
+        status:
+          type: integer
+          description: "HTTP status code"
+          example: 401
+
+paths:
+  # Authentication
+  /api/register:
+    post:
+      summary: Register a new user
+      tags:
+        - Authentication
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Invalid request or username already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/login:
+    post:
+      summary: Authenticate user and create session
+      tags:
+        - Authentication
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/logout:
+    post:
+      summary: Invalidate current user session
+      tags:
+        - Authentication
+      security:
+        - SessionAuth: []
+      responses:
+        '200':
+          description: Logout successful
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/user:
+    get:
+      summary: Get current user information
+      tags:
+        - Authentication
+      security:
+        - SessionAuth: []
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: User information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  # MCP Tools
+  /api/mcp:
+    post:
+      summary: Execute an MCP tool
+      description: General endpoint for executing any MCP tool based on the request name and parameters
+      tags:
+        - MCP
+      security:
+        - SessionAuth: []
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MCPRequest'
+      responses:
+        '200':
+          description: Tool executed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MCPResponse'
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  # Status
+  /api/status:
+    get:
+      summary: Get system status
+      description: Returns the current status of the MCP platform and its tools
+      tags:
+        - Status
+      security: []
+      responses:
+        '200':
+          description: System status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemStatus'
+
+tags:
+  - name: Authentication
+    description: User authentication and session management
+  - name: MCP
+    description: Model Context Protocol tool execution
+  - name: Status
+    description: System status and health checks
