@@ -2,143 +2,136 @@
 
 ## Overview
 
-This guide provides detailed instructions for deploying the MCP Integration Platform to ensure consistent UI and functionality between development and production environments.
+This document outlines the steps required to successfully deploy the MCP Integration Platform to production environments. It covers the standard deployment process as well as solutions to common issues that might occur during deployment.
+
+## Current Deployment Status
+
+- **Module compatibility**: Fixed ✅ - Added dual format (ESM/CommonJS) support
+- **CSS consistency**: Fixed ✅ - Added runtime verification and recovery
+- **API documentation**: Available ✅ - Accessible at /api/docs endpoint
+- **WebSocket connectivity**: Available ✅ - Access at /mcp-ws path
+- **Database connectivity**: Configured ✅ - PostgreSQL integration ready
 
 ## Prerequisites
 
-- Node.js v18+ installed
-- PostgreSQL database configured
-- Required API keys for services (OpenAI, Pinecone, etc.)
-- Git repository access
-
-## Environment Variables
-
-Ensure these environment variables are properly set in your production environment:
-
-```
-DATABASE_URL=postgres://username:password@hostname:port/database
-SESSION_SECRET=your_session_secret
-OPENAI_API_KEY=your_openai_api_key
-PINCONE_API_KEY=your_pinecone_api_key
-PINCONE_ENVIRONMENT=your_pinecone_environment
-E2B_API_KEY=your_e2b_api_key
-```
+- Node.js v20.x or higher
+- PostgreSQL database (connection string available in environment)
+- Required API keys (set as environment variables)
+  - OpenAI API key for embeddings and completions
+  - Pinecone API key for vector storage
+  - E2B API key for sandbox execution
 
 ## Deployment Steps
 
-### 1. Clone Repository
+### 1. Environment Setup
 
-```bash
-git clone https://github.com/your-org/mcp-integration-platform.git
-cd mcp-integration-platform
+Ensure all required environment variables are set:
+
+```
+DATABASE_URL=<your-database-connection-string>
+OPENAI_API_KEY=<your-openai-api-key>
+PINECONE_API_KEY=<your-pinecone-api-key>
+E2B_API_KEY=<your-e2b-api-key>
+SESSION_SECRET=<random-string-for-session-security>
 ```
 
-### 2. Install Dependencies
+### 2. Build the Application
 
 ```bash
-npm install
+npm run prepare-deploy  # Ensures production compatibility
+npm run build           # Builds the frontend and backend
 ```
 
-### 3. Build the Application
+### 3. Run Database Migrations
 
 ```bash
-npm run build
+npm run db:push
 ```
 
-This runs the following processes:
-- Transpiles TypeScript files
-- Bundles React components
-- Processes CSS with Tailwind
-- Copies static assets
+### 4. Start the Production Server
 
-### 4. Database Setup
-
-Run database migrations:
+Use our universal launcher script which handles module format compatibility:
 
 ```bash
-npx drizzle-kit push
+node start.js
 ```
 
-### 5. Start the Production Server
+This will automatically detect and use the appropriate server file (CommonJS or ESM) based on your environment.
+
+## Common Deployment Issues and Solutions
+
+### Module Format Compatibility
+
+**Issue**: Error with `require is not defined in ES module scope` when running `npm run start`. This occurs because the package.json has `"type": "module"` but the production server might be using CommonJS syntax.
+
+**Solution**: We've implemented a dual-format compatibility solution. The application now includes both CommonJS (.cjs) and ES Module (.js) versions of the production server. Use the launcher script which automatically selects the right one:
 
 ```bash
-npm run start
+node start.js
 ```
 
-## Addressing UI Inconsistencies
-
-The most common deployment issues involve CSS styling inconsistencies between development and production environments. We've implemented several solutions to address these:
-
-### CSS Processing
-
-1. **Critical CSS Inline Injection**: Essential styles are inlined in the HTML to ensure immediate rendering without waiting for CSS files to load.
-
-2. **CSS Safelist**: We've explicitly defined a safelist in `tailwind.config.ts` to prevent Tailwind from purging critical CSS classes in production builds.
-
-3. **Verification Component**: A runtime verification component checks for missing CSS and recovers if necessary.
-
-### Build-time Fixes
-
-If you encounter UI inconsistencies, run the deployment fix script:
+If you still encounter issues, you can run the CommonJS version directly:
 
 ```bash
-node fix-deployment.cjs
+node server/prod-server.cjs
 ```
 
-This script automatically addresses common issues:
-- Fixes CSS class purging in production
-- Ensures all assets are properly included
-- Updates cache control headers
-- Verifies MIME types are set correctly
+**Details**:
+- The error occurs because Node.js treats .js files as ES modules when `"type": "module"` is set in package.json
+- CommonJS uses `require()` and `module.exports`
+- ES modules use `import` and `export`
+- Our fix provides files in both formats for maximum compatibility
+
+### CSS Inconsistency Between Development and Production
+
+**Issue**: Certain CSS styles may be missing in production due to purging.
+
+**Solution**: The application includes a CSS verification system that automatically detects and recovers missing styles. If you notice missing styles, check the browser console for verification logs.
+
+For manual recovery, run:
+
+```bash
+node scripts/fix-ui-inconsistencies.js
+```
+
+### API Documentation
+
+API documentation is available at `/api/docs` when the server is running. This provides a Swagger UI interface for exploring and testing available endpoints.
+
+## WebSocket Connection
+
+The platform provides WebSocket connectivity at the `/mcp-ws` path. Client applications should connect using:
+
+```javascript
+const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+const wsUrl = `${protocol}//${window.location.host}/mcp-ws`;
+const socket = new WebSocket(wsUrl);
+```
 
 ## Verification
 
-After deployment, verify the following:
+After deployment, verify that all key components are working:
 
-1. **API Endpoints**: Test `/api/status` to ensure backend is functioning
-2. **Authentication**: Verify login functionality works correctly
-3. **UI Components**: Check that all UI elements render as expected
-4. **Tool Integration**: Test each MCP tool to ensure proper functionality
+1. Navigate to the home page to verify UI rendering
+2. Try logging in to verify authentication
+3. Visit `/api/docs` to verify API documentation
+4. Check `/api/status` for system health
 
 ## Troubleshooting
 
-### Blank Page in Production
+If you encounter any issues not covered in this guide, check the application logs for error details. Common sources of deployment issues include:
 
-If you encounter a blank page in production:
+- Missing environment variables
+- Database connection problems
+- CORS configuration for production domains
+- API key issues with third-party services
 
-1. Check browser console for JavaScript errors
-2. Verify MIME types are set correctly
-3. Run `node complete-deployment-fix.cjs` to apply comprehensive fixes
+For module compatibility issues, run the fix script:
 
-### Missing Styles
-
-If styles appear to be missing:
-
-1. Check that the CSS file is being loaded correctly
-2. Verify the class names in the safelist
-3. Run `node fix-production-ui.cjs` to rebuild the UI with style fixes
-
-### Authentication Issues
-
-If users can't log in:
-
-1. Check that the session store is configured correctly
-2. Verify cookies are being set with proper domain and path
-3. Ensure CORS settings are appropriate for your deployment
-
-## CI/CD Integration
-
-For automated deployments, we recommend setting up a CI/CD pipeline with:
-
-1. **Testing Stage**: Run tests before deployment
-2. **Build Stage**: Build the application with production settings
-3. **Verification Stage**: Run automated UI tests to verify consistency
-4. **Deployment Stage**: Deploy to production server
-
-## Version Control
-
-All deployments are versioned with a timestamp to help track and debug issues. The current version can be found at `/api/status`.
+```bash
+node scripts/fix-production-server.cjs
+```
 
 ## Support
 
-If you encounter issues not covered by this guide, please contact the development team at support@mcp-platform.example.com.
+For additional support, please contact the development team or open an issue in the repository.

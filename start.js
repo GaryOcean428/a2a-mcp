@@ -27,7 +27,7 @@ function findProductionServer() {
 function startServer() {
   try {
     const serverPath = findProductionServer();
-    console.log(`Starting production server: ${serverPath}`);
+    console.log('Starting production server: ' + serverPath);
     
     // Launch the server with the appropriate Node.js flags
     const isCommonJS = serverPath.endsWith('.cjs');
@@ -46,7 +46,7 @@ function startServer() {
     
     server.on('exit', (code) => {
       if (code !== 0) {
-        console.error(`Server exited with code ${code}`);
+        console.error('Server exited with code ' + code);
         process.exit(code);
       }
     });
