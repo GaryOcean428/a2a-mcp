@@ -1,0 +1,44 @@
+import { Request, Response } from 'express';
+import { Server } from 'http';
+import { HttpHandler } from './transports/http-handler';
+import { StdioHandler } from './transports/stdio-handler';
+import { WebSocketManager } from './websocket/ws-server';
+
+/**
+ * Controller for handling MCP API endpoints and WebSocket connections
+ */
+export class MCPController {
+  private wsManager: WebSocketManager;
+  private httpHandler: HttpHandler;
+  private stdioHandler: StdioHandler;
+  
+  constructor() {
+    this.wsManager = new WebSocketManager('/mcp-ws');
+    this.httpHandler = new HttpHandler();
+    this.stdioHandler = new StdioHandler();
+  }
+  
+  /**
+   * Initialize WebSocket server for real-time communication
+   */
+  initialize(server: Server): void {
+    this.wsManager.initialize(server);
+  }
+  
+  /**
+   * Handle MCP requests via HTTP
+   */
+  async handleHttpRequest(req: Request, res: Response): Promise<void> {
+    await this.httpHandler.handleRequest(req, res);
+  }
+  
+  /**
+   * Handle MCP STDIO transport requests from stdin
+   */
+  handleStdioRequest(): void {
+    this.stdioHandler.initialize();
+  }
+}
+
+// Export singleton instance
+export const mcpController = new MCPController();
