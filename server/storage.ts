@@ -47,13 +47,16 @@ export interface IStorage {
   updateToolStatus(toolName: string, status: Partial<ToolStatus>): Promise<void>;
 }
 
-import { db } from './db';
+import { db, pool } from './db';
 import { eq, or, and, desc } from 'drizzle-orm';
 import { scrypt, randomBytes, timingSafeEqual } from 'crypto';
 import { promisify } from 'util';
 import session from 'express-session';
 import ConnectPg from 'connect-pg-simple';
-import { pool } from './db';
+import logger from './utils/logger';
+
+// Create a specialized logger for storage operations
+const storageLogger = logger.child('Storage');
 
 // Session store setup
 const PostgresSessionStore = ConnectPg(session);
@@ -68,7 +71,7 @@ async function hashPassword(password: string): Promise<string> {
   const salt = randomBytes(16).toString('hex');
   const buf = (await scryptAsync(password, salt, 64)) as Buffer;
   const hashedStr = `${buf.toString('hex')}.${salt}`;
-  console.log('Generated password hash (last 10 chars):', hashedStr.slice(-10));
+  storageLogger.debug('Generated password hash (last 10 chars hidden)', { hashEnd: hashedStr.slice(-10) });
   return hashedStr;
 }
 
@@ -77,11 +80,11 @@ async function hashPassword(password: string): Promise<string> {
  */
 async function comparePasswords(supplied: string, stored: string): Promise<boolean> {
   try {
-    console.log('Comparing password');
+    storageLogger.debug('Comparing password');
     
     // Handle case when stored password doesn't have the expected format
     if (!stored || !stored.includes('.')) {
-      console.error('Invalid stored password format');
+      storageLogger.error('Invalid stored password format');
       return false;
     }
     
@@ -91,13 +94,13 @@ async function comparePasswords(supplied: string, stored: string): Promise<boole
     
     // Ensure both buffers are of the same length before comparison
     if (hashedBuf.length !== suppliedBuf.length) {
-      console.error('Buffer length mismatch in password comparison');
+      storageLogger.error('Buffer length mismatch in password comparison');
       return false;
     }
     
     return timingSafeEqual(hashedBuf, suppliedBuf);
   } catch (error) {
-    console.error('Error comparing passwords:', error);
+    storageLogger.error('Error comparing passwords:', error);
     return false;
   }
 }
@@ -254,29 +257,32 @@ export class DatabaseStorage implements IStorage {
       let user: User | undefined;
       
       if (isEmail) {
-        console.log('Authenticating with email:', usernameOrEmail);
+        storageLogger.debug('Authenticating with email', { email: usernameOrEmail });
         user = await this.getUserByEmail(usernameOrEmail);
       } else {
-        console.log('Authenticating with username:', usernameOrEmail);
+        storageLogger.debug('Authenticating with username', { username: usernameOrEmail });
         user = await this.getUserByUsername(usernameOrEmail);
       }
       
       if (!user || !user.active) {
-        console.log('User not found or inactive');
+        storageLogger.warn('Authentication failed: user not found or inactive', { 
+          providedIdentifier: usernameOrEmail,
+          active: user?.active
+        });
         return undefined;
       }
       
       const isPasswordValid = await comparePasswords(password, user.password);
       
       if (!isPasswordValid) {
-        console.log('Password invalid for user:', user.username);
+        storageLogger.warn('Authentication failed: invalid password', { username: user.username });
         return undefined;
       }
       
-      console.log('Authentication successful for user:', user.username);
+      storageLogger.info('Authentication successful', { username: user.username, id: user.id });
       return user;
     } catch (error) {
-      console.error('Error validating user credentials:', error);
+      storageLogger.error('Error validating user credentials:', error);
       return undefined;
     }
   }

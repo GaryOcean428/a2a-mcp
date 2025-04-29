@@ -3,6 +3,8 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage/index";
 import { mcpController } from "./controllers/mcp-controller";
 import { sandboxController } from "./controllers/sandbox-controller";
+import { healthController } from "./controllers/health-controller";
+import { databaseMonitor } from "./utils/db-monitor";
 import { apiKeyAuth } from "./middleware/auth-middleware";
 import { globalRateLimiter, toolRateLimiter } from "./middleware/rate-limit-middleware";
 import { setupApiDocs } from "./middleware/api-docs";
@@ -40,6 +42,9 @@ const registerSchema = insertUserSchema.extend({
 export async function registerRoutes(app: Express): Promise<Server> {
   // Create HTTP server
   const httpServer = createServer(app);
+  
+  // Start database monitoring
+  databaseMonitor.start();
   
   // Apply cache control middleware to prevent caching of static assets in production
   app.use(cacheControl);
@@ -138,6 +143,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Status routes
   app.get('/api/status', mcpController.getStatus.bind(mcpController));
   app.get('/api/status/:toolName', mcpController.getToolStatus.bind(mcpController));
+  
+  // Health check route (unrestricted for monitoring services)
+  app.get('/api/health', healthController.getHealth.bind(healthController));
   
   // Sandbox API endpoint
   app.post('/api/sandbox', apiKeyAuth, toolRateLimiter.middleware(), sandboxController.handleRequest.bind(sandboxController));
@@ -278,6 +286,30 @@ Check out the [Cline Integration Guide](/cline-integration) for detailed usage e
   if (process.env.ENABLE_STDIO_TRANSPORT === 'true' || process.env.NODE_ENV === 'development') {
     mcpController.handleStdioRequest();
   }
+  
+  // Set up graceful shutdown
+  const gracefulShutdown = async () => {
+    console.log('Received shutdown signal, stopping server...');
+    
+    // Stop database monitoring
+    databaseMonitor.stop();
+    
+    // Close the HTTP server
+    httpServer.close(() => {
+      console.log('HTTP server closed');
+      process.exit(0);
+    });
+    
+    // Force exit after 10 seconds if graceful shutdown fails
+    setTimeout(() => {
+      console.error('Forced shutdown after timeout');
+      process.exit(1);
+    }, 10000);
+  };
+  
+  // Listen for termination signals
+  process.on('SIGTERM', gracefulShutdown);
+  process.on('SIGINT', gracefulShutdown);
   
   return httpServer;
 }
