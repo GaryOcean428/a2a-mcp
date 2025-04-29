@@ -11,6 +11,7 @@ This document outlines the steps required to successfully deploy the MCP Integra
 - **API documentation**: Available ✅ - Accessible at /api/docs endpoint
 - **WebSocket connectivity**: Available ✅ - Access at /mcp-ws path
 - **Database connectivity**: Configured ✅ - PostgreSQL integration ready
+- **Security**: Enhanced ✅ - Environment variables management and secret protection
 
 ## Prerequisites
 
@@ -25,7 +26,15 @@ This document outlines the steps required to successfully deploy the MCP Integra
 
 ### 1. Environment Setup
 
-Ensure all required environment variables are set:
+**IMPORTANT: Never commit secrets or API keys to the repository!**
+
+The project includes a `.env.example` file that shows all required environment variables. Make a copy named `.env` for local development:
+
+```bash
+cp .env.example .env
+```
+
+Then edit the `.env` file with your actual values:
 
 ```
 DATABASE_URL=<your-database-connection-string>
@@ -34,6 +43,8 @@ PINECONE_API_KEY=<your-pinecone-api-key>
 E2B_API_KEY=<your-e2b-api-key>
 SESSION_SECRET=<random-string-for-session-security>
 ```
+
+For production deployments, set these environment variables in your hosting platform's configuration. Do not include the `.env` file in deployments.
 
 ### 2. Build the Application
 
@@ -131,6 +142,49 @@ For module compatibility issues, run the fix script:
 ```bash
 node scripts/fix-production-server.cjs
 ```
+
+## Security Best Practices
+
+### Environment Variables and Secrets
+
+- **Never commit API keys or secrets** to version control
+- Use environment variables for all sensitive information
+- The project's `.gitignore` file is configured to exclude `.env` files
+- For local development, use the `.env` file (copied from `.env.example`)
+- For production, configure environment variables in your hosting platform
+
+#### Secret Detection Tool
+
+We've included a secret detection tool that scans the codebase for potentially hardcoded secrets or API keys. Run it before committing code to ensure you haven't accidentally included sensitive information:
+
+```bash
+# Using CommonJS version
+node scripts/check-for-secrets.cjs
+
+# Or using ES Module version
+node scripts/check-for-secrets.js
+```
+
+This tool detects various patterns that could indicate hardcoded credentials, such as API keys, passwords, or connection strings. It's recommended to run this check before committing code.
+
+### API Key Rotation
+
+- Regularly rotate API keys for all external services
+- Update environment variables after rotation without code changes
+- Consider using a secrets management service for production deployments
+
+### Database Security
+
+- Use strong, unique passwords for database access
+- Limit database user permissions to only what's necessary
+- Enable SSL for database connections in production
+- Never expose the database directly to the internet
+
+### Session Security
+
+- Use a strong, random string for `SESSION_SECRET`
+- In production, use a secure cookie configuration with `secure: true`
+- The default session expiration is 24 hours; adjust as needed for your security requirements
 
 ## Support
 
