@@ -27,6 +27,7 @@ const criticalFiles = [
   'public/deploy-verify.js',
   'server/middleware/static-assets.ts',
   'fix-production-css.cjs',
+  'fix-hmr-websocket.cjs',
   'start.cjs'
 ];
 
@@ -42,13 +43,21 @@ function applyAllFixes() {
     console.log('[MCP:Deploy] Running CSS production fixes...');
     execSync('node fix-production-css.cjs', { stdio: 'inherit' });
     
-    // 3. Apply module compatibility fixes
+    // 3. Apply WebSocket HMR fix
+    console.log('[MCP:Deploy] Running WebSocket HMR fixes...');
+    if (fs.existsSync('fix-hmr-websocket.cjs')) {
+      execSync('node fix-hmr-websocket.cjs', { stdio: 'inherit' });
+    } else {
+      console.warn('[MCP:Deploy] WebSocket HMR fix script not found, skipping...');
+    }
+    
+    // 4. Apply module compatibility fixes
     createModuleCompatibilityFiles();
     
-    // 4. Apply server production launcher
+    // 5. Apply server production launcher
     createServerLauncher();
     
-    // 5. Update server routes if needed
+    // 6. Update server routes if needed
     ensureMiddlewareRegistered();
     
     console.log('[MCP:Deploy] All deployment fixes applied successfully!');
