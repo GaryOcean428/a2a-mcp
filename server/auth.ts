@@ -2,7 +2,7 @@ import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { Express, Request, Response, NextFunction } from 'express';
 import session from 'express-session';
-import { storage } from './storage';
+import { storage } from './storage/index';
 import { type User } from '@shared/schema';
 
 // Define express-compatible user type

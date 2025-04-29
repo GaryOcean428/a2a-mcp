@@ -1,6 +1,6 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { storage } from "./storage/index";
 import { mcpController } from "./controllers/mcp-controller";
 import { sandboxController } from "./controllers/sandbox-controller";
 import { apiKeyAuth } from "./middleware/auth-middleware";
