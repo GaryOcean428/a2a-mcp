@@ -1,0 +1,137 @@
+classifier.js:1 [Report Only] Refused to compile or instantiate WebAssembly module because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: "script-src 'self'".
+
+ [Report Only] Refused to compile or instantiate WebAssembly module because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: "script-src 'self'".
+
+854-f2878fe431b810e9.js:1 Replit version d7ea523f, pid2 version 0.0.1245
+_app-b6cbc35f4bce2127.js:13 
+      /////////////////////
+   ///////////////////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////        Curious and driven?
+  ///////////////@@@@@@@///////        Work with us!
+  ///////////////@@@@@@@///////
+  ///////////////@@@@@@@///////        https://join.replit.com/hack.with.us
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@#//////////////
+   ///////////////////////////
+      /////////////////////
+      
+_app-b6cbc35f4bce2127.js:13 [LaunchDarkly] LaunchDarkly client initialized
+_app-b6cbc35f4bce2127.js:13 Adding extension: GPT-Replit - ChatGPT in your Repl. Object
+_app-b6cbc35f4bce2127.js:13 Adding extension: Perplexity Object
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+ Unrecognized feature: 'ambient-light-sensor'.
+_ @ framework-8029cbe8b38bb8c1.js:1
+ Unrecognized feature: 'battery'.
+_ @ framework-8029cbe8b38bb8c1.js:1
+ Unrecognized feature: 'execution-while-not-rendered'.
+_ @ framework-8029cbe8b38bb8c1.js:1
+ Unrecognized feature: 'execution-while-out-of-viewport'.
+_ @ framework-8029cbe8b38bb8c1.js:1
+ Unrecognized feature: 'layout-animations'.
+_ @ framework-8029cbe8b38bb8c1.js:1
+ Unrecognized feature: 'legacy-image-formats'.
+_ @ framework-8029cbe8b38bb8c1.js:1
+ Unrecognized feature: 'navigation-override'.
+_ @ framework-8029cbe8b38bb8c1.js:1
+ Unrecognized feature: 'oversized-images'.
+_ @ framework-8029cbe8b38bb8c1.js:1
+ Unrecognized feature: 'publickey-credentials'.
+_ @ framework-8029cbe8b38bb8c1.js:1
+ Unrecognized feature: 'speaker-selection'.
+_ @ framework-8029cbe8b38bb8c1.js:1
+ Unrecognized feature: 'unoptimized-images'.
+_ @ framework-8029cbe8b38bb8c1.js:1
+ Unrecognized feature: 'unsized-media'.
+_ @ framework-8029cbe8b38bb8c1.js:1
+ Unrecognized feature: 'web-share'.
+_ @ framework-8029cbe8b38bb8c1.js:1
+ Unrecognized feature: 'pointer-lock'.
+_ @ framework-8029cbe8b38bb8c1.js:1
+ Allow attribute will take precedence over 'allowfullscreen'.
+_ @ framework-8029cbe8b38bb8c1.js:1
+ Allow attribute will take precedence over 'allowpaymentrequest'.
+_ @ framework-8029cbe8b38bb8c1.js:1
+hook.js:608 Command: hello has unrecognized contributions: editor-context-menu. Valid contributions are commandbar,filetree-context-menu,sidebar-search,editor-context-menu Object
+overrideMethod @ hook.js:608
+_app-b6cbc35f4bce2127.js:13 Adding extension: Javascript Commands Object
+workspace_iframe.html:32 Unrecognized feature: 'ambient-light-sensor'.
+workspace_iframe.html:32 Unrecognized feature: 'battery'.
+workspace_iframe.html:32 Unrecognized feature: 'execution-while-not-rendered'.
+workspace_iframe.html:32 Unrecognized feature: 'execution-while-out-of-viewport'.
+workspace_iframe.html:32 Unrecognized feature: 'layout-animations'.
+workspace_iframe.html:32 Unrecognized feature: 'legacy-image-formats'.
+workspace_iframe.html:32 Unrecognized feature: 'navigation-override'.
+workspace_iframe.html:32 Unrecognized feature: 'oversized-images'.
+workspace_iframe.html:32 Unrecognized feature: 'publickey-credentials'.
+workspace_iframe.html:32 Unrecognized feature: 'speaker-selection'.
+workspace_iframe.html:32 Unrecognized feature: 'unoptimized-images'.
+workspace_iframe.html:32 Unrecognized feature: 'unsized-media'.
+workspace_iframe.html:32 Unrecognized feature: 'web-share'.
+workspace_iframe.html:32 Allow attribute will take precedence over 'allowfullscreen'.
+workspace_iframe.html:32 Allow attribute will take precedence over 'allowpaymentrequest'.
+hook.js:608 Command: javascript-root-command has unrecognized contributions: commandbar. Valid contributions are commandbar,filetree-context-menu,sidebar-search,editor-context-menu Object
+overrideMethod @ hook.js:608
+Network.js:227 WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/?token=N9c65kzwhMx3' failed: 
+t @ Network.js:227
+classifier.js:1 [Report Only] Refused to compile or instantiate WebAssembly module because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: "script-src 'self'".
+
+ [Report Only] Refused to compile or instantiate WebAssembly module because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: "script-src 'self'".
+
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/api/user:1 
+            
+            
+           Failed to load resource: the server responded with a status of 401 (Unauthorized)
+IntegrationMaster:1 Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+Network.js:227 WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/?token=N9c65kzwhMx3' failed: 
+t @ Network.js:227
+Network.js:227 Uncaught (in promise) SyntaxError: Failed to construct 'WebSocket': The URL 'wss://localhost:undefined/?token=N9c65kzwhMx3' is invalid.
+    at new t (Network.js:227:18)
+    at setupWebSocket (client:536:19)
+    at fallback (client:509:16)
+    at WebSocket.<anonymous> (client:555:7)
+Console.js:61 Development mode: Using default API key
+Console.js:61 MCP client initialized with baseUrl: https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev
+Console.js:61 MCP Integration Platform v2.5.1745893471256 starting
+Console.js:61 [CSS Verify] Starting verification...
+Console.js:61 Fetching user data from /api/user
+Console.js:61 [CSS Verify] Running verification...
+Console.js:61 [CSS Verify] Critical inline styles present: true
+Console.js:61 [CSS Verify] External stylesheets loaded: 1
+Console.js:61 [CSS Verify] - https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/production.css?v=2.5.1745966538733
+Console.js:61 [CSS Verify] Testing critical CSS classes:
+Console.js:61 [CSS Verify] - bg-grid-gray-100: OK
+Console.js:61 [CSS Verify] - bg-blob-gradient: OK
+Console.js:61 [CSS Verify] - feature-card: OK
+Console.js:61 [CSS Verify] - animate-fade-in-down: OK
+Console.js:61 [CSS Verify] - from-purple-50: OK
+Console.js:61 [CSS Verify] - to-white: OK
+Console.js:61 [CSS Verify] - bg-gradient-to-r: OK
+Console.js:61 [CSS Verify] All critical CSS classes verified ✓
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/api/user:1 
+            
+            
+           Failed to load resource: the server responded with a status of 401 (Unauthorized)
+Console.js:61 Not authenticated (401), returning null
+
+                
+          
+          
+          
+         Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.
+stallwart.build.js:1 stallwart: failed ping 1
+stallwart.build.js:1 stallwart: failed ping 2
