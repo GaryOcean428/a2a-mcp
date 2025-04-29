@@ -3,13 +3,13 @@
  * This script verifies that all critical CSS classes are properly loaded
  * and recovers them if necessary.
  * 
- * Version: 2.5.1745836770
+ * Version: 2.5.1745891438245
  */
 (function() {
   console.log("[CSS Verify] Running verification...");
   
   // Check if critical inline styles are present
-  const hasInlineStyles = document.querySelector('style') !== null;
+  const hasInlineStyles = document.querySelector('style#critical-css') !== null;
   console.log("[CSS Verify] Critical inline styles present:", hasInlineStyles);
   
   // Check if external stylesheets are loaded
@@ -94,17 +94,11 @@
     console.log("%c🔄 Triggering CSS recovery process", "color: blue; font-weight: bold;");
     console.log("[CSS Recovery] Checking for missing styles...");
     
-    if (process.env.NODE_ENV !== 'production' && !window.location.hostname.includes('replit.app')) {
-      console.log("[CSS Recovery] Development mode - only verifying styles");
-      console.log("[CSS Recovery] All styles verified in development ✓");
-      return;
-    }
-    
-    // Inject emergency recovery CSS
-    console.log("[CSS Recovery] Injecting CSS recovery for production");
+    // Inject inline emergency recovery CSS
+    console.log("[CSS Recovery] Injecting inline CSS recovery...");
     
     const recoveryCSS = `
-    /* MCP Critical CSS Recovery - Version 2.5.1745836770 */
+    /* MCP Critical CSS Recovery - Version 2.5.1745891438245 */
     .feature-card {
       position: relative !important;
       overflow: hidden !important;
@@ -159,17 +153,17 @@
       }
     }
     /* Target group-hover utilities */
-    .group:hover .group-hover\\:scale-110 {
+    .group:hover .group-hover\:scale-110 {
       transform: scale(1.1) !important;
     }
     /* Hover effects */
-    .hover\\:translate-y-\\[-2px\\]:hover {
+    .hover\:translate-y-\[-2px\]:hover {
       transform: translateY(-2px) !important;
     }
-    .hover\\:shadow-lg:hover {
+    .hover\:shadow-lg:hover {
       box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
     }
-    .hover\\:border-purple-200:hover {
+    .hover\:border-purple-200:hover {
       border-color: rgb(233 213 255) !important;
     }
     /* Explicit gradient backgrounds */

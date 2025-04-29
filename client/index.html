@@ -1,672 +1,143 @@
 <!DOCTYPE html>
-<!-- MCP Integration Platform 2.5.1745834116631 - Production Ready -->
-<html lang="en" data-mcp-version="2.5.1745834116631" data-production-ready="true">
+<html lang="en" data-mcp-version="2.5.1745891438245">
   <head>
     <meta charset="UTF-8" />
-  <style id="critical-styles">
-    /* Critical UI components that must appear immediately */
-    .bg-grid-gray-100 {
-      background-image: 
-        linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
-      background-size: 24px 24px;
-    }
-    
-    .bg-blob-gradient {
-      background-image: radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.1) 0%, transparent 75%);
-      filter: blur(50px);
-    }
-    
-    .feature-card {
-      background-color: white;
-      padding: 1.5rem;
-      border-radius: 0.5rem;
-      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-      border: 1px solid rgba(229, 231, 235);
-      transition: all 0.3s;
-    }
-    
-    .feature-card:hover {
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      border-color: rgba(167, 139, 250, 0.4);
-      transform: translateY(-2px);
-    }
-    
-    /* Gradient backgrounds */
-    .from-purple-50 {
-      --tw-gradient-from: #faf5ff;
-      --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
-    }
-    .via-indigo-50 {
-      --tw-gradient-via: #eef2ff;
-      --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to);
-    }
-    .to-white {
-      --tw-gradient-to: #ffffff;
-    }
-    
-    /* Card hover effects */
-    .group:hover .group-hover\:scale-110 {
-      transform: scale(1.1);
-    }
-    .group:hover .group-hover\:opacity-100 {
-      opacity: 1;
-    }
-    .hover\:shadow-lg:hover {
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    }
-    .hover\:border-purple-200:hover {
-      border-color: rgba(221, 214, 254, 1);
-    }
-    .hover\:translate-y-\[-2px\]:hover {
-      transform: translateY(-2px);
-    }
-    
-    /* Text colors on hover */
-    .group:hover .group-hover\:text-purple-700 {
-      color: rgba(126, 34, 206, 1);
-    }
-    .group:hover .group-hover\:text-indigo-700 {
-      color: rgba(67, 56, 202, 1);
-    }
-    .group:hover .group-hover\:text-violet-700 {
-      color: rgba(109, 40, 217, 1);
-    }
-    
-    /* Animations */
-    @keyframes fadeInDown {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    .animate-fade-in-down {
-      animation: fadeInDown 0.5s ease-out;
-    }
-  </style>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MCP Integration Platform</title>
-    <!-- Critical UI styles to ensure they're always loaded in production -->
-    <style>
-      /* Critical UI styles for production - PLEASE DO NOT REMOVE */
-      .bg-grid-gray-100 {
-        background-image: 
-          linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
-          linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
-        background-size: 24px 24px;
+    <meta name="description" content="Model Context Protocol Integration Platform for AI applications" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    
+    <!-- Critical inline CSS for production consistency -->
+    <style id="critical-css">
+      :root {
+        --background: 0 0% 100%;
+        --foreground: 222.2 84% 4.9%;
+        --card: 0 0% 100%;
+        --card-foreground: 222.2 84% 4.9%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 222.2 84% 4.9%;
+        --primary: 263 70% 50%;
+        --primary-foreground: 210 40% 98%;
+        --secondary: 210 40% 96.1%;
+        --secondary-foreground: 222.2 47.4% 11.2%;
+        --muted: 210 40% 96.1%;
+        --muted-foreground: 215.4 16.3% 46.9%;
+        --accent: 210 40% 96.1%;
+        --accent-foreground: 222.2 47.4% 11.2%;
+        --destructive: 0 84.2% 60.2%;
+        --destructive-foreground: 210 40% 98%;
+        --border: 214.3 31.8% 91.4%;
+        --input: 214.3 31.8% 91.4%;
+        --ring: 263 70% 50%;
+        --radius: 0.5rem;
       }
-      
-      .bg-blob-gradient {
-        background-image: radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.1) 0%, transparent 75%);
-        filter: blur(50px);
+
+      .dark {
+        --background: 222.2 84% 4.9%;
+        --foreground: 210 40% 98%;
+        --card: 222.2 84% 4.9%;
+        --card-foreground: 210 40% 98%;
+        --popover: 222.2 84% 4.9%;
+        --popover-foreground: 210 40% 98%;
+        --primary: 263 70% 50%;
+        --primary-foreground: 210 40% 98%;
+        --secondary: 217.2 32.6% 17.5%;
+        --secondary-foreground: 210 40% 98%;
+        --muted: 217.2 32.6% 17.5%;
+        --muted-foreground: 215 20.2% 65.1%;
+        --accent: 217.2 32.6% 17.5%;
+        --accent-foreground: 210 40% 98%;
+        --destructive: 0 62.8% 30.6%;
+        --destructive-foreground: 210 40% 98%;
+        --border: 217.2 32.6% 17.5%;
+        --input: 217.2 32.6% 17.5%;
+        --ring: 263 70% 50%;
       }
-      
-      .feature-card {
-        background-color: white;
-        padding: 1.5rem;
-        border-radius: 0.5rem;
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-        border: 1px solid rgba(229, 231, 235);
-        transition: all 0.3s;
-      }
-      
-      .feature-card:hover {
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        border-color: rgba(167, 139, 250, 0.4);
-        transform: translateY(-2px);
-      }
-      
-      @keyframes fadeInDown {
+
+      /* Critical animation keyframes */
+      @keyframes animate-in {
         from {
           opacity: 0;
-          transform: translateY(-10px);
+          transform: translateY(20px);
         }
         to {
           opacity: 1;
           transform: translateY(0);
         }
       }
-      
+
+      @keyframes animate-fade-in-down {
+        from {
+          opacity: 0;
+          transform: translateY(-15px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Critical utility classes */
+      .feature-card {
+        background-color: white !important;
+        border-radius: 0.5rem !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+        padding: 1.5rem !important;
+        transition-property: all !important;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+        transition-duration: 150ms !important;
+      }
+
+      .bg-gradient-to-r {
+        background-image: linear-gradient(to right, var(--tw-gradient-stops)) !important;
+      }
+
+      .animate-in {
+        animation-name: animate-in !important;
+        animation-duration: 150ms !important;
+        animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+      }
+
       .animate-fade-in-down {
-        animation: fadeInDown 0.5s ease-out;
+        animation-name: animate-fade-in-down !important;
+        animation-duration: 800ms !important;
+        animation-fill-mode: both !important;
       }
-    
-/* Critical UI styles for production - DO NOT REMOVE OR MODIFY */
-.bg-grid-gray-100 {
-  background-image: 
-    linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
-  background-size: 24px 24px;
-}
 
-.bg-blob-gradient {
-  background-image: radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.1) 0%, transparent 75%);
-  filter: blur(50px);
-}
+      /* Group hover utilities */
+      .group:hover .group-hover\:scale-110 {
+        transform: scale(1.1) !important;
+      }
 
-.feature-card {
-  background-color: white;
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(229, 231, 235);
-  transition: all 0.3s;
-}
-
-.feature-card:hover {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  border-color: rgba(167, 139, 250, 0.4);
-  transform: translateY(-2px);
-}
-
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-in-down {
-  animation: fadeInDown 0.5s ease-out;
-}
-
-/* Card hover effects */
-.group-hover\:scale-110 {
-  transition: transform 0.3s ease-out;
-}
-.group:hover .group-hover\:scale-110 {
-  transform: scale(1.1);
-}
-
-.group-hover\:opacity-100 {
-  transition: opacity 0.3s ease-out;
-}
-.group:hover .group-hover\:opacity-100 {
-  opacity: 1;
-}
-
-.hover\:shadow-lg:hover {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
-
-.hover\:border-purple-200:hover {
-  border-color: rgba(221, 214, 254, 1);
-}
-
-.hover\:translate-y-\[-2px\]:hover {
-  transform: translateY(-2px);
-}
-
-/* Gradient backgrounds */
-.from-purple-50 {
-  --tw-gradient-from: #faf5ff;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
-}
-.from-purple-600 {
-  --tw-gradient-from: #9333ea;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
-}
-.from-purple-700 {
-  --tw-gradient-from: #7e22ce;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
-}
-.via-indigo-50 {
-  --tw-gradient-via: #eef2ff;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to);
-}
-.to-white {
-  --tw-gradient-to: #ffffff;
-}
-.to-indigo-600 {
-  --tw-gradient-to: #4f46e5;
-}
-.to-indigo-700 {
-  --tw-gradient-to: #4338ca;
-}
-.bg-gradient-to-r {
-  background-image: linear-gradient(to right, var(--tw-gradient-stops));
-}
-
-/* Text colors on hover */
-.group-hover\:text-purple-700 {
-  transition: color 0.3s ease-out;
-}
-.group:hover .group-hover\:text-purple-700 {
-  color: rgba(126, 34, 206, 1);
-}
-.group-hover\:text-indigo-700 {
-  transition: color 0.3s ease-out;
-}
-.group:hover .group-hover\:text-indigo-700 {
-  color: rgba(67, 56, 202, 1);
-}
-.group-hover\:text-violet-700 {
-  transition: color 0.3s ease-out;
-}
-.group:hover .group-hover\:text-violet-700 {
-  color: rgba(109, 40, 217, 1);
-}
-
-/* Ensure navigation components and dropdown menus appear correctly */
-.animate-in {
-  animation-duration: 150ms;
-  animation-timing-function: cubic-bezier(0.1, 0.99, 0.1, 0.99);
-  animation-fill-mode: both;
-}
-
-.fade-in {
-  animation-name: fadeIn;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-/* Spinner styles */
-.spinner-border {
-  display: inline-block;
-  width: 1.5rem;
-  height: 1.5rem;
-  vertical-align: text-bottom;
-  border: 0.2em solid currentColor;
-  border-right-color: transparent;
-  border-radius: 50%;
-  animation: spinner-border 0.75s linear infinite;
-}
-
-@keyframes spinner-border {
-  to { transform: rotate(360deg); }
-}
-
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* AI Spinner animation */
-.ai-spinner-dot {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  margin-right: 3px;
-  animation: ai-spinner 1.5s infinite;
-}
-
-.ai-spinner-dot:nth-child(2) {
-  animation-delay: 0.3s;
-}
-
-.ai-spinner-dot:nth-child(3) {
-  animation-delay: 0.6s;
-}
-
-@keyframes ai-spinner {
-  0%, 100% {
-    transform: translateY(0);
-    opacity: 0.6;
-  }
-  50% {
-    transform: translateY(-5px);
-    opacity: 1;
-  }
-}
-
-/* Loader spinners */
-.loader-with-spinners-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-}
-
-.loader-spinner-pulse {
-  position: relative;
-  width: 50px;
-  height: 50px;
-}
-
-.loader-spinner-pulse::before,
-.loader-spinner-pulse::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.3);
-  animation: pulse 2s linear infinite;
-}
-
-.loader-spinner-pulse::after {
-  animation-delay: 1s;
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(0.5);
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1.3);
-    opacity: 0;
-  }
-}
-
-  </style>
-    <style>
-      /* Static landing page styles (used before React loads) */
-      .static-landing {
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        background-color: #f5f5f5;
-        margin: 0;
-        padding: 0;
-        color: #1f2937;
-        line-height: 1.5;
-      }
-      .static-landing .header {
-        background-color: white;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        padding: 1rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-      }
-      .static-landing .logo {
-        font-size: 1.5rem;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        color: #4f46e5;
-        text-decoration: none;
-      }
-      .static-landing .nav-links {
-        display: flex;
-        gap: 1rem;
-      }
-      .static-landing .nav-link {
-        color: #4b5563;
-        text-decoration: none;
-        padding: 0.5rem;
-        border-radius: 0.25rem;
-        transition: background-color 0.2s;
-      }
-      .static-landing .nav-link:hover {
-        background-color: #f3f4f6;
-        color: #4f46e5;
-      }
-      .static-landing .hero {
-        background: linear-gradient(135deg, #5d26c1, #a17fe0);
-        color: white;
-        padding: 4rem 2rem;
-        text-align: center;
-      }
-      .static-landing .hero h1 {
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
-        font-weight: 700;
-      }
-      .static-landing .hero p {
-        font-size: 1.25rem;
-        max-width: 800px;
-        margin: 0 auto 2rem;
-        opacity: 0.9;
-      }
-      .static-landing .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem;
-      }
-      .static-landing .section-title {
-        font-size: 1.75rem;
-        font-weight: 600;
-        margin-bottom: 1.5rem;
-        color: #111827;
-      }
-      .static-landing .card-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 3rem;
-      }
-      .static-landing .card {
-        background-color: white;
-        border-radius: 0.5rem;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        padding: 1.5rem;
-        transition: transform 0.2s, box-shadow 0.2s;
-      }
-      .static-landing .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-      }
-      .static-landing .card-icon {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        margin-bottom: 1rem;
-      }
-      .static-landing .card h3 {
-        font-size: 1.25rem;
-        margin: 0 0 0.5rem 0;
-      }
-      .static-landing .card p {
-        color: #6b7280;
-        margin: 0 0 1rem 0;
-      }
-      .static-landing .blue { background-color: #dbeafe; color: #1e40af; }
-      .static-landing .green { background-color: #d1fae5; color: #065f46; }
-      .static-landing .purple { background-color: #ede9fe; color: #5b21b6; }
-      .static-landing .amber { background-color: #fef3c7; color: #92400e; }
-      
-      .static-landing .status-section {
-        background-color: white;
-        border-radius: 0.5rem;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        padding: 1.5rem;
-        margin-bottom: 3rem;
-      }
-      .static-landing .status-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 1rem;
-      }
-      .static-landing .status-table th, 
-      .static-landing .status-table td {
-        padding: 0.75rem;
-        border-bottom: 1px solid #e5e7eb;
-        text-align: left;
-      }
-      .static-landing .status-table th {
-        font-weight: 600;
-        color: #4b5563;
-      }
-      .static-landing .status-indicator {
-        display: inline-block;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        margin-right: 0.5rem;
-      }
-      .static-landing .status-available { background-color: #10b981; }
-      .static-landing .status-unavailable { background-color: #ef4444; }
-      .static-landing .button {
-        display: inline-block;
-        background-color: #4f46e5;
-        color: white;
-        padding: 0.75rem 1.5rem;
-        border-radius: 0.375rem;
-        text-decoration: none;
-        font-weight: 500;
-        transition: background-color 0.2s;
-      }
-      .static-landing .button:hover {
-        background-color: #4338ca;
-      }
-      .static-landing .button.outline {
-        background-color: transparent;
-        border: 1px solid #4f46e5;
-        color: #4f46e5;
-      }
-      .static-landing .button.outline:hover {
-        background-color: #f5f3ff;
-      }
-      .static-landing .footer {
-        background-color: #f9fafb;
-        border-top: 1px solid #e5e7eb;
-        padding: 2rem;
-        text-align: center;
-      }
-      .static-landing .footer-links {
-        display: flex;
-        gap: 1.5rem;
-        justify-content: center;
-        margin-bottom: 1rem;
-      }
-      .static-landing .footer-link {
-        color: #4b5563;
-        text-decoration: none;
-      }
-      .static-landing .footer-link:hover {
-        color: #4f46e5;
-      }
-      .static-landing .footer-copyright {
-        color: #9ca3af;
-        font-size: 0.875rem;
+      /* Explicit gradient backgrounds */
+      .from-purple-50 {
+        --tw-gradient-from: #faf5ff !important;
+        --tw-gradient-to: rgb(250 245 255 / 0) !important;
+        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
       }
       
-      @media (max-width: 768px) {
-        .static-landing .card-grid {
-          grid-template-columns: 1fr;
-        }
-        .static-landing .hero h1 {
-          font-size: 2rem;
-        }
-        .static-landing .hero p {
-          font-size: 1rem;
-        }
+      .from-purple-600 {
+        --tw-gradient-from: #9333ea !important;
+        --tw-gradient-to: rgb(147 51 234 / 0) !important;
+        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+      }
+      
+      .to-indigo-600 {
+        --tw-gradient-to: #4f46e5 !important;
+      }
+
+      /* Critical backgrounds */
+      .bg-grid-gray-100 {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23f3f4f6' fill-opacity='0.4'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3Cpath d='M6 5V0H5v5H0v1h5v94h1V6h94V5H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") !important;
+      }
+
+      .bg-blob-gradient {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath fill='%239333ea' fill-opacity='0.1' d='M11.1,-15.9C14.5,-12.8,17.2,-9.2,18.3,-5.3C19.4,-1.4,18.9,2.8,17,6.3C15,9.7,11.7,12.4,7.7,15.4C3.7,18.4,-0.9,21.7,-5.9,21.8C-10.9,21.9,-16.4,18.8,-19.1,14.2C-21.8,9.6,-21.9,3.6,-20.9,-2.3C-19.9,-8.1,-17.9,-14,-14,-17.1C-10.1,-20.3,-5,-20.8,-0.4,-20.3C4.1,-19.8,8.3,-18.3,11.1,-15.9Z' transform='translate(50 50)'%3E%3C/path%3E%3C/svg%3E") !important;
       }
     </style>
-    <!-- Preload CSS to ensure it loads before rendering -->
-  <link rel="preload" href="/assets/index.css" as="style">
-  <meta name="app-version" content="2.5.1745835943600">
-  <style>
-
-
-/* Critical CSS - MCP Production Build */
-.feature-card {
-  position: relative !important;
-  overflow: hidden !important;
-  border-radius: 0.5rem !important;
-  border-width: 1px !important;
-  border-color: hsl(var(--border)) !important;
-  padding: 1.5rem !important;
-  background-color: hsl(var(--card)) !important;
-  cursor: pointer !important;
-  transition-property: all !important;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
-  transition-duration: 300ms !important;
-}
-.feature-card:hover {
-  border-color: rgb(233 213 255) !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1) !important;
-}
-.bg-gradient-to-r {
-  background-image: linear-gradient(to right, var(--tw-gradient-stops)) !important;
-}
-.animate-in {
-  animation-name: animate-in !important;
-  animation-duration: 0.5s !important;
-  animation-timing-function: ease-out !important;
-  animation-fill-mode: both !important;
-  animation-direction: normal !important;
-}
-.animate-fade-in-down {
-  animation-name: animate-fade-in-down !important;
-  animation-duration: 0.8s !important;
-  animation-fill-mode: both !important; 
-}
-@keyframes animate-in {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-@keyframes animate-fade-in-down {
-  from {
-    opacity: 0;
-    transform: translateY(-15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-/* Target group-hover utilities */
-.group:hover .group-hover\:scale-110 {
-  transform: scale(1.1) !important;
-}
-/* Explicit gradient backgrounds */
-.from-purple-50 {
-  --tw-gradient-from: #faf5ff !important;
-  --tw-gradient-to: rgb(250 245 255 / 0) !important;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
-}
-.from-purple-600 {
-  --tw-gradient-from: #9333ea !important;
-  --tw-gradient-to: rgb(147 51 234 / 0) !important;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
-}
-.to-indigo-600 {
-  --tw-gradient-to: #4f46e5 !important;
-}
-/* Fix for missing critical classes */
-.feature-card {
-  background-color: white !important;
-  border-radius: 0.5rem !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
-  padding: 1.5rem !important;
-  transition-property: all !important;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
-  transition-duration: 150ms !important;
-}
-.bg-gradient-to-r {
-  background-image: linear-gradient(to right, var(--tw-gradient-stops)) !important;
-}
-.animate-in {
-  animation-name: animate-in !important;
-  animation-duration: 150ms !important;
-  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-  </style>
-    <script>window.MCP_DEPLOYMENT_VERIFIED = true; window.MCP_VERSION = "2.5.1745835943600";</script>
+    
+    <!-- Version verification -->
+    <script>window.MCP_DEPLOYMENT_VERIFIED = true; window.MCP_VERSION = "2.5.1745891438245";</script>
   </head>
   <body>
     <!-- Root element for React to mount -->
@@ -730,47 +201,6 @@
             <p>Extract structured data from websites with configurable policies</p>
           </div>
         </div>
-        
-        <div class="status-section">
-          <h2 class="section-title">API Status</h2>
-          <p>Current system status and available tools:</p>
-          
-          <table class="status-table">
-            <thead>
-              <tr>
-                <th>Tool</th>
-                <th>Description</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Web Search</td>
-                <td>Search the web with multiple providers</td>
-                <td><span class="status-indicator status-available"></span> Available</td>
-              </tr>
-              <tr>
-                <td>Form Automation</td>
-                <td>Fill and submit web forms</td>
-                <td><span class="status-indicator status-available"></span> Available</td>
-              </tr>
-              <tr>
-                <td>Vector Storage</td>
-                <td>Connect to vector databases</td>
-                <td><span class="status-indicator status-available"></span> Available</td>
-              </tr>
-              <tr>
-                <td>Data Scraping</td>
-                <td>Extract structured data from websites</td>
-                <td><span class="status-indicator status-available"></span> Available</td>
-              </tr>
-            </tbody>
-          </table>
-          
-          <div style="margin-top: 1.5rem;">
-            <a href="/api/status" class="button outline">Refresh Status</a>
-          </div>
-        </div>
       </div>
       
       <footer class="footer">
@@ -806,69 +236,19 @@
         
         // Start observing the root element
         observer.observe(root, { childList: true });
-        
-        // Fetch status data for the static landing
-        fetch('/api/status')
-          .then(response => {
-            if (!response.ok) throw new Error('Failed to fetch status');
-            return response.json();
-          })
-          .then(data => {
-            // Update status indicators based on actual data
-            if (data && data.activeTools && staticLanding) {
-              const statusTable = staticLanding.querySelector('.status-table tbody');
-              if (!statusTable) return;
-              
-              statusTable.innerHTML = '';
-              
-              const toolMap = {
-                web_search: 'Web Search',
-                form_automation: 'Form Automation',
-                vector_storage: 'Vector Storage',
-                data_scraper: 'Data Scraping',
-                status: 'Status'
-              };
-              
-              const descMap = {
-                web_search: 'Search the web with multiple providers',
-                form_automation: 'Fill and submit web forms',
-                vector_storage: 'Connect to vector databases',
-                data_scraper: 'Extract structured data from websites',
-                status: 'Check system status'
-              };
-              
-              data.activeTools.forEach(tool => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                  <td>${toolMap[tool.name] || tool.name}</td>
-                  <td>${descMap[tool.name] || ''}</td>
-                  <td>
-                    <span class="status-indicator ${tool.available ? 'status-available' : 'status-unavailable'}"></span>
-                    ${tool.available ? 'Available' : 'Unavailable'}
-                  </td>
-                `;
-                statusTable.appendChild(row);
-              });
-            }
-          })
-          .catch(error => {
-            console.error('Error fetching status:', error);
-          });
       });
     </script>
-    <!-- Verify and fix CSS in production -->
-  <script>
-    if (location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
-      const script = document.createElement('script');
-      script.src = '/deploy-verify.js?v=' + Date.now();
-      document.body.appendChild(script);
-    }
-  </script>
-  <script nomodule>
-    // This script only runs in browsers that don't support ES modules
-    // It's used to prevent hydration issues in older browsers
-    console.info("Legacy browser detected - applying compatibility fixes");
-    document.documentElement.classList.add('legacy-browser');
-  </script>
-</body>
+    
+    <!-- CSS verification and recovery script -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const shouldVerify = location.hostname !== 'localhost' && location.hostname !== '127.0.0.1';
+        if (shouldVerify) {
+          const script = document.createElement('script');
+          script.src = '/deploy-verify.js?v=1745891438253';
+          document.body.appendChild(script);
+        }
+      });
+    </script>
+  </body>
 </html>
