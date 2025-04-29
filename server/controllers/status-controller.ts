@@ -9,7 +9,7 @@ export class StatusController {
   /**
    * Get the schema for a specific tool
    */
-  getSchema(req: Request, res: Response): void {
+  getSchema(req: Request, res: Response): Response | void {
     try {
       const toolName = req.params.toolName;
       const schema = mcpService.getToolSchema(toolName);
@@ -39,7 +39,7 @@ export class StatusController {
   /**
    * Get all tool schemas
    */
-  getAllSchemas(_req: Request, res: Response): void {
+  getAllSchemas(_req: Request, res: Response): Response | void {
     try {
       const schemas = mcpService.getToolSchema();
       res.json(schemas);
@@ -58,7 +58,7 @@ export class StatusController {
   /**
    * Get system status
    */
-  async getStatus(_req: Request, res: Response): Promise<void> {
+  async getStatus(_req: Request, res: Response): Promise<Response | void> {
     try {
       const status = await storage.getSystemStatus();
       res.json(status);
@@ -77,7 +77,7 @@ export class StatusController {
   /**
    * Get tool status
    */
-  async getToolStatus(req: Request, res: Response): Promise<void> {
+  async getToolStatus(req: Request, res: Response): Promise<Response | void> {
     try {
       const toolName = req.params.toolName;
       const status = await storage.getToolStatus(toolName);

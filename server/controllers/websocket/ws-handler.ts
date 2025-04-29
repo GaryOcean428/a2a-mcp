@@ -1,4 +1,4 @@
-import { WebSocket } from 'ws';
+import WebSocket from 'ws';
 import { nanoid } from 'nanoid';
 import { MCPRequest } from '@shared/schema';
 import { mcpService } from '../../services/mcp-service';
@@ -68,7 +68,7 @@ export class WebSocketHandler {
   /**
    * Handle incoming WebSocket messages
    */
-  private async handleMessage(message: WebSocket.Data): Promise<void> {
+  private async handleMessage(message: Buffer | ArrayBuffer | Buffer[]): Promise<void> {
     try {
       // Log the raw message for debugging
       console.log(`Received WebSocket message from ${this.clientId}: ${message.toString().substring(0, 100)}...`);

@@ -1,4 +1,4 @@
-import { WebSocketServer, WebSocket } from 'ws';
+import WebSocket, { WebSocketServer } from 'ws';
 import { Server } from 'http';
 import { WebSocketHandler } from './ws-handler';
 
@@ -67,13 +67,14 @@ export class WebSocketManager {
   broadcast(event: string, data: any): void {
     const message = JSON.stringify({ event, data });
     
-    for (const [clientId, handler] of this.clients.entries()) {
+    // Convert to array to avoid iterator issues with Map entries()
+    Array.from(this.clients.entries()).forEach(([clientId, handler]) => {
       const ws = handler.getWebSocket();
       
       if (ws.readyState === WebSocket.OPEN) {
         ws.send(message);
       }
-    }
+    });
   }
   
   /**
