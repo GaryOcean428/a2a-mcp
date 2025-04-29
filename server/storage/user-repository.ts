@@ -1,12 +1,67 @@
 import { db } from '../db';
 import { users, type User, type InsertUser } from '@shared/schema';
 import { eq, and } from 'drizzle-orm';
-import { hashPassword, comparePasswords, createApiKeyString } from './password-utils';
+import { scrypt, randomBytes, timingSafeEqual } from 'crypto';
+import { promisify } from 'util';
+
+// Async versions of crypto functions
+const scryptAsync = promisify(scrypt);
 
 /**
- * Repository for user-related database operations
+ * Repository for user-related operations
  */
 export class UserRepository {
+  /**
+   * Hash a password using scrypt
+   */
+  async hashPassword(password: string): Promise<string> {
+    const salt = randomBytes(16).toString('hex');
+    const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+    const hashedStr = `${buf.toString('hex')}.${salt}`;
+    console.log('Generated password hash (last 10 chars):', hashedStr.slice(-10));
+    return hashedStr;
+  }
+
+  /**
+   * Compare a supplied password with a stored hash
+   */
+  async comparePasswords(supplied: string, stored: string): Promise<boolean> {
+    try {
+      console.log('Comparing password');
+      
+      // Handle case when stored password doesn't have the expected format
+      if (!stored || !stored.includes('.')) {
+        console.error('Invalid stored password format');
+        return false;
+      }
+      
+      const [hashed, salt] = stored.split('.');
+      const hashedBuf = Buffer.from(hashed, 'hex');
+      const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
+      
+      // Ensure both buffers are of the same length before comparison
+      if (hashedBuf.length !== suppliedBuf.length) {
+        console.error('Buffer length mismatch in password comparison');
+        return false;
+      }
+      
+      return timingSafeEqual(hashedBuf, suppliedBuf);
+    } catch (error) {
+      console.error('Error comparing passwords:', error);
+      return false;
+    }
+  }
+
+  // Creates a random API key string
+  private createApiKeyString(): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = 'mcp_';
+    for (let i = 0; i < 32; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  }
+
   /**
    * Get a user by ID
    */
@@ -32,9 +87,9 @@ export class UserRepository {
       return undefined;
     }
   }
-  
+
   /**
-   * Get a user by email address
+   * Get a user by email
    */
   async getUserByEmail(email: string): Promise<User | undefined> {
     try {
@@ -45,7 +100,7 @@ export class UserRepository {
       return undefined;
     }
   }
-  
+
   /**
    * Get a user by API key
    */
@@ -67,13 +122,13 @@ export class UserRepository {
   async createUser(insertUser: InsertUser): Promise<User> {
     try {
       // Hash the password before storing
-      const hashedPassword = await hashPassword(insertUser.password);
+      const hashedPassword = await this.hashPassword(insertUser.password);
       
       const [user] = await db.insert(users)
         .values({
           ...insertUser,
           password: hashedPassword,
-          apiKey: createApiKeyString(),
+          apiKey: this.createApiKeyString(),
           role: 'user',
           active: true,
           createdAt: new Date()
@@ -86,7 +141,7 @@ export class UserRepository {
       throw new Error('Failed to create user');
     }
   }
-  
+
   /**
    * Update a user's API key
    */
@@ -100,9 +155,9 @@ export class UserRepository {
       throw new Error('Failed to update API key');
     }
   }
-  
+
   /**
-   * Validate user credentials for authentication
+   * Validate a user's credentials
    */
   async validateUserCredentials(usernameOrEmail: string, password: string): Promise<User | undefined> {
     try {
@@ -125,7 +180,7 @@ export class UserRepository {
         return undefined;
       }
       
-      const isPasswordValid = await comparePasswords(password, user.password);
+      const isPasswordValid = await this.comparePasswords(password, user.password);
       
       if (!isPasswordValid) {
         console.log('Password invalid for user:', user.username);
@@ -139,7 +194,7 @@ export class UserRepository {
       return undefined;
     }
   }
-  
+
   /**
    * Generate a new API key for a user
    */
@@ -150,7 +205,7 @@ export class UserRepository {
         throw new Error('User not found');
       }
       
-      const apiKey = createApiKeyString();
+      const apiKey = this.createApiKeyString();
       await this.updateUserApiKey(userId, apiKey);
       return apiKey;
     } catch (error) {
@@ -158,7 +213,7 @@ export class UserRepository {
       throw new Error('Failed to generate API key');
     }
   }
-  
+
   /**
    * Revoke a user's API key
    */
@@ -170,9 +225,9 @@ export class UserRepository {
       throw new Error('Failed to revoke API key');
     }
   }
-  
+
   /**
-   * Update user's last login timestamp
+   * Update a user's last login timestamp
    */
   async updateUserLastLogin(userId: number): Promise<void> {
     try {
@@ -183,9 +238,9 @@ export class UserRepository {
       console.error('Error updating user last login:', error);
     }
   }
-  
+
   /**
-   * Update user's role
+   * Update a user's role
    */
   async updateUserRole(userId: number, role: string): Promise<void> {
     try {
@@ -197,9 +252,9 @@ export class UserRepository {
       throw new Error('Failed to update user role');
     }
   }
-  
+
   /**
-   * Update user's active status
+   * Update a user's active status
    */
   async updateUserActiveStatus(userId: number, active: boolean): Promise<void> {
     try {

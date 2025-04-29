@@ -1,13 +1,3 @@
-import { 
-  type User, 
-  type InsertUser, 
-  type ToolConfig, 
-  type InsertToolConfig,
-  type RequestLog,
-  type InsertRequestLog,
-  type SystemStatus,
-  type ToolStatus
-} from '@shared/schema';
 import { UserRepository } from './user-repository';
 import { ToolRepository } from './tool-repository';
 import { RequestLogRepository } from './request-log-repository';
@@ -15,67 +5,27 @@ import { StatusRepository } from './status-repository';
 import session from 'express-session';
 import ConnectPg from 'connect-pg-simple';
 import { pool } from '../db';
+import { IStorage } from '@shared/storage-interface';
 
 // Session store setup
 const PostgresSessionStore = ConnectPg(session);
 
-// Define the storage interface
-export interface IStorage {
-  // User operations
-  getUser(id: number): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  getUserByEmail(email: string): Promise<User | undefined>;
-  getUserByApiKey(apiKey: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
-  updateUserApiKey(userId: number, apiKey: string | null): Promise<void>;
-  validateUserCredentials(username: string, password: string): Promise<User | undefined>;
-  generateApiKey(userId: number): Promise<string>;
-  revokeApiKey(userId: number): Promise<void>;
-  updateUserLastLogin(userId: number): Promise<void>;
-  updateUserRole(userId: number, role: string): Promise<void>;
-  updateUserActiveStatus(userId: number, active: boolean): Promise<void>;
-  
-  // Tool configuration operations
-  getToolConfig(id: number): Promise<ToolConfig | undefined>;
-  getToolConfigByUserAndType(userId: number, toolType: string): Promise<ToolConfig | undefined>;
-  getAllToolConfigs(userId: number): Promise<ToolConfig[]>;
-  createToolConfig(config: InsertToolConfig): Promise<ToolConfig>;
-  updateToolConfig(id: number, config: Partial<ToolConfig>): Promise<ToolConfig | undefined>;
-  
-  // Request logging operations
-  createRequestLog(log: InsertRequestLog): Promise<RequestLog>;
-  getRequestLogs(userId: number, limit?: number): Promise<RequestLog[]>;
-  getRequestLogsByToolType(userId: number, toolType: string, limit?: number): Promise<RequestLog[]>;
-  
-  // Status operations
-  getSystemStatus(): Promise<SystemStatus>;
-  getToolStatus(toolName?: string): Promise<ToolStatus[]>;
-  updateToolStatus(toolName: string, status: Partial<ToolStatus>): Promise<void>;
-  
-  // Session store for authentication
-  sessionStore: session.Store;
-}
-
 /**
- * DatabaseStorage class that implements the IStorage interface
- * by delegating operations to specialized repositories
+ * Unified storage interface that combines all repositories
  */
 export class DatabaseStorage implements IStorage {
-  // Specialized repositories
-  private userRepository: UserRepository;
-  private toolRepository: ToolRepository;
-  private requestLogRepository: RequestLogRepository;
-  private statusRepository: StatusRepository;
-  
-  // Session store for authentication
+  private userRepo: UserRepository;
+  private toolRepo: ToolRepository;
+  private requestLogRepo: RequestLogRepository;
+  private statusRepo: StatusRepository;
   public sessionStore: session.Store;
   
   constructor() {
     // Initialize repositories
-    this.userRepository = new UserRepository();
-    this.toolRepository = new ToolRepository();
-    this.requestLogRepository = new RequestLogRepository();
-    this.statusRepository = new StatusRepository();
+    this.userRepo = new UserRepository();
+    this.toolRepo = new ToolRepository();
+    this.requestLogRepo = new RequestLogRepository();
+    this.statusRepo = new StatusRepository();
     
     // Set up session store using the same database connection
     this.sessionStore = new PostgresSessionStore({
@@ -85,105 +35,106 @@ export class DatabaseStorage implements IStorage {
     });
   }
   
-  // User operations delegation
-  async getUser(id: number): Promise<User | undefined> {
-    return this.userRepository.getUser(id);
+  // User Repository methods
+  getUser(id: number) {
+    return this.userRepo.getUser(id);
   }
   
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return this.userRepository.getUserByUsername(username);
+  getUserByUsername(username: string) {
+    return this.userRepo.getUserByUsername(username);
   }
   
-  async getUserByEmail(email: string): Promise<User | undefined> {
-    return this.userRepository.getUserByEmail(email);
+  getUserByEmail(email: string) {
+    return this.userRepo.getUserByEmail(email);
   }
   
-  async getUserByApiKey(apiKey: string): Promise<User | undefined> {
-    return this.userRepository.getUserByApiKey(apiKey);
+  getUserByApiKey(apiKey: string) {
+    return this.userRepo.getUserByApiKey(apiKey);
   }
   
-  async createUser(user: InsertUser): Promise<User> {
-    return this.userRepository.createUser(user);
+  createUser(user: any) {
+    return this.userRepo.createUser(user);
   }
   
-  async updateUserApiKey(userId: number, apiKey: string | null): Promise<void> {
-    return this.userRepository.updateUserApiKey(userId, apiKey);
+  updateUserApiKey(userId: number, apiKey: string | null) {
+    return this.userRepo.updateUserApiKey(userId, apiKey);
   }
   
-  async validateUserCredentials(username: string, password: string): Promise<User | undefined> {
-    return this.userRepository.validateUserCredentials(username, password);
+  validateUserCredentials(username: string, password: string) {
+    return this.userRepo.validateUserCredentials(username, password);
   }
   
-  async generateApiKey(userId: number): Promise<string> {
-    return this.userRepository.generateApiKey(userId);
+  generateApiKey(userId: number) {
+    return this.userRepo.generateApiKey(userId);
   }
   
-  async revokeApiKey(userId: number): Promise<void> {
-    return this.userRepository.revokeApiKey(userId);
+  revokeApiKey(userId: number) {
+    return this.userRepo.revokeApiKey(userId);
   }
   
-  async updateUserLastLogin(userId: number): Promise<void> {
-    return this.userRepository.updateUserLastLogin(userId);
+  updateUserLastLogin(userId: number) {
+    return this.userRepo.updateUserLastLogin(userId);
   }
   
-  async updateUserRole(userId: number, role: string): Promise<void> {
-    return this.userRepository.updateUserRole(userId, role);
+  updateUserRole(userId: number, role: string) {
+    return this.userRepo.updateUserRole(userId, role);
   }
   
-  async updateUserActiveStatus(userId: number, active: boolean): Promise<void> {
-    return this.userRepository.updateUserActiveStatus(userId, active);
+  updateUserActiveStatus(userId: number, active: boolean) {
+    return this.userRepo.updateUserActiveStatus(userId, active);
   }
   
-  // Tool configuration operations delegation
-  async getToolConfig(id: number): Promise<ToolConfig | undefined> {
-    return this.toolRepository.getToolConfig(id);
+  // Tool Repository methods
+  getToolConfig(id: number) {
+    return this.toolRepo.getToolConfig(id);
   }
   
-  async getToolConfigByUserAndType(userId: number, toolType: string): Promise<ToolConfig | undefined> {
-    return this.toolRepository.getToolConfigByUserAndType(userId, toolType);
+  getToolConfigByUserAndType(userId: number, toolType: string) {
+    return this.toolRepo.getToolConfigByUserAndType(userId, toolType);
   }
   
-  async getAllToolConfigs(userId: number): Promise<ToolConfig[]> {
-    return this.toolRepository.getAllToolConfigs(userId);
+  getAllToolConfigs(userId: number) {
+    return this.toolRepo.getAllToolConfigs(userId);
   }
   
-  async createToolConfig(config: InsertToolConfig): Promise<ToolConfig> {
-    return this.toolRepository.createToolConfig(config);
+  createToolConfig(config: any) {
+    return this.toolRepo.createToolConfig(config);
   }
   
-  async updateToolConfig(id: number, config: Partial<ToolConfig>): Promise<ToolConfig | undefined> {
-    return this.toolRepository.updateToolConfig(id, config);
+  updateToolConfig(id: number, config: any) {
+    return this.toolRepo.updateToolConfig(id, config);
   }
   
-  // Request logging operations delegation
-  async createRequestLog(log: InsertRequestLog): Promise<RequestLog> {
-    const requestLog = await this.requestLogRepository.createRequestLog(log);
-    
+  // Request Log Repository methods
+  createRequestLog(log: any) {
     // Update last request time in system status
-    this.statusRepository.setLastRequest();
-    
-    return requestLog;
+    this.statusRepo.updateLastRequestTime();
+    return this.requestLogRepo.createRequestLog(log);
   }
   
-  async getRequestLogs(userId: number, limit = 100): Promise<RequestLog[]> {
-    return this.requestLogRepository.getRequestLogs(userId, limit);
+  getRequestLogs(userId: number, limit?: number) {
+    return this.requestLogRepo.getRequestLogs(userId, limit);
   }
   
-  async getRequestLogsByToolType(userId: number, toolType: string, limit = 100): Promise<RequestLog[]> {
-    return this.requestLogRepository.getRequestLogsByToolType(userId, toolType, limit);
+  getRequestLogsByToolType(userId: number, toolType: string, limit?: number) {
+    return this.requestLogRepo.getRequestLogsByToolType(userId, toolType, limit);
   }
   
-  // Status operations delegation
-  async getSystemStatus(): Promise<SystemStatus> {
-    return this.statusRepository.getSystemStatus();
+  // Status Repository methods
+  getSystemStatus() {
+    return this.statusRepo.getSystemStatus();
   }
   
-  async getToolStatus(toolName?: string): Promise<ToolStatus[]> {
-    return this.statusRepository.getToolStatus(toolName);
+  getToolStatus(toolName?: string) {
+    return this.statusRepo.getToolStatus(toolName);
   }
   
-  async updateToolStatus(toolName: string, status: Partial<ToolStatus>): Promise<void> {
-    return this.statusRepository.updateToolStatus(toolName, status);
+  updateToolStatus(toolName: string, status: any) {
+    return this.statusRepo.updateToolStatus(toolName, status);
+  }
+  
+  setTransportType(type: 'STDIO' | 'SSE') {
+    this.statusRepo.setTransportType(type);
   }
 }
 

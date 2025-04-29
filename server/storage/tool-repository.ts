@@ -1,9 +1,9 @@
 import { db } from '../db';
 import { toolConfigs, type ToolConfig, type InsertToolConfig } from '@shared/schema';
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 
 /**
- * Repository for tool configuration related database operations
+ * Repository for tool configuration operations
  */
 export class ToolRepository {
   /**
@@ -55,7 +55,7 @@ export class ToolRepository {
   }
   
   /**
-   * Create a new tool configuration
+   * Create a tool configuration
    */
   async createToolConfig(config: InsertToolConfig): Promise<ToolConfig> {
     try {

@@ -1,15 +1,16 @@
 import { SystemStatus, ToolStatus } from '@shared/schema';
 
 /**
- * Repository for system and tool status management
+ * Repository for system and tool status operations
  */
 export class StatusRepository {
+  // Private storage for tool status
   private toolStatus: Map<string, ToolStatus>;
   private systemStatus: SystemStatus;
   private uptimeInterval: NodeJS.Timeout | null = null;
   
   constructor() {
-    // Initialize in-memory tool status (this would be in the database in a production app)
+    // Initialize in-memory tool status
     this.toolStatus = new Map();
     
     // Initialize system status
@@ -42,30 +43,28 @@ export class StatusRepository {
   }
   
   /**
-   * Start the uptime counter interval
+   * Start the uptime counter
    */
-  private startUptimeCounter(): void {
-    // Clear any existing interval
+  private startUptimeCounter() {
     if (this.uptimeInterval) {
       clearInterval(this.uptimeInterval);
     }
     
-    // Start a timer to update uptime every second
     this.uptimeInterval = setInterval(() => {
       this.systemStatus.uptime += 1;
     }, 1000);
   }
   
   /**
-   * Update the system status with current tool data
+   * Update system status with current tool status
    */
-  private updateSystemStatus(): void {
+  private updateSystemStatus() {
     // Update active tools in system status
     this.systemStatus.activeTools = Array.from(this.toolStatus.values());
   }
   
   /**
-   * Get the current system status
+   * Get system status
    */
   async getSystemStatus(): Promise<SystemStatus> {
     this.updateSystemStatus();
@@ -73,7 +72,7 @@ export class StatusRepository {
   }
   
   /**
-   * Get the status of a specific tool or all tools
+   * Get tool status
    */
   async getToolStatus(toolName?: string): Promise<ToolStatus[]> {
     if (toolName) {
@@ -84,7 +83,7 @@ export class StatusRepository {
   }
   
   /**
-   * Update a tool's status
+   * Update tool status
    */
   async updateToolStatus(toolName: string, status: Partial<ToolStatus>): Promise<void> {
     const currentStatus = this.toolStatus.get(toolName) || { 
@@ -103,16 +102,26 @@ export class StatusRepository {
   }
   
   /**
-   * Update the last request timestamp
+   * Set last request time
    */
-  setLastRequest(): void {
+  updateLastRequestTime() {
     this.systemStatus.lastRequest = new Date().toISOString();
   }
   
   /**
-   * Set the transport type
+   * Set transport type
    */
-  setTransportType(transport: 'STDIO' | 'SSE'): void {
-    this.systemStatus.transport = transport;
+  setTransportType(type: 'STDIO' | 'SSE') {
+    this.systemStatus.transport = type;
+  }
+  
+  /**
+   * Cleanup resources when the repository is no longer used
+   */
+  cleanup() {
+    if (this.uptimeInterval) {
+      clearInterval(this.uptimeInterval);
+      this.uptimeInterval = null;
+    }
   }
 }

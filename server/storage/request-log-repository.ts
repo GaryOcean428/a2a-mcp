@@ -3,11 +3,11 @@ import { requestLogs, type RequestLog, type InsertRequestLog } from '@shared/sch
 import { eq, and, desc } from 'drizzle-orm';
 
 /**
- * Repository for request log related database operations
+ * Repository for request logging operations
  */
 export class RequestLogRepository {
   /**
-   * Create a new request log entry
+   * Create a request log entry
    */
   async createRequestLog(log: InsertRequestLog): Promise<RequestLog> {
     try {
