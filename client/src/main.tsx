@@ -1,3 +1,4 @@
+import { VERSION } from './version';
 import { createRoot } from "react-dom/client";
 import App from "./App";
 // Import verification but skip index.css which has PostCSS errors
@@ -43,4 +44,15 @@ style.textContent = `
 document.head.appendChild(style);
 
 // Mount the application
+
+// Load production CSS in production environment
+if (import.meta.env.PROD) {
+  console.log('Production environment detected, loading critical CSS');
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = `/production.css?v=${VERSION}`;
+  document.head.appendChild(link);
+}
+
+
 createRoot(document.getElementById("root")!).render(<App />);
