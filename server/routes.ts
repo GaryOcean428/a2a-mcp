@@ -5,6 +5,7 @@ import { mcpController } from "./controllers/mcp-controller";
 import { sandboxController } from "./controllers/sandbox-controller";
 import { apiKeyAuth } from "./middleware/auth-middleware";
 import { globalRateLimiter, toolRateLimiter } from "./middleware/rate-limit-middleware";
+import { setupApiDocs } from "./middleware/api-docs";
 import path from "path";
 import fs from "fs";
 import { z } from "zod";
@@ -51,6 +52,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Set up authentication system with Passport
   setupAuth(app);
+  
+  // Set up Swagger UI for API documentation
+  setupApiDocs(app);
   
   // API Key management routes
   app.post('/api/keys/generate', async (req, res) => {
