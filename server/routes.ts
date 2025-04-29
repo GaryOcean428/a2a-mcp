@@ -47,8 +47,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Start database monitoring
   databaseMonitor.start();
   
-  // Apply cache control middleware to prevent caching of static assets in production
+  // Apply CSS middleware first to serve critical CSS files properly
+  app.use(staticAssets.criticalCssMiddleware);
+  
+  // Then apply cache control middleware for other static assets
   app.use(cacheControl);
+  
+  // Log static asset requests in development
+  app.use(staticAssets.logStaticAssets);
   
   // Initialize MCP controller with WebSocket support
   mcpController.initialize(httpServer);
