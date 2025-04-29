@@ -2,7 +2,7 @@
  * MCP Integration Platform - CSS Verification and Recovery
  * This script ensures critical CSS classes are properly loaded in production
  * 
- * Version: 2.5.1745966444403
+ * Version: 2.5.1745966538733
  */
 
 (function() {
@@ -133,7 +133,7 @@
         const linkEl = document.createElement('link');
         linkEl.rel = 'stylesheet';
         linkEl.id = 'mcp-css-recovery-link';
-        linkEl.href = '/production.css?v=2.5.1745966444403';
+        linkEl.href = '/production.css?v=2.5.1745966538733';
         document.head.appendChild(linkEl);
         console.log("[CSS Verify] Added production.css link");
       }
