@@ -19,20 +19,28 @@ export class MCPController {
    * Initialize WebSocket server for SSE transport
    */
   initialize(server: Server) {
-    // Use a specific path for the WebSocket server to avoid conflicts with Vite's HMR WebSocket
-    this.wss = new WebSocketServer({ 
-      server,
-      path: '/mcp-ws'
-    });
-    
-    console.log('WebSocket server initialized at path: /mcp-ws');
+    // Use a specific path and port for the WebSocket server to avoid conflicts with Vite's HMR WebSocket
+    try {
+      this.wss = new WebSocketServer({ 
+        server,
+        path: '/mcp-ws',
+        // Don't attempt to create a new server listening on its own port
+        // Just attach to the existing HTTP server
+        noServer: true
+      });
+      
+      console.log('WebSocket server initialized at path: /mcp-ws');
+    } catch (error) {
+      console.error('Failed to initialize WebSocket server:', error);
+    }
     
     // Handle WebSocket server errors
-    this.wss.on('error', (error) => {
-      console.error('WebSocket server error:', error);
-    });
-    
-    this.wss.on('connection', (ws, req) => {
+    if (this.wss) {
+      this.wss.on('error', (error) => {
+        console.error('WebSocket server error:', error);
+      });
+      
+      this.wss.on('connection', (ws, req) => {
       const clientId = nanoid();
       this.clients.set(clientId, ws);
       
@@ -115,6 +123,7 @@ export class MCPController {
         console.error(`WebSocket error for client ${clientId}:`, error);
       });
     });
+    }
   }
   
   /**
