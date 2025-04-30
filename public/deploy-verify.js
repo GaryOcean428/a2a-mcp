@@ -19,7 +19,61 @@
     // Wait a bit to ensure stylesheets are loaded
     setTimeout(function() {
       runVerification();
+      // Also verify WebSocket connectivity
+      verifyWebSocketConnection();
     }, 100);
+  }
+  
+  function verifyWebSocketConnection() {
+    try {
+      // Create a test WebSocket connection
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const host = window.location.host;
+      const wsUrl = `${protocol}//${host}/mcp-ws`;
+      
+      console.log('[WebSocket Verify] Testing connection to', wsUrl);
+      
+      const ws = new WebSocket(wsUrl);
+      
+      // Set a timeout for connection
+      const timeoutId = setTimeout(() => {
+        console.warn('[WebSocket Verify] Connection timeout after 5 seconds');
+        ws.close();
+      }, 5000);
+      
+      ws.onopen = function() {
+        console.log('[WebSocket Verify] Connection successful');
+        clearTimeout(timeoutId);
+        
+        // Send a test ping
+        ws.send(JSON.stringify({ type: 'ping', data: { timestamp: Date.now() } }));
+        
+        // Close after a short delay
+        setTimeout(() => {
+          ws.close();
+        }, 1000);
+      };
+      
+      ws.onmessage = function(event) {
+        try {
+          const data = JSON.parse(event.data);
+          console.log('[WebSocket Verify] Received message:', data.event || 'unknown event');
+        } catch (error) {
+          console.error('[WebSocket Verify] Error parsing message:', error);
+        }
+      };
+      
+      ws.onerror = function(error) {
+        console.error('[WebSocket Verify] Connection error:', error);
+        clearTimeout(timeoutId);
+      };
+      
+      ws.onclose = function(event) {
+        console.log('[WebSocket Verify] Connection closed:', event.code, event.reason);
+      };
+    } catch (error) {
+      console.error('[WebSocket Verify] Error creating connection:', error);
+    }
   }
   
   function runVerification() {

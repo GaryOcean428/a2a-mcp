@@ -49,6 +49,45 @@
     <link rel="preload" href="/production.css" as="style">
     <link rel="stylesheet" href="/production.css?v=2.5.1745966538733">
     
+    <!-- WebSocket connection verification -->
+    <script>
+      // WebSocket connection verification
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          // Check if WebSocket connected successfully
+          const wsConnectionStatus = document.createElement('div');
+          wsConnectionStatus.id = 'ws-connection-status';
+          wsConnectionStatus.style.display = 'none';
+          document.body.appendChild(wsConnectionStatus);
+          
+          try {
+            // Create a test WebSocket to verify server is accepting connections
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const host = window.location.host;
+            const testWsUrl = `${protocol}//${host}/mcp-ws`;
+            
+            console.log(`[WebSocket Test] Testing connection to ${testWsUrl}`);
+            
+            const testWs = new WebSocket(testWsUrl);
+            
+            testWs.onopen = function() {
+              console.log('[WebSocket Test] Connection test successful');
+              wsConnectionStatus.setAttribute('data-status', 'connected');
+              testWs.close();
+            };
+            
+            testWs.onerror = function(error) {
+              console.warn('[WebSocket Test] Connection test failed:', error);
+              wsConnectionStatus.setAttribute('data-status', 'failed');
+            };
+          } catch (error) {
+            console.error('[WebSocket Test] Error testing connection:', error);
+            wsConnectionStatus.setAttribute('data-status', 'error');
+          }
+        }, 1000);
+      });
+    </script>
+    
     <!-- Inline critical styles for immediate rendering -->
     <style id="critical-css">
       /* Critical styles for immediate rendering */

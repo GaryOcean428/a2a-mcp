@@ -75,6 +75,22 @@ function App() {
       document.documentElement.dataset.productionEnv = 'true';
       console.log('Running in production mode - applying production optimizations');
     }
+    
+    // Initialize WebSocket connection
+    try {
+      mcpWebSocketManager.connect().then(() => {
+        console.log('WebSocket connection established successfully');
+        
+        // Register schema handler
+        mcpWebSocketManager.onSchemasLoaded((schemas) => {
+          console.log(`Loaded ${schemas.length} tool schemas from WebSocket server`);
+        });
+      }).catch(error => {
+        console.warn('WebSocket connection failed, will use HTTP transport only:', error);
+      });
+    } catch (error) {
+      console.error('Error initializing WebSocket:', error);
+    }
   }, []);
   
   return (

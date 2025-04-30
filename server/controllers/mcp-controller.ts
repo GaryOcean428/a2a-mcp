@@ -46,6 +46,16 @@ export class MCPController {
       const url = req.url || 'unknown';
       console.log(`New WebSocket client connected: ${clientId} from ${ip}, url: ${url}`);
       
+      // Send initial connection acknowledgement
+      ws.send(JSON.stringify({
+        event: 'connection',
+        data: {
+          clientId,
+          timestamp: Date.now(),
+          message: 'Connection established'
+        }
+      }));
+      
       // Check connection health with WebSocket ready state
       if (ws.readyState === WebSocket.OPEN) {
         console.log(`Client ${clientId} connection is OPEN`);
