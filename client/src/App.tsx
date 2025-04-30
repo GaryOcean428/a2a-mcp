@@ -6,7 +6,11 @@ import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/hooks/useAuth";
 import { NavigationProvider } from "@/hooks/use-navigation";
 import { StylesProtectedRoot } from "@/components/ui/StylesProtectedRoot";
-import { mcpWebSocketManager } from "./utils/mcp-websocket";
+import { ThemeProvider } from "./components/ThemeProvider";
+import { mcpWebSocketClient } from "./utils/mcp-websocket-client";
+
+// Import CSS utilities
+import "./utils/css-injector";
 
 // Page imports
 import Home from "@/pages/Home";
@@ -78,19 +82,33 @@ function App() {
     
     // Initialize WebSocket connection
     try {
-      mcpWebSocketManager.connect().then(() => {
-        console.log('WebSocket connection established successfully');
-        
-        // Register schema handler
-        mcpWebSocketManager.onSchemasLoaded((schemas) => {
-          console.log(`Loaded ${schemas.length} tool schemas from WebSocket server`);
-        });
-      }).catch(error => {
-        console.warn('WebSocket connection failed, will use HTTP transport only:', error);
+      // Initialize the MCP WebSocket client
+      mcpWebSocketClient.initialize();
+      
+      // Add event listener for schema updates
+      mcpWebSocketClient.on('schemas', (schemas) => {
+        console.log(`Loaded ${schemas.length} tool schemas from WebSocket server`);
+      });
+      
+      // Add event listener for connection status
+      mcpWebSocketClient.on('status', (data) => {
+        if (data.status === 'connected') {
+          console.log('[MCP WebSocket] Connected');
+        } else if (data.status === 'disconnected') {
+          console.log('[MCP WebSocket] Disconnected');
+        } else if (data.status === 'error') {
+          console.warn('[MCP WebSocket] Connection error, will use HTTP transport as fallback');
+        }
       });
     } catch (error) {
       console.error('Error initializing WebSocket:', error);
     }
+    
+    // Clean up on unmount
+    return () => {
+      // Disconnect WebSocket on component unmount
+      mcpWebSocketClient.disconnect();
+    };
   }, []);
   
   return (
@@ -102,14 +120,16 @@ function App() {
         </div>
       }
     >
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <NavigationProvider>
-            <Router />
-            <Toaster />
-          </NavigationProvider>
-        </AuthProvider>
-      </QueryClientProvider>
+      <ThemeProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <NavigationProvider>
+              <Router />
+              <Toaster />
+            </NavigationProvider>
+          </AuthProvider>
+        </QueryClientProvider>
+      </ThemeProvider>
     </StylesProtectedRoot>
   );
 }
