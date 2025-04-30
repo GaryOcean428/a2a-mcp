@@ -94,8 +94,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Remove the loading overlay with a fade effect
     if (loadingOverlay) {
-      loadingOverlay.style.transition = 'opacity 0.5s ease-in-out';
-      loadingOverlay.style.opacity = '0';
+      (loadingOverlay as HTMLElement).style.transition = 'opacity 0.5s ease-in-out';
+      (loadingOverlay as HTMLElement).style.opacity = '0';
       setTimeout(() => {
         if (loadingOverlay.parentNode) {
           loadingOverlay.parentNode.removeChild(loadingOverlay);

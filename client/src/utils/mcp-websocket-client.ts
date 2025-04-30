@@ -1,372 +1,316 @@
 /**
  * MCP WebSocket Client
  * 
- * A specialized client for the MCP WebSocket service that handles
- * MCP-specific message formats and schema management.
+ * This singleton class handles connection to the server's WebSocket endpoint.
+ * It implements reconnection logic, authentication, and event handling.
  */
 
-import { webSocketService, useWebSocket, WebSocketStatusHandler } from './websocket-service';
-import { IS_DEVELOPMENT } from '../config/constants';
-
-// Event dispatcher for MCP events
 type EventHandler = (data: any) => void;
-type EventHandlers = Record<string, EventHandler[]>;
+type EventType = 'status' | 'schemas' | 'error' | 'message' | 'response';
 
-// MCP request and response types
-export interface MCPSchema {
-  name: string;
-  description: string;
-  parameters: any;
-}
-
-export interface MCPRequest {
-  id?: string;
-  name: string;
-  parameters: Record<string, any>;
-}
-
-export interface MCPResponse {
+interface WebSocketMessage {
   id: string;
-  result?: any;
-  error?: {
-    message: string;
-    code: string;
-  };
+  [key: string]: any;
 }
 
-class MCPWebSocketClient {
-  private static instance: MCPWebSocketClient;
-  private eventHandlers: EventHandlers = {};
-  private schemaMap = new Map<string, MCPSchema>();
-  private pendingRequests = new Map<string, {
-    resolve: (value: any) => void;
-    reject: (reason: any) => void;
-    timeout: number;
-  }>();
-  private requestTimeout = 30000; // 30 seconds timeout for requests
-  private isConnected = false;
+interface ConnectionStatus {
+  status: 'connected' | 'disconnected' | 'connecting' | 'error';
+  error?: Error;
+}
 
-  private constructor() {
-    console.log('[MCP WebSocket] Initializing');
-  }
-
+class McpWebSocketClient {
+  private socket: WebSocket | null = null;
+  private isConnecting = false;
+  private reconnectAttempts = 0;
+  private maxReconnectAttempts = 5;
+  private reconnectDelay = 3000; // ms
+  private events: Map<EventType, Set<EventHandler>> = new Map();
+  private authenticated = false;
+  private pendingAuthentication = false;
+  
   /**
-   * Get the singleton instance
-   */
-  public static getInstance(): MCPWebSocketClient {
-    if (!MCPWebSocketClient.instance) {
-      MCPWebSocketClient.instance = new MCPWebSocketClient();
-    }
-    return MCPWebSocketClient.instance;
-  }
-
-  /**
-   * Initialize the client and set up handlers
+   * Initialize the WebSocket connection
    */
   public initialize(): void {
-    webSocketService.connect({
-      onMessage: this.handleMessage.bind(this),
-      onStatusChange: this.handleStatusChange.bind(this)
-    });
-  }
-
-  /**
-   * Generate a unique request ID
-   */
-  private generateRequestId(): string {
-    return `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
-  }
-
-  /**
-   * Send an MCP request and return a promise for the response
-   */
-  public async sendRequest(name: string, parameters: Record<string, any> = {}): Promise<any> {
-    if (!this.isConnected) {
-      return Promise.reject(new Error("WebSocket not connected"));
+    if (this.socket || this.isConnecting) {
+      return;
     }
-
-    const id = this.generateRequestId();
-    const request: MCPRequest = { id, name, parameters };
-
-    return new Promise((resolve, reject) => {
-      // Set up timeout
-      const timeout = window.setTimeout(() => {
-        this.pendingRequests.delete(id);
-        reject(new Error(`Request timeout after ${this.requestTimeout}ms`));
-      }, this.requestTimeout);
-
-      // Store the pending request
-      this.pendingRequests.set(id, { resolve, reject, timeout });
-
-      // Send the request
-      const success = webSocketService.send({
-        type: 'mcp_request',
-        request
-      });
-
-      if (!success) {
-        clearTimeout(timeout);
-        this.pendingRequests.delete(id);
-        reject(new Error("Failed to send request"));
-      }
-    });
+    
+    this.connect();
   }
-
+  
   /**
-   * Handle incoming WebSocket messages
+   * Connect to the WebSocket server
+   */
+  private connect(): void {
+    if (this.isConnecting) {
+      return;
+    }
+    
+    this.isConnecting = true;
+    
+    try {
+      // Determine the correct WebSocket URL
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${protocol}//${window.location.host}/mcp-ws`;
+      
+      console.log(`[WebSocket] Connecting to ${wsUrl}...`);
+      this.socket = new WebSocket(wsUrl);
+      
+      // Set up event handlers
+      this.socket.onopen = this.handleOpen.bind(this);
+      this.socket.onclose = this.handleClose.bind(this);
+      this.socket.onerror = this.handleError.bind(this);
+      this.socket.onmessage = this.handleMessage.bind(this);
+    } catch (error) {
+      console.error('[WebSocket] Connection error:', error);
+      this.isConnecting = false;
+      this.emitEvent('status', { status: 'error', error });
+      this.emitEvent('error', error);
+      
+      // Try to reconnect after delay
+      this.scheduleReconnect();
+    }
+  }
+  
+  /**
+   * Disconnect from the WebSocket server
+   */
+  public disconnect(): void {
+    if (this.socket) {
+      this.socket.close();
+      this.socket = null;
+    }
+    
+    this.isConnecting = false;
+    this.authenticated = false;
+    this.reconnectAttempts = 0;
+  }
+  
+  /**
+   * Handle WebSocket open event
+   */
+  private handleOpen(): void {
+    console.log('[WebSocket] Connection established');
+    this.isConnecting = false;
+    this.reconnectAttempts = 0;
+    
+    // Emit connected status
+    this.emitEvent('status', { status: 'connected' });
+    
+    // Authenticate if needed
+    if (!this.authenticated && !this.pendingAuthentication) {
+      this.authenticate();
+    }
+  }
+  
+  /**
+   * Handle WebSocket close event
+   */
+  private handleClose(event: CloseEvent): void {
+    this.isConnecting = false;
+    this.socket = null;
+    this.authenticated = false;
+    
+    console.log(`[WebSocket] Connection closed: ${event.code} ${event.reason || ''}`);
+    this.emitEvent('status', { status: 'disconnected' });
+    
+    // Try to reconnect if not a normal closure
+    if (event.code !== 1000) {
+      this.scheduleReconnect();
+    }
+  }
+  
+  /**
+   * Handle WebSocket error event
+   */
+  private handleError(event: Event): void {
+    this.emitEvent('error', event);
+    this.emitEvent('status', { status: 'error', error: event });
+    
+    // Socket will close after error, so we'll reconnect in the onclose handler
+    console.error('[WebSocket] Error occurred:', event);
+  }
+  
+  /**
+   * Handle WebSocket message event
    */
   private handleMessage(event: MessageEvent): void {
+    let data: WebSocketMessage;
+    
     try {
-      const message = JSON.parse(event.data);
-      
-      // Handle MCP schemas
-      if (message.event === 'schemas' && Array.isArray(message.data)) {
-        this.handleSchemas(message.data);
-        return;
-      }
-      
-      // Handle MCP responses
-      if (message.event === 'response' && message.data) {
-        this.handleResponse(message.data);
-        return;
-      }
-      
-      // Handle MCP errors
-      if (message.event === 'error') {
-        this.handleError(message.data);
-        return;
-      }
-      
-      // Handle connection acknowledgement
-      if (message.event === 'connection') {
-        this.dispatchEvent('connection', message.data);
-        return;
-      }
-      
-      // Dispatch other events
-      if (message.event) {
-        this.dispatchEvent(message.event, message.data);
-      }
+      data = JSON.parse(event.data);
     } catch (error) {
-      console.error('[MCP WebSocket] Error parsing message:', error);
-    }
-  }
-
-  /**
-   * Handle connection status changes
-   */
-  private handleStatusChange(status: 'connecting' | 'connected' | 'disconnected' | 'error'): void {
-    this.isConnected = status === 'connected';
-    
-    if (status === 'connected') {
-      console.log('[MCP WebSocket] Connected');
-    } else if (status === 'disconnected') {
-      console.log('[MCP WebSocket] Disconnected');
-      this.clearPendingRequests('WebSocket disconnected');
-    } else if (status === 'error') {
-      console.error('[MCP WebSocket] Connection error');
-      this.clearPendingRequests('WebSocket connection error');
+      console.error('[WebSocket] Failed to parse message:', error);
+      return;
     }
     
-    this.dispatchEvent('status', { status });
-  }
-
-  /**
-   * Handle schema definitions
-   */
-  private handleSchemas(schemas: MCPSchema[]): void {
-    console.log(`[MCP WebSocket] Received ${schemas.length} tool schemas`);
-    
-    // Clear existing schemas
-    this.schemaMap.clear();
-    
-    // Store new schemas
-    schemas.forEach(schema => {
-      this.schemaMap.set(schema.name, schema);
-    });
-    
-    // Notify listeners
-    this.dispatchEvent('schemas', schemas);
-  }
-
-  /**
-   * Handle response messages
-   */
-  private handleResponse(response: MCPResponse): void {
-    const pending = this.pendingRequests.get(response.id);
-    
-    if (pending) {
-      // Clear timeout
-      clearTimeout(pending.timeout);
-      this.pendingRequests.delete(response.id);
+    // Handle authentication response
+    if (data.id === 'auth') {
+      this.pendingAuthentication = false;
+      this.authenticated = data.success === true;
       
-      // Resolve or reject based on response
-      if (response.error) {
-        pending.reject(new Error(response.error.message));
+      if (this.authenticated) {
+        console.log('[WebSocket] Authentication successful');
       } else {
-        pending.resolve(response.result);
+        console.error('[WebSocket] Authentication failed:', data.error);
       }
+      return;
     }
     
-    // Also dispatch as an event
-    this.dispatchEvent('response', response);
-  }
-
-  /**
-   * Handle error messages
-   */
-  private handleError(error: any): void {
-    console.error('[MCP WebSocket] Error from server:', error);
-    
-    // If there's a request ID, reject that specific request
-    if (error.requestId) {
-      const pending = this.pendingRequests.get(error.requestId);
-      if (pending) {
-        clearTimeout(pending.timeout);
-        this.pendingRequests.delete(error.requestId);
-        pending.reject(new Error(error.message || 'Unknown error'));
-      }
+    // Handle schemas message
+    if (data.id === 'schemas') {
+      this.emitEvent('schemas', data.schemas || []);
     }
     
-    // Dispatch error event
-    this.dispatchEvent('error', error);
+    // Emit the message event for all messages
+    this.emitEvent('message', data);
+    
+    // Emit event based on message ID
+    if (data.id) {
+      this.emitEvent(data.id as EventType, data);
+    }
   }
-
+  
   /**
-   * Clear all pending requests with an error
+   * Authenticate with the server
    */
-  private clearPendingRequests(reason: string): void {
-    this.pendingRequests.forEach(({ resolve, reject, timeout }) => {
-      clearTimeout(timeout);
-      reject(new Error(reason));
-    });
-    this.pendingRequests.clear();
+  private authenticate(): void {
+    if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
+      return;
+    }
+    
+    this.pendingAuthentication = true;
+    
+    // Get authentication token from localStorage or cookies
+    const authToken = localStorage.getItem('mcp-auth-token');
+    
+    const authMessage = {
+      id: 'auth',
+      token: authToken || 'anonymous',
+    };
+    
+    this.socket.send(JSON.stringify(authMessage));
   }
-
+  
+  /**
+   * Schedule a reconnection attempt
+   */
+  private scheduleReconnect(): void {
+    if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+      console.warn(`[WebSocket] Max reconnect attempts (${this.maxReconnectAttempts}) reached`);
+      return;
+    }
+    
+    this.reconnectAttempts++;
+    
+    // Use exponential backoff
+    const delay = this.reconnectDelay * Math.pow(1.5, this.reconnectAttempts - 1);
+    
+    console.log(`[WebSocket] Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`);
+    
+    setTimeout(() => {
+      if (!this.socket && !this.isConnecting) {
+        this.connect();
+      }
+    }, delay);
+  }
+  
   /**
    * Register an event handler
    */
-  public on(event: string, handler: EventHandler): void {
-    if (!this.eventHandlers[event]) {
-      this.eventHandlers[event] = [];
+  public on(event: EventType, handler: EventHandler): void {
+    if (!this.events.has(event)) {
+      this.events.set(event, new Set());
     }
-    this.eventHandlers[event].push(handler);
+    
+    this.events.get(event)!.add(handler);
   }
-
+  
   /**
-   * Unregister an event handler
+   * Remove an event handler
    */
-  public off(event: string, handler: EventHandler): void {
-    if (this.eventHandlers[event]) {
-      this.eventHandlers[event] = this.eventHandlers[event].filter(h => h !== handler);
-      if (this.eventHandlers[event].length === 0) {
-        delete this.eventHandlers[event];
+  public off(event: EventType, handler: EventHandler): void {
+    if (!this.events.has(event)) {
+      return;
+    }
+    
+    this.events.get(event)!.delete(handler);
+  }
+  
+  /**
+   * Emit an event to all registered handlers
+   */
+  private emitEvent(event: EventType, data: any): void {
+    if (!this.events.has(event)) {
+      return;
+    }
+    
+    // Convert Set to Array to avoid TypeScript iteration issues
+    const handlers = Array.from(this.events.get(event)!);
+    
+    for (const handler of handlers) {
+      try {
+        handler(data);
+      } catch (error) {
+        console.error(`[WebSocket] Error in event handler for ${event}:`, error);
       }
     }
   }
-
+  
   /**
-   * Dispatch an event to all registered handlers
+   * Send a message to the server
    */
-  private dispatchEvent(event: string, data: any): void {
-    if (this.eventHandlers[event]) {
-      this.eventHandlers[event].forEach(handler => {
-        try {
-          handler(data);
-        } catch (error) {
-          console.error(`[MCP WebSocket] Error in handler for event '${event}':`, error);
-        }
-      });
+  public send(message: any): boolean {
+    if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
+      console.warn('[WebSocket] Cannot send message: socket is not open');
+      return false;
+    }
+    
+    try {
+      const messageStr = typeof message === 'string' 
+        ? message 
+        : JSON.stringify(message);
+        
+      this.socket.send(messageStr);
+      return true;
+    } catch (error) {
+      console.error('[WebSocket] Error sending message:', error);
+      return false;
     }
   }
-
+  
   /**
-   * Get all available schemas
+   * Get the current connection status
    */
-  public getSchemas(): MCPSchema[] {
-    return Array.from(this.schemaMap.values());
-  }
-
-  /**
-   * Get a specific schema by name
-   */
-  public getSchema(name: string): MCPSchema | undefined {
-    return this.schemaMap.get(name);
-  }
-
-  /**
-   * Check if the client is connected
-   */
-  public isWebSocketConnected(): boolean {
-    return this.isConnected;
-  }
-
-  /**
-   * Disconnect the WebSocket
-   */
-  public disconnect(): void {
-    webSocketService.disconnect();
-  }
-}
-
-// Export singleton instance
-export const mcpWebSocketClient = MCPWebSocketClient.getInstance();
-
-// React hook for the MCP WebSocket client
-import { useEffect, useState, useCallback } from 'react';
-
-interface UseMCPWebSocketOptions {
-  autoConnect?: boolean;
-  onStatusChange?: WebSocketStatusHandler;
-  onSchemas?: (schemas: MCPSchema[]) => void;
-}
-
-export function useMCPWebSocket(options: UseMCPWebSocketOptions = {}) {
-  const { autoConnect = true, onStatusChange, onSchemas } = options;
-  const [status, setStatus] = useState<'connecting' | 'connected' | 'disconnected' | 'error'>(
-    mcpWebSocketClient.isWebSocketConnected() ? 'connected' : 'disconnected'
-  );
-  const [schemas, setSchemas] = useState<MCPSchema[]>(mcpWebSocketClient.getSchemas());
-
-  // Initialize on mount
-  useEffect(() => {
-    if (autoConnect) {
-      mcpWebSocketClient.initialize();
+  public getStatus(): ConnectionStatus {
+    if (!this.socket) {
+      return { status: 'disconnected' };
     }
-
-    // Handler for status changes
-    const handleStatus = (data: any) => {
-      setStatus(data.status);
-      onStatusChange?.(data.status);
-    };
-
-    // Handler for schemas
-    const handleSchemas = (newSchemas: MCPSchema[]) => {
-      setSchemas(newSchemas);
-      onSchemas?.(newSchemas);
-    };
-
-    // Register event listeners
-    mcpWebSocketClient.on('status', handleStatus);
-    mcpWebSocketClient.on('schemas', handleSchemas);
-
-    // Clean up on unmount
-    return () => {
-      mcpWebSocketClient.off('status', handleStatus);
-      mcpWebSocketClient.off('schemas', handleSchemas);
-    };
-  }, [autoConnect, onStatusChange, onSchemas]);
-
-  // Callback to send a request
-  const sendRequest = useCallback(async (name: string, parameters: Record<string, any> = {}) => {
-    return mcpWebSocketClient.sendRequest(name, parameters);
-  }, []);
-
-  return {
-    status,
-    schemas,
-    sendRequest,
-    isConnected: status === 'connected',
-    disconnect: mcpWebSocketClient.disconnect.bind(mcpWebSocketClient)
-  };
+    
+    if (this.isConnecting) {
+      return { status: 'connecting' };
+    }
+    
+    switch (this.socket.readyState) {
+      case WebSocket.CONNECTING:
+        return { status: 'connecting' };
+      case WebSocket.OPEN:
+        return { status: 'connected' };
+      case WebSocket.CLOSING:
+      case WebSocket.CLOSED:
+      default:
+        return { status: 'disconnected' };
+    }
+  }
+  
+  /**
+   * Check if the WebSocket is connected
+   */
+  public isConnected(): boolean {
+    return this.socket?.readyState === WebSocket.OPEN;
+  }
 }
+
+// Export a singleton instance
+export const mcpWebSocketClient = new McpWebSocketClient();

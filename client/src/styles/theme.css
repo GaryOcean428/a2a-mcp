@@ -1,72 +1,72 @@
 /**
- * MCP Integration Platform - Theme CSS
+ * MCP Integration Platform - Theme System
  * 
- * This file defines the theme variables and global styles
- * for consistent styling across the application.
+ * This file contains the core theme definitions for the application, including
+ * light/dark mode support and design tokens.
  */
 
 :root {
   /* Base colors */
   --color-primary: #7c3aed;
-  --color-primary-light: #8b5cf6;
+  --color-primary-rgb: 124, 58, 237;
+  --color-primary-light: #9061f9;
   --color-primary-dark: #6d28d9;
-  --color-secondary: #10b981;
-  --color-secondary-light: #34d399;
-  --color-secondary-dark: #059669;
+  --color-primary-muted: rgba(124, 58, 237, 0.1);
   
-  /* Neutral colors */
-  --color-gray-50: #f9fafb;
-  --color-gray-100: #f3f4f6;
-  --color-gray-200: #e5e7eb;
-  --color-gray-300: #d1d5db;
-  --color-gray-400: #9ca3af;
-  --color-gray-500: #6b7280;
-  --color-gray-600: #4b5563;
-  --color-gray-700: #374151;
-  --color-gray-800: #1f2937;
-  --color-gray-900: #111827;
+  /* Accent colors */
+  --color-accent: #2563eb;
+  --color-accent-light: #60a5fa;
+  --color-accent-dark: #1d4ed8;
   
-  /* Semantic colors */
+  /* Semantic colors for light theme (default) */
+  --color-background: #ffffff;
+  --color-foreground: #f9fafb;
+  --color-card: #ffffff;
+  --color-border: #e5e7eb;
+  --color-hover: #f3f4f6;
+  --color-hover-muted: #f9f9fb;
+  
+  /* Text colors for light theme */
+  --color-text: #111827;
+  --color-text-muted: #6b7280;
+  --color-text-light: #9ca3af;
+  
+  /* Semantic state colors */
   --color-success: #10b981;
-  --color-error: #ef4444;
+  --color-success-light: #d1fae5;
   --color-warning: #f59e0b;
+  --color-warning-light: #fef3c7;
+  --color-error: #ef4444;
+  --color-error-light: #fee2e2;
   --color-info: #3b82f6;
+  --color-info-light: #dbeafe;
+  
+  /* Spacing system */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
   
   /* Typography */
-  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   
-  /* Font sizes */
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
-  --text-base: 1rem;
-  --text-lg: 1.125rem;
-  --text-xl: 1.25rem;
-  --text-2xl: 1.5rem;
-  --text-3xl: 1.875rem;
-  --text-4xl: 2.25rem;
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   
-  /* Spacing */
-  --spacing-0: 0;
-  --spacing-px: 1px;
-  --spacing-0-5: 0.125rem;
-  --spacing-1: 0.25rem;
-  --spacing-1-5: 0.375rem;
-  --spacing-2: 0.5rem;
-  --spacing-2-5: 0.625rem;
-  --spacing-3: 0.75rem;
-  --spacing-3-5: 0.875rem;
-  --spacing-4: 1rem;
-  --spacing-5: 1.25rem;
-  --spacing-6: 1.5rem;
-  --spacing-8: 2rem;
-  --spacing-10: 2.5rem;
-  --spacing-12: 3rem;
-  --spacing-16: 4rem;
-  --spacing-20: 5rem;
-  --spacing-24: 6rem;
+  /* Animations */
+  --transition-fast: 150ms;
+  --transition-normal: 250ms;
+  --transition-slow: 350ms;
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
   
-  /* Border radius */
+  /* Radii */
   --radius-sm: 0.125rem;
   --radius-md: 0.25rem;
   --radius-lg: 0.5rem;
@@ -74,182 +74,141 @@
   --radius-2xl: 1rem;
   --radius-full: 9999px;
   
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  
-  /* Transitions */
-  --transition-all: all 0.3s ease;
-  --transition-colors: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, fill 0.3s ease, stroke 0.3s ease;
-  --transition-opacity: opacity 0.3s ease;
-  --transition-shadow: box-shadow 0.3s ease;
-  --transition-transform: transform 0.3s ease;
-  
-  /* z-index */
-  --z-0: 0;
-  --z-10: 10;
-  --z-20: 20;
-  --z-30: 30;
-  --z-40: 40;
-  --z-50: 50;
-  --z-auto: auto;
-  
-  /* Animation */
-  --animation-duration-fast: 150ms;
-  --animation-duration-normal: 300ms;
-  --animation-duration-slow: 500ms;
-  --animation-timing-ease: cubic-bezier(0.4, 0, 0.2, 1);
-  --animation-timing-linear: linear;
-  --animation-timing-ease-in: cubic-bezier(0.4, 0, 1, 1);
-  --animation-timing-ease-out: cubic-bezier(0, 0, 0.2, 1);
-  --animation-timing-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  /* Z-indexes */
+  --z-below: -1;
+  --z-normal: 1;
+  --z-above: 10;
+  --z-floating: 100;
+  --z-popup: 200;
+  --z-modal: 300;
+  --z-overlay: 400;
+  --z-max: 9999;
 }
 
-/* Dark mode overrides */
-.dark-theme {
-  --color-primary: #8b5cf6;
-  --color-primary-light: #a78bfa;
+/* Dark theme overrides */
+[data-theme="dark"] {
+  --color-background: #121212;
+  --color-foreground: #1e1e1e;
+  --color-card: #242424;
+  --color-border: #383838;
+  --color-hover: #2a2a2a;
+  --color-hover-muted: #1a1a1a;
+  
+  --color-text: #f3f4f6;
+  --color-text-muted: #9ca3af;
+  --color-text-light: #6b7280;
+  
+  --color-primary: #9061f9;
   --color-primary-dark: #7c3aed;
+  --color-primary-light: #a78bfa;
   
-  --color-gray-50: #18181b;
-  --color-gray-100: #27272a;
-  --color-gray-200: #3f3f46;
-  --color-gray-300: #52525b;
-  --color-gray-400: #71717a;
-  --color-gray-500: #a1a1aa;
-  --color-gray-600: #d4d4d8;
-  --color-gray-700: #e4e4e7;
-  --color-gray-800: #f4f4f5;
-  --color-gray-900: #fafafa;
+  --color-success-light: rgba(16, 185, 129, 0.2);
+  --color-warning-light: rgba(245, 158, 11, 0.2);
+  --color-error-light: rgba(239, 68, 68, 0.2);
+  --color-info-light: rgba(59, 130, 246, 0.2);
   
-  /* Semantic colors for dark mode */
-  --color-success: #22c55e;
-  --color-error: #ef4444;
-  --color-warning: #eab308;
-  --color-info: #3b82f6;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
+}
+
+/* High Contrast mode overrides */
+[data-theme="high-contrast"] {
+  --color-primary: #a855f7;
+  --color-primary-rgb: 168, 85, 247;
+  --color-text: #ffffff;
+  --color-text-muted: #e5e7eb;
+  --color-background: #000000;
+  --color-foreground: #0a0a0a;
+  --color-card: #121212;
+  --color-border: #4b5563;
+  --color-hover: #1e1e1e;
   
-  /* Adjust shadows for dark mode */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+  --color-success: #34d399;
+  --color-warning: #fbbf24;
+  --color-error: #f87171;
+  --color-info: #60a5fa;
 }
 
-/* Global styles */
-html, body {
-  font-family: var(--font-sans);
-  font-size: 16px;
-  line-height: 1.5;
-  color: var(--color-gray-900);
-  background-color: var(--color-gray-50);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* Animation classes */
+.animate-fade-in {
+  animation: fadeIn var(--transition-normal) var(--ease-out) forwards;
 }
 
-.dark-theme html, .dark-theme body {
-  color: var(--color-gray-100);
-  background-color: var(--color-gray-900);
+.animate-fade-in-down {
+  animation: fadeInDown var(--transition-normal) var(--ease-out) forwards;
 }
 
-/* Feature card styles */
-.feature-card {
-  background-color: white;
-  padding: var(--spacing-6);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--color-gray-100);
-  transition: var(--transition-all);
+.animate-fade-in-up {
+  animation: fadeInUp var(--transition-normal) var(--ease-out) forwards;
 }
 
-.feature-card:hover {
-  box-shadow: var(--shadow-md);
-  border-color: var(--color-primary-light);
-  transform: translateY(-2px);
+.animate-slide-in-right {
+  animation: slideInRight var(--transition-normal) var(--ease-out) forwards;
 }
 
-.dark-theme .feature-card {
-  background-color: var(--color-gray-800);
-  border-color: var(--color-gray-700);
-}
-
-.dark-theme .feature-card:hover {
-  border-color: var(--color-primary);
-}
-
-/* Grid background */
-.bg-grid-gray-100 {
-  background-image: 
-    linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
-  background-size: 24px 24px;
-}
-
-.dark-theme .bg-grid-gray-100 {
-  background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-}
-
-/* Blob gradient for decorative elements */
-.bg-blob-gradient {
-  background-image: radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.1) 0%, transparent 75%);
-  filter: blur(50px);
-}
-
-.dark-theme .bg-blob-gradient {
-  background-image: radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.15) 0%, transparent 75%);
+.animate-pulse {
+  animation: pulse 2s var(--ease-in-out) infinite;
 }
 
 /* Animation keyframes */
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
 @keyframes fadeInDown {
-  from {
-    opacity: 0;
+  0% { 
+    opacity: 0; 
     transform: translateY(-10px);
   }
-  to {
+  100% { 
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-.animate-fade-in-down {
-  animation: fadeInDown var(--animation-duration-normal) var(--animation-timing-ease-out);
+@keyframes fadeInUp {
+  0% { 
+    opacity: 0; 
+    transform: translateY(10px);
+  }
+  100% { 
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Button styles using CSS variables */
-.button {
-  padding: var(--spacing-2) var(--spacing-4);
-  border-radius: var(--radius-md);
-  font-weight: 500;
-  transition: var(--transition-all);
-  cursor: pointer;
+@keyframes slideInRight {
+  0% { 
+    opacity: 0; 
+    transform: translateX(-20px);
+  }
+  100% { 
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
-.button-primary {
-  background-color: var(--color-primary);
-  color: white;
+@keyframes pulse {
+  0%, 100% { 
+    opacity: 1; 
+  }
+  50% { 
+    opacity: 0.7; 
+  }
 }
 
-.button-primary:hover {
-  background-color: var(--color-primary-dark);
-}
-
-.button-secondary {
-  background-color: var(--color-gray-100);
-  color: var(--color-gray-900);
-}
-
-.button-secondary:hover {
-  background-color: var(--color-gray-200);
-}
-
-.dark-theme .button-secondary {
-  background-color: var(--color-gray-700);
-  color: var(--color-gray-100);
-}
-
-.dark-theme .button-secondary:hover {
-  background-color: var(--color-gray-600);
+/* Critical classes for UI functionality that should never be purged */
+.loading-overlay,
+.loading-spinner,
+.error-boundary,
+.theme-toggle,
+.mcp-portal,
+.mcp-websocket-status,
+.mcp-card,
+.mcp-button,
+.mcp-modal,
+.protected-styles-root {
+  display: block;
 }

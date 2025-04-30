@@ -1,121 +1,114 @@
-import React, { createContext, useContext, useEffect } from 'react';
-import { useTheme } from '../utils/theme-manager';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { 
+  getPreferredTheme, 
+  applyTheme, 
+  initializeThemeListener 
+} from '../utils/css-injector';
 
-// Import our theme CSS
-import '../styles/theme.css';
+type Theme = 'light' | 'dark' | 'system';
 
-// Create a context for theme values
-type ThemeContextType = ReturnType<typeof useTheme>;
+interface ThemeContextType {
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
+  isDarkMode: boolean;
+}
 
+// Create a context for theme management
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+// ThemeProvider props
 interface ThemeProviderProps {
   children: React.ReactNode;
 }
 
-/**
- * Provider component for theme management
- */
+// ThemeProvider component that manages theme state
 export function ThemeProvider({ children }: ThemeProviderProps) {
-  const themeValue = useTheme();
+  // Get the initial theme preference
+  const [theme, setThemeState] = useState<Theme>(getPreferredTheme());
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
+
+  // Set the theme and update state
+  const setTheme = (newTheme: Theme) => {
+    setThemeState(newTheme);
+    applyTheme(newTheme);
+  };
+
+  // Initialize theme on first render
+  useEffect(() => {
+    // Apply the initial theme
+    const initialTheme = getPreferredTheme();
+    applyTheme(initialTheme);
+    
+    // Determine if dark mode is active
+    const systemIsDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setIsDarkMode(
+      initialTheme === 'dark' || 
+      (initialTheme === 'system' && systemIsDark)
+    );
+    
+    // Set up a listener for system theme changes
+    const cleanup = initializeThemeListener((newTheme) => {
+      setIsDarkMode(newTheme === 'dark');
+    });
+    
+    return cleanup;
+  }, []);
   
+  // Update isDarkMode when theme changes
+  useEffect(() => {
+    const systemIsDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const effectiveDark = 
+      theme === 'dark' || 
+      (theme === 'system' && systemIsDark);
+      
+    setIsDarkMode(effectiveDark);
+    
+    // Also update the data-theme attribute
+    const root = document.documentElement;
+    root.dataset.theme = effectiveDark ? 'dark' : 'light';
+  }, [theme]);
+
   return (
-    <ThemeContext.Provider value={themeValue}>
+    <ThemeContext.Provider value={{ theme, setTheme, isDarkMode }}>
       {children}
     </ThemeContext.Provider>
   );
 }
 
-/**
- * Hook to access the current theme
- */
-export function useAppTheme() {
+// Hook for consuming theme context
+export function useTheme() {
   const context = useContext(ThemeContext);
-  
-  if (context === undefined) {
-    throw new Error('useAppTheme must be used within a ThemeProvider');
+  if (!context) {
+    throw new Error('useTheme must be used within a ThemeProvider');
   }
-  
   return context;
 }
 
-/**
- * Theme toggle button component
- */
+// Theme toggle button component
 export function ThemeToggle() {
-  const { toggleTheme, isDark } = useAppTheme();
+  const { theme, setTheme, isDarkMode } = useTheme();
+  
+  const toggleTheme = () => {
+    // Cycle through themes: light -> dark -> system -> light
+    if (theme === 'light') {
+      setTheme('dark');
+    } else if (theme === 'dark') {
+      setTheme('system');
+    } else {
+      setTheme('light');
+    }
+  };
   
   return (
-    <button
-      onClick={toggleTheme}
+    <button 
       className="theme-toggle"
-      title={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
-      aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
+      onClick={toggleTheme}
+      aria-label={`Switch to ${
+        theme === 'light' ? 'dark' : 
+        theme === 'dark' ? 'system' : 'light'
+      } theme`}
     >
-      {isDark ? (
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="5"></circle>
-          <line x1="12" y1="1" x2="12" y2="3"></line>
-          <line x1="12" y1="21" x2="12" y2="23"></line>
-          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-          <line x1="1" y1="12" x2="3" y2="12"></line>
-          <line x1="21" y1="12" x2="23" y2="12"></line>
-          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-        </svg>
-      ) : (
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-        </svg>
-      )}
+      {isDarkMode ? '🌙' : '☀️'}
     </button>
   );
 }
-
-/**
- * CSS Module styles for the toggle button
- */
-const styles = `
-.theme-toggle {
-  background: none;
-  border: none;
-  padding: 0.5rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0.375rem;
-  color: var(--color-gray-600);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.theme-toggle:hover {
-  color: var(--color-primary);
-  background-color: var(--color-gray-100);
-}
-
-.dark-theme .theme-toggle {
-  color: var(--color-gray-300);
-}
-
-.dark-theme .theme-toggle:hover {
-  color: var(--color-primary-light);
-  background-color: var(--color-gray-800);
-}
-`;
-
-/**
- * Add the styles for the toggle button
- */
-export function injectThemeToggleStyles() {
-  if (typeof document !== 'undefined') {
-    const styleTag = document.createElement('style');
-    styleTag.setAttribute('id', 'theme-toggle-styles');
-    styleTag.textContent = styles;
-    document.head.appendChild(styleTag);
-  }
-}
-
-// Auto-inject the styles when this module is imported
-injectThemeToggleStyles();

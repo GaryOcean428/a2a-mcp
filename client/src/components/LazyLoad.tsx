@@ -36,7 +36,7 @@ export function LazyLoad({
 /**
  * Create a lazy-loaded component with standardized error and loading handling
  */
-export function createLazyComponent<P extends object>(
+export function createLazyComponent<P extends Record<string, any>>(
   importFn: () => Promise<{ default: ComponentType<P> }>,
   options: {
     fallback?: ReactNode;
@@ -45,11 +45,14 @@ export function createLazyComponent<P extends object>(
 ): React.FC<P> {
   const LazyComponent = lazy(importFn);
 
-  return (props: P) => (
+  // Use JSX.Element instead of ReactNode for the return type
+  const LazyWrapper: React.FC<P> = (props: P) => (
     <ErrorBoundary fallback={options.errorFallback}>
       <Suspense fallback={options.fallback || <LoadingSpinner />}>
         <LazyComponent {...props} />
       </Suspense>
     </ErrorBoundary>
   );
+  
+  return LazyWrapper;
 }

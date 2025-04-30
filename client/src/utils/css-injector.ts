@@ -1,230 +1,220 @@
 /**
- * CSS Injector
+ * CSS Injector Utility
  * 
- * Utility for managing critical CSS injection to ensure
- * consistent styles in both development and production.
+ * This utility ensures critical CSS is loaded correctly in both development and production.
+ * It handles theme injection, animation classes, and ensures consistent styling across environments.
  */
 
-import { CRITICAL_CSS_CLASSES } from '../config/constants';
-
-/**
- * Critical CSS styles that must be loaded early
- */
+// Critical CSS that's needed for immediate rendering before the full CSS loads
 const CRITICAL_CSS = `
-/* Critical styles for immediate rendering */
-.feature-card {
-  background-color: white;
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  border: 1px solid #f3f4f6;
-  transition: all 0.3s ease;
-}
-
-.feature-card:hover {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  border-color: #e9d5ff;
-  transform: translateY(-2px);
-}
-
-.bg-grid-gray-100 {
-  background-image: 
-    linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
-  background-size: 24px 24px;
-}
-
-.bg-blob-gradient {
-  background-image: radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.1) 0%, transparent 75%);
-  filter: blur(50px);
-}
-
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
+  :root {
+    --color-primary: #7c3aed;
+    --color-primary-rgb: 124, 58, 237;
+    --color-text: #111827;
+    --color-text-muted: #6b7280;
+    --color-background: #ffffff;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  
+  [data-theme="dark"] {
+    --color-background: #121212;
+    --color-text: #f3f4f6;
+    --color-text-muted: #9ca3af;
   }
-}
-
-.animate-fade-in-down {
-  animation: fadeInDown 0.5s ease-out;
-}
-
-.from-purple-50 {
-  --tw-gradient-from: #faf5ff;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(250, 245, 255, 0));
-}
-
-.to-white {
-  --tw-gradient-to: #ffffff;
-}
-
-.bg-gradient-to-r {
-  background-image: linear-gradient(to right, var(--tw-gradient-stops));
-}
+  
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background-color: var(--color-background);
+    z-index: 9999;
+  }
+  
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(var(--color-primary-rgb), 0.2);
+    border-radius: 50%;
+    border-top-color: var(--color-primary);
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  .animate-fade-in-down {
+    animation: fadeInDown 250ms cubic-bezier(0, 0, 0.2, 1) forwards;
+  }
+  
+  @keyframes fadeInDown {
+    0% { opacity: 0; transform: translateY(-10px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
 `;
 
 /**
- * Check if a critical CSS style element exists
- */
-function hasCriticalCss(): boolean {
-  if (typeof document === 'undefined') return false;
-  return document.getElementById('mcp-critical-css') !== null;
-}
-
-/**
- * Inject critical CSS into the document head
+ * Injects critical CSS into the document head
+ * This should be called as early as possible before rendering
  */
 export function injectCriticalCss(): void {
-  if (typeof document === 'undefined' || hasCriticalCss()) return;
-  
-  const styleEl = document.createElement('style');
-  styleEl.id = 'mcp-critical-css';
-  styleEl.innerHTML = CRITICAL_CSS;
-  
-  if (document.head) {
-    document.head.appendChild(styleEl);
-    console.log('[Direct CSS] Essential CSS successfully injected');
-  } else {
-    console.warn('[Direct CSS] Cannot inject CSS: document.head not available');
-    
-    // Fallback to appending to document when head is available
-    const headCheckInterval = setInterval(() => {
-      if (document.head) {
-        document.head.appendChild(styleEl);
-        console.log('[Direct CSS] Essential CSS successfully injected (delayed)');
-        clearInterval(headCheckInterval);
-      }
-    }, 50);
-    
-    // Clear the interval after 5 seconds to prevent infinite checking
-    setTimeout(() => clearInterval(headCheckInterval), 5000);
+  if (typeof document === 'undefined') {
+    return;
   }
-}
 
-/**
- * Apply MCP-specific class prefixes to ensure CSS isolation
- */
-export function applyMcpClassPrefixes(): void {
-  if (typeof document === 'undefined') return;
-  
-  // Add a class to the body for styling hooks
-  if (document.body) {
-    document.body.classList.add('mcp-app');
-    console.log('[Direct CSS] Applied MCP class prefixes to elements');
-  }
-}
-
-/**
- * Verify that critical CSS classes are applied correctly
- */
-export function verifyCriticalCss(): string[] {
-  if (typeof document === 'undefined') return [];
-  
-  const missingClasses: string[] = [];
-  
-  // Create a test element
-  const testEl = document.createElement('div');
-  testEl.style.position = 'absolute';
-  testEl.style.visibility = 'hidden';
-  testEl.style.pointerEvents = 'none';
-  testEl.style.left = '-9999px';
-  
-  if (!document.body) return CRITICAL_CSS_CLASSES;
-  
-  document.body.appendChild(testEl);
-  
-  try {
-    // Test each critical class
-    CRITICAL_CSS_CLASSES.forEach(className => {
-      testEl.className = className;
-      const style = window.getComputedStyle(testEl);
-      
-      // Simple check to see if any styles were applied
-      const isStyled = (
-        style.backgroundImage !== 'none' || 
-        style.animation !== 'none' ||
-        style.boxShadow !== 'none' ||
-        style.getPropertyValue('--tw-gradient-from') !== ''
-      );
-      
-      if (!isStyled) {
-        missingClasses.push(className);
-      }
-    });
-  } catch (e) {
-    console.error('[CSS Verification] Error testing CSS classes:', e);
-    return CRITICAL_CSS_CLASSES; // Assume all missing on error
-  } finally {
-    // Clean up
-    if (testEl.parentNode) {
-      testEl.parentNode.removeChild(testEl);
+  // Check if critical CSS is already injected
+  if (!document.getElementById('critical-css')) {
+    const style = document.createElement('style');
+    style.id = 'critical-css';
+    style.innerHTML = CRITICAL_CSS;
+    
+    // Insert at the beginning of head to ensure it loads first
+    if (document.head.firstChild) {
+      document.head.insertBefore(style, document.head.firstChild);
+    } else {
+      document.head.appendChild(style);
     }
   }
-  
-  return missingClasses;
 }
 
 /**
- * Load emergency CSS if critical classes are missing
+ * Initializes the full CSS system
+ * This loads the theme CSS file dynamically
  */
-export function loadEmergencyCss(missingClasses: string[] = []): void {
-  if (typeof document === 'undefined' || document.getElementById('mcp-emergency-css')) return;
-  
-  // If no specific classes provided, check all
-  if (missingClasses.length === 0) {
-    missingClasses = verifyCriticalCss();
+export function initializeCss(): Promise<void> {
+  if (typeof document === 'undefined') {
+    return Promise.resolve();
   }
-  
-  if (missingClasses.length === 0) return;
-  
-  console.warn('[CSS Recovery] Missing critical CSS classes:', missingClasses);
-  
-  // Apply emergency CSS with !important rules
-  const styleEl = document.createElement('style');
-  styleEl.id = 'mcp-emergency-css';
-  styleEl.textContent = CRITICAL_CSS.split('\n').map(line => {
-    // Add !important to all property declarations
-    if (line.includes(':') && !line.includes('@')) {
-      return line.replace(/;(\s*)$/, ' !important;$1');
+
+  // Load theme CSS file
+  return new Promise((resolve, reject) => {
+    // Don't load if it's already loaded
+    if (document.getElementById('theme-css-link')) {
+      resolve();
+      return;
     }
-    return line;
-  }).join('\n');
-  
-  document.head.appendChild(styleEl);
-  console.log('[CSS Recovery] Emergency CSS loaded');
+
+    const link = document.createElement('link');
+    link.id = 'theme-css-link';
+    link.rel = 'stylesheet';
+    link.href = '/src/styles/theme.css';
+    
+    link.onload = () => {
+      console.log('[CSS Injector] Theme CSS loaded successfully');
+      resolve();
+    };
+    
+    link.onerror = (error) => {
+      console.error('[CSS Injector] Failed to load theme CSS:', error);
+      // Create a recovery style element with essential styles
+      recoverCriticalStyles();
+      reject(new Error('Failed to load theme CSS'));
+    };
+    
+    document.head.appendChild(link);
+  });
 }
 
 /**
- * Initialize the CSS injection system
+ * If loading the theme CSS fails, this function recovers essential styles
  */
-export function initializeCss(): void {
-  if (typeof window === 'undefined') return;
-  
-  // Inject critical CSS as early as possible
-  injectCriticalCss();
-  
-  // Wait for DOM to be ready for other operations
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      applyMcpClassPrefixes();
-      setTimeout(() => {
-        loadEmergencyCss();
-      }, 1000); // Delay check to allow normal CSS to load
-    });
-  } else {
-    applyMcpClassPrefixes();
-    setTimeout(() => {
-      loadEmergencyCss();
-    }, 1000);
+function recoverCriticalStyles(): void {
+  if (document.getElementById('recovery-css')) {
+    return;
   }
+  
+  console.warn('[CSS Injector] Recovering critical styles');
+  
+  const style = document.createElement('style');
+  style.id = 'recovery-css';
+  style.innerHTML = `
+    /* Recovery CSS with animation classes that might be missing */
+    .animate-fade-in-down {
+      animation: fadeInDown 250ms ease-out forwards;
+    }
+    
+    .animate-fade-in {
+      animation: fadeIn 250ms ease-out forwards;
+    }
+    
+    .animate-fade-in-up {
+      animation: fadeInUp 250ms ease-out forwards;
+    }
+    
+    @keyframes fadeIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+    
+    @keyframes fadeInDown {
+      0% { opacity: 0; transform: translateY(-10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes fadeInUp {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+  `;
+  
+  document.head.appendChild(style);
 }
 
-// Auto-initialize when imported in the browser
-if (typeof window !== 'undefined') {
-  initializeCss();
+/**
+ * Get the user's preferred theme (light, dark, or system)
+ */
+export function getPreferredTheme(): 'light' | 'dark' | 'system' {
+  if (typeof localStorage === 'undefined' || typeof window === 'undefined') {
+    return 'system';
+  }
+  
+  const savedTheme = localStorage.getItem('mcp-theme') as 'light' | 'dark' | 'system' | null;
+  return savedTheme || 'system';
+}
+
+/**
+ * Update the theme on the root element
+ */
+export function applyTheme(theme: 'light' | 'dark' | 'system'): void {
+  if (typeof document === 'undefined' || typeof window === 'undefined') {
+    return;
+  }
+  
+  const root = document.documentElement;
+  const realTheme = theme === 'system' 
+    ? window.matchMedia('(prefers-color-scheme: dark)').matches
+      ? 'dark'
+      : 'light'
+    : theme;
+  
+  root.dataset.theme = realTheme;
+  localStorage.setItem('mcp-theme', theme);
+}
+
+/**
+ * Listen for system theme changes
+ */
+export function initializeThemeListener(callback?: (theme: 'light' | 'dark') => void): () => void {
+  if (typeof window === 'undefined') {
+    return () => {};
+  }
+  
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  
+  const handleChange = () => {
+    const savedTheme = localStorage.getItem('mcp-theme') as 'light' | 'dark' | 'system' | null;
+    if (savedTheme === 'system') {
+      const newTheme = mediaQuery.matches ? 'dark' : 'light';
+      document.documentElement.dataset.theme = newTheme;
+      if (callback) callback(newTheme);
+    }
+  };
+  
+  mediaQuery.addEventListener('change', handleChange);
+  return () => mediaQuery.removeEventListener('change', handleChange);
 }

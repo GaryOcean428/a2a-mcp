@@ -1,8 +1,11 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React, { Component, ErrorInfo, ReactNode, ReactElement } from 'react';
+
+// Define a custom type for the fallback function
+type FallbackRender = (error: Error, resetError: () => void) => ReactNode;
 
 interface ErrorBoundaryProps {
   children: ReactNode;
-  fallback?: ReactNode | ((error: Error, resetError: () => void) => ReactNode);
+  fallback?: ReactNode | FallbackRender;
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
 }
 

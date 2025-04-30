@@ -12,19 +12,23 @@ import { mcpWebSocketClient } from "./utils/mcp-websocket-client";
 // Import CSS utilities
 import "./utils/css-injector";
 
-// Page imports
-import Home from "@/pages/Home";
-import WebSearch from "@/pages/WebSearch";
-import FormAutomation from "@/pages/FormAutomation";
-import VectorStorage from "@/pages/VectorStorage";
-import DataScraping from "@/pages/DataScraping";
-import Settings from "@/pages/Settings";
-import Documentation from "@/pages/Documentation";
-import ClineIntegration from "@/pages/ClineIntegration";
-import AuthPage from "@/pages/auth-page";
-import NotFound from "@/pages/not-found";
-import LoginButton from "@/pages/LoginButton";
-import LoginRouter from "@/pages/LoginRouter";
+// Import LazyLoad utility for code splitting
+import { createLazyComponent } from "./components/LazyLoad";
+import { LoadingSpinner } from "./components/LoadingSpinner";
+
+// Lazy load all pages for better performance
+const Home = createLazyComponent(() => import("@/pages/Home"));
+const WebSearch = createLazyComponent(() => import("@/pages/WebSearch"));
+const FormAutomation = createLazyComponent(() => import("@/pages/FormAutomation"));
+const VectorStorage = createLazyComponent(() => import("@/pages/VectorStorage"));
+const DataScraping = createLazyComponent(() => import("@/pages/DataScraping"));
+const Settings = createLazyComponent(() => import("@/pages/Settings"));
+const Documentation = createLazyComponent(() => import("@/pages/Documentation"));
+const ClineIntegration = createLazyComponent(() => import("@/pages/ClineIntegration"));
+const AuthPage = createLazyComponent(() => import("@/pages/auth-page"));
+const NotFound = createLazyComponent(() => import("@/pages/not-found"));
+const LoginButton = createLazyComponent(() => import("@/pages/LoginButton"));
+const LoginRouter = createLazyComponent(() => import("@/pages/LoginRouter"));
 
 // Components
 import Layout from "@/components/Layout";
