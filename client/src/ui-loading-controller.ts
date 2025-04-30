@@ -142,10 +142,11 @@ function trackStylesheetLoading(): void {
     // Check each stylesheet
     resourceStatus.forEach(status => {
       if (status.type === 'stylesheet' && !status.loaded) {
-        const element = [...document.querySelectorAll('link[rel="stylesheet"]')]
+        // Convert NodeList to Array with Array.from for better TypeScript compatibility
+        const element = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
           .find(link => link.getAttribute('href') === status.id);
           
-        if (element && element.sheet !== null) {
+        if (element && (element as HTMLLinkElement).sheet !== null) {
           updateResourceStatus(status.id, 'stylesheet', true, null);
         } else {
           allLoaded = false;

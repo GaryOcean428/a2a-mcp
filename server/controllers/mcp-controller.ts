@@ -19,14 +19,11 @@ export class MCPController {
    * Initialize WebSocket server for SSE transport
    */
   initialize(server: Server) {
-    // Use a specific path and port for the WebSocket server to avoid conflicts with Vite's HMR WebSocket
+    // Use a specific path for the WebSocket server to avoid conflicts with Vite's HMR WebSocket
     try {
       this.wss = new WebSocketServer({ 
         server,
-        path: '/mcp-ws',
-        // Don't attempt to create a new server listening on its own port
-        // Just attach to the existing HTTP server
-        noServer: true
+        path: '/mcp-ws'
       });
       
       console.log('WebSocket server initialized at path: /mcp-ws');

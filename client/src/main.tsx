@@ -3,13 +3,11 @@ import { VERSION } from "./version";
 import App from "./App";
 // Import the Vite HMR fix to patch WebSocket
 import "./vite-hmr-fix";
-// Import the new UI loading controller
-import { initializeUILoading } from "./ui-loading-controller";
-// Apply critical CSS immediately 
-import { applyImmediateCriticalCss } from "./critical-css-reset";
+// Import direct CSS injection
+import { injectEssentialCSS, createLoadingOverlay, initializeDirectCSS } from "./direct-css-injection";
 
-// Apply critical CSS immediately, before anything else
-applyImmediateCriticalCss();
+// Apply essential CSS immediately, before anything else
+injectEssentialCSS();
 
 // Log startup information
 console.log(`MCP Integration Platform v${VERSION} starting`);
@@ -30,14 +28,17 @@ window.addEventListener('error', (event) => {
 document.addEventListener('DOMContentLoaded', () => {
   console.log('[MCP] Document loaded, initializing UI loading process');
   
-  // Initialize UI loading
-  initializeUILoading()
+  // Show loading overlay
+  createLoadingOverlay();
+  
+  // Initialize direct CSS injection
+  initializeDirectCSS()
     .then(() => {
-      console.log('[MCP] UI loading process completed successfully');
+      console.log('[MCP] Direct CSS initialization completed successfully');
       mountApp();
     })
-    .catch(error => {
-      console.error('[MCP] Error in UI loading process:', error);
+    .catch((error: Error) => {
+      console.error('[MCP] Error in direct CSS initialization:', error);
       // Still try to mount the app after a delay
       setTimeout(() => mountApp(), 1000);
     });
