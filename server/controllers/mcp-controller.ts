@@ -5,8 +5,7 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { MCPRequest, MCPResponse } from '@shared/schema';
 import { Server } from 'http';
 import { nanoid } from 'nanoid';
-
-const STDIO_RESPONSE_DELAY = 50; // Small delay to simulate IO
+import { WS_PATHS, WS_SETTINGS, STDIO_RESPONSE_DELAY } from '../config/constants';
 
 /**
  * Controller for handling MCP API endpoints and WebSocket connections
@@ -23,10 +22,10 @@ export class MCPController {
     try {
       this.wss = new WebSocketServer({ 
         server,
-        path: '/mcp-ws'
+        path: WS_PATHS.MCP
       });
       
-      console.log('WebSocket server initialized at path: /mcp-ws');
+      console.log(`WebSocket server initialized at path: ${WS_PATHS.MCP}`);
     } catch (error) {
       console.error('Failed to initialize WebSocket server:', error);
     }
@@ -82,7 +81,7 @@ export class MCPController {
         } else {
           clearInterval(pingInterval);
         }
-      }, 30000); // Send ping every 30 seconds
+      }, WS_SETTINGS.PING_INTERVAL);
       
       ws.on('message', async (message) => {
         try {
