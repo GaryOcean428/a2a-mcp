@@ -90,14 +90,8 @@ class WebSocketServiceCompat {
    * Handle messages from the new client
    */
   private handleMessage(data: any): void {
-    // Create a synthetic MessageEvent for backwards compatibility
-    const event = {
-      data: typeof data === 'string' ? data : JSON.stringify(data),
-      origin: window.location.origin,
-      lastEventId: '',
-      source: null,
-      ports: []
-    } as MessageEvent;
+    // Create a message event-like object for backwards compatibility
+    const eventData = typeof data === 'string' ? data : JSON.stringify(data);
     
     // Notify all handlers
     this.messageHandlers.forEach(handler => {

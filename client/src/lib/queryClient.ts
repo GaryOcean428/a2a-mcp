@@ -1,28 +1,17 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
-import { getApiBaseUrl } from "../config";
+import { API_CONFIG } from "../config/app-config";
+import { handleApiError, createError, ErrorWithMetadata } from "../utils/error-handler";
+
+// Get the API base URL
+const getApiBaseUrl = () => API_CONFIG.BASE_URL;
 
 /**
  * Helper function to throw meaningful errors for non-ok responses
+ * with improved error handling and categorization
  */
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
-    try {
-      // Try to parse JSON error first
-      const contentType = res.headers.get("content-type");
-      if (contentType && contentType.includes("application/json")) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || `${res.status}: ${res.statusText}`);
-      } else {
-        // Fall back to text
-        const text = (await res.text()) || res.statusText;
-        throw new Error(`${res.status}: ${text}`);
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        throw error;
-      }
-      throw new Error(`${res.status}: ${res.statusText}`);
-    }
+    throw await handleApiError(res, { toast: false });
   }
 }
 
