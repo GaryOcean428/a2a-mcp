@@ -1,110 +1,117 @@
+/**
+ * MCP Integration Platform - WebSocket Hook
+ * 
+ * This hook provides a React context for WebSocket functionality across 
+ * the application with automatic connection management.
+ */
+
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { mcpWebSocketClient } from '../utils/mcp-websocket-client';
+import { handleError } from '../utils/error-handler';
 
-type WebSocketStatus = 'connected' | 'disconnected' | 'connecting' | 'error';
+// Define types used in the hook
+export type WebSocketStatus = 'connecting' | 'connected' | 'disconnected' | 'error';
 
-interface WebSocketContextValue {
+export type WebSocketMessage = {
+  type: string;
+  data?: any;
+  id?: string;
+  error?: string;
+};
+
+export type WebSocketSchemaType = {
+  name: string;
+  description: string;
+  annotations: {
+    title: string;
+    readOnlyHint?: boolean;
+    destructiveHint?: boolean;
+    idempotentHint?: boolean;
+    openWorldHint?: boolean;
+  };
+};
+
+// Define the context props
+interface WebSocketContextProps {
   status: WebSocketStatus;
-  isConnected: boolean;
-  schemas: any[];
-  sendMessage: (message: any) => boolean;
-  connect: () => void;
+  schemas: WebSocketSchemaType[];
+  lastMessage: WebSocketMessage | null;
+  sendMessage: (message: WebSocketMessage) => boolean;
+  reconnect: () => void;
   disconnect: () => void;
 }
 
-// Create context with default values
-const WebSocketContext = createContext<WebSocketContextValue>({
-  status: 'disconnected',
-  isConnected: false,
-  schemas: [],
-  sendMessage: () => false,
-  connect: () => {},
-  disconnect: () => {},
-});
+// Create the context
+const WebSocketContext = createContext<WebSocketContextProps | undefined>(undefined);
 
-interface WebSocketProviderProps {
-  children: ReactNode;
-  autoConnect?: boolean;
-}
-
-/**
- * WebSocket Provider Component
- * 
- * This component provides a React context for WebSocket functionality.
- * It manages the connection state and exposes methods for interacting with
- * the WebSocket client.
- */
-export function WebSocketProvider({ 
-  children, 
-  autoConnect = true 
-}: WebSocketProviderProps) {
-  const [status, setStatus] = useState<WebSocketStatus>(
-    mcpWebSocketClient.getStatus().status
-  );
-  const [schemas, setSchemas] = useState<any[]>([]);
-
-  // Initialize WebSocket client
-  useEffect(() => {
-    if (autoConnect) {
-      mcpWebSocketClient.initialize();
-    }
-    
-    // Update status when it changes
-    const handleStatusChange = (data: { status: WebSocketStatus }) => {
-      setStatus(data.status);
-    };
-    
-    // Update schemas when they are received
-    const handleSchemas = (receivedSchemas: any[]) => {
-      setSchemas(receivedSchemas);
-    };
-    
-    // Add event listeners
-    mcpWebSocketClient.on('status', handleStatusChange);
-    mcpWebSocketClient.on('schemas', handleSchemas);
-    
-    // Initial status
-    setStatus(mcpWebSocketClient.getStatus().status);
-    
-    // Clean up on unmount
-    return () => {
-      mcpWebSocketClient.off('status', handleStatusChange);
-      mcpWebSocketClient.off('schemas', handleSchemas);
+// Context provider component
+export function WebSocketProvider({ children }: { children: ReactNode }) {
+  const [status, setStatus] = useState<WebSocketStatus>('disconnected');
+  const [lastMessage, setLastMessage] = useState<WebSocketMessage | null>(null);
+  const [schemas, setSchemas] = useState<WebSocketSchemaType[]>([]);
+  
+  // Handle incoming messages
+  const handleMessage = (data: any) => {
+    try {
+      // If data is a string, parse it
+      const message = typeof data === 'string' ? JSON.parse(data) : data;
       
-      if (!autoConnect) {
-        mcpWebSocketClient.disconnect();
+      // Set as last message
+      setLastMessage(message);
+      
+      // Check for schemas message
+      if (message && message.id === 'schemas' && Array.isArray(message.schemas)) {
+        setSchemas(message.schemas);
+        console.log(`Loaded ${message.schemas.length} tool schemas from WebSocket server`);
       }
-    };
-  }, [autoConnect]);
-
-  // Send a message through the WebSocket
-  const sendMessage = (message: any): boolean => {
-    return mcpWebSocketClient.send(message);
+    } catch (error) {
+      console.error('[WebSocket] Error processing message:', error);
+    }
   };
-
-  // Connect the WebSocket
-  const connect = () => {
+  
+  // Handle status changes
+  const handleStatus = (newStatus: WebSocketStatus) => {
+    setStatus(newStatus);
+    
+    // Log status changes
+    console.log(`[MCP WebSocket] ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`);
+  };
+  
+  // Handle errors
+  const handleError = (error: any) => {
+    setStatus('error');
+    console.error('[WebSocket] Error:', error);
+  };
+  
+  // Initialize the WebSocket connection when component mounts
+  useEffect(() => {
+    // Set up handlers
+    mcpWebSocketClient.on('message', handleMessage);
+    mcpWebSocketClient.on('status', (data) => handleStatus(data.status));
+    mcpWebSocketClient.on('error', handleError);
+    
+    // Initialize connection
     mcpWebSocketClient.initialize();
-  };
-
-  // Disconnect the WebSocket
-  const disconnect = () => {
-    mcpWebSocketClient.disconnect();
-  };
-
-  // Calculate derived state
-  const isConnected = status === 'connected';
-
-  // The context value
-  const contextValue: WebSocketContextValue = {
+    
+    // Cleanup on unmount
+    return () => {
+      mcpWebSocketClient.off('message', handleMessage);
+      mcpWebSocketClient.off('status');
+      mcpWebSocketClient.off('error');
+      mcpWebSocketClient.disconnect();
+    };
+  }, []);
+  
+  // Define context value
+  const contextValue: WebSocketContextProps = {
     status,
-    isConnected,
     schemas,
-    sendMessage,
-    connect,
-    disconnect,
+    lastMessage,
+    sendMessage: mcpWebSocketClient.send.bind(mcpWebSocketClient),
+    reconnect: mcpWebSocketClient.reconnect.bind(mcpWebSocketClient),
+    disconnect: mcpWebSocketClient.disconnect.bind(mcpWebSocketClient)
   };
-
+  
   return (
     <WebSocketContext.Provider value={contextValue}>
       {children}
@@ -112,13 +119,13 @@ export function WebSocketProvider({
   );
 }
 
-/**
- * Hook for consuming the WebSocket context
- */
+// Hook for using the WebSocket context
 export function useWebSocket() {
   const context = useContext(WebSocketContext);
-  if (!context) {
+  
+  if (context === undefined) {
     throw new Error('useWebSocket must be used within a WebSocketProvider');
   }
+  
   return context;
 }
