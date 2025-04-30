@@ -5,6 +5,7 @@ import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/hooks/useAuth";
 import { NavigationProvider } from "@/hooks/use-navigation";
+import { StylesProtectedRoot } from "@/components/ui/StylesProtectedRoot";
 
 // Page imports
 import Home from "@/pages/Home";
@@ -76,14 +77,23 @@ function App() {
   }, []);
   
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <NavigationProvider>
-          <Router />
-          <Toaster />
-        </NavigationProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+    <StylesProtectedRoot
+      fallback={
+        <div className="loading-overlay">
+          <div className="loading-spinner"></div>
+          <p style={{ marginTop: '1rem' }}>Loading MCP Integration Platform...</p>
+        </div>
+      }
+    >
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <NavigationProvider>
+            <Router />
+            <Toaster />
+          </NavigationProvider>
+        </AuthProvider>
+      </QueryClientProvider>
+    </StylesProtectedRoot>
   );
 }
 
