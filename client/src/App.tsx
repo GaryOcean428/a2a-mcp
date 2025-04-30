@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/hooks/useAuth";
 import { NavigationProvider } from "@/hooks/use-navigation";
 import { StylesProtectedRoot } from "@/components/ui/StylesProtectedRoot";
+import { mcpWebSocketManager } from "./utils/mcp-websocket";
 
 // Page imports
 import Home from "@/pages/Home";
