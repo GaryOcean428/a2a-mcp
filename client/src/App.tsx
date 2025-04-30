@@ -8,6 +8,7 @@ import { NavigationProvider } from "@/hooks/use-navigation";
 import { StylesProtectedRoot } from "@/components/ui/StylesProtectedRoot";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { mcpWebSocketClient } from "./utils/mcp-websocket-client";
+import { WebSocketProvider } from "./hooks/use-websocket";
 
 // Import CSS utilities
 import "./utils/css-injector";
@@ -83,36 +84,6 @@ function App() {
       document.documentElement.dataset.productionEnv = 'true';
       console.log('Running in production mode - applying production optimizations');
     }
-    
-    // Initialize WebSocket connection
-    try {
-      // Initialize the MCP WebSocket client
-      mcpWebSocketClient.initialize();
-      
-      // Add event listener for schema updates
-      mcpWebSocketClient.on('schemas', (schemas) => {
-        console.log(`Loaded ${schemas.length} tool schemas from WebSocket server`);
-      });
-      
-      // Add event listener for connection status
-      mcpWebSocketClient.on('status', (data) => {
-        if (data.status === 'connected') {
-          console.log('[MCP WebSocket] Connected');
-        } else if (data.status === 'disconnected') {
-          console.log('[MCP WebSocket] Disconnected');
-        } else if (data.status === 'error') {
-          console.warn('[MCP WebSocket] Connection error, will use HTTP transport as fallback');
-        }
-      });
-    } catch (error) {
-      console.error('Error initializing WebSocket:', error);
-    }
-    
-    // Clean up on unmount
-    return () => {
-      // Disconnect WebSocket on component unmount
-      mcpWebSocketClient.disconnect();
-    };
   }, []);
   
   return (
@@ -128,8 +99,10 @@ function App() {
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
             <NavigationProvider>
-              <Router />
-              <Toaster />
+              <WebSocketProvider autoConnect={true}>
+                <Router />
+                <Toaster />
+              </WebSocketProvider>
             </NavigationProvider>
           </AuthProvider>
         </QueryClientProvider>
