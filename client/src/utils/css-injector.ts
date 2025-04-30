@@ -1,220 +1,273 @@
 /**
- * CSS Injector Utility
+ * MCP Integration Platform - CSS Injector Utility
  * 
- * This utility ensures critical CSS is loaded correctly in both development and production.
- * It handles theme injection, animation classes, and ensures consistent styling across environments.
+ * This utility provides functions to inject critical CSS classes directly
+ * into the HTML document to ensure consistent rendering between development
+ * and production environments.
  */
 
-// Critical CSS that's needed for immediate rendering before the full CSS loads
+import { ANIMATION_DURATIONS } from '../config/constants';
+
+// Class categories to be protected from purging in production
+const CRITICAL_CLASS_CATEGORIES = [
+  'animate-', // Animation classes
+  'transition-', // Transition classes
+  'bg-gradient', // Gradient backgrounds
+  'dark:', // Dark mode
+  'hover:', // Hover states
+  'focus:', // Focus states
+  'group-hover:', // Group hover states
+  'grid-cols-', // Grid columns
+  'grid-rows-', // Grid rows
+  'gap-', // Grid and flex gaps
+  'rounded-', // Border radius
+  'shadow-', // Shadows
+  'opacity-', // Opacity
+  'text-', // Text styling
+  'font-', // Font styling
+  'h-', // Height
+  'w-', // Width
+  'p-', // Padding
+  'm-', // Margin
+  'z-', // Z-index
+];
+
+// The basic CSS framework that should always be available
 const CRITICAL_CSS = `
-  :root {
-    --color-primary: #7c3aed;
-    --color-primary-rgb: 124, 58, 237;
-    --color-text: #111827;
-    --color-text-muted: #6b7280;
-    --color-background: #ffffff;
-  }
+  /* MCP Integration Platform - Critical CSS - Injected by css-injector.ts */
   
-  [data-theme="dark"] {
-    --color-background: #121212;
-    --color-text: #f3f4f6;
-    --color-text-muted: #9ca3af;
-  }
-  
-  .loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    background-color: var(--color-background);
-    z-index: 9999;
-  }
-  
-  .loading-spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid rgba(var(--color-primary-rgb), 0.2);
-    border-radius: 50%;
-    border-top-color: var(--color-primary);
-    animation: spin 1s linear infinite;
-  }
-  
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-  
-  .animate-fade-in-down {
-    animation: fadeInDown 250ms cubic-bezier(0, 0, 0.2, 1) forwards;
+  /* Basic animations that are required even before main CSS loads */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
   
   @keyframes fadeInDown {
-    0% { opacity: 0; transform: translateY(-10px); }
-    100% { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(-0.5rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(0.5rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+  
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  
+  @keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+  }
+  
+  /* Critical animation classes */
+  .animate-fade-in {
+    animation: fadeIn ${ANIMATION_DURATIONS.MEDIUM}ms ease-in-out forwards;
+  }
+  
+  .animate-fade-in-down {
+    animation: fadeInDown ${ANIMATION_DURATIONS.MEDIUM}ms ease-in-out forwards;
+  }
+  
+  .animate-fade-in-up {
+    animation: fadeInUp ${ANIMATION_DURATIONS.MEDIUM}ms ease-in-out forwards;
+  }
+  
+  .animate-fade-out {
+    animation: fadeOut ${ANIMATION_DURATIONS.MEDIUM}ms ease-in-out forwards;
+  }
+  
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+  
+  .animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  /* Critical utility classes */
+  .invisible {
+    visibility: hidden;
+  }
+  
+  .visible {
+    visibility: visible;
+  }
+  
+  .hidden {
+    display: none;
+  }
+  
+  .block {
+    display: block;
+  }
+  
+  .inline-block {
+    display: inline-block;
+  }
+  
+  .flex {
+    display: flex;
+  }
+  
+  .grid {
+    display: grid;
+  }
+  
+  .opacity-0 {
+    opacity: 0;
+  }
+  
+  .opacity-100 {
+    opacity: 1;
   }
 `;
 
 /**
- * Injects critical CSS into the document head
- * This should be called as early as possible before rendering
+ * Inject critical CSS into the document head
  */
-export function injectCriticalCss(): void {
-  if (typeof document === 'undefined') {
+export function injectCriticalCSS(): void {
+  // Check if it's already injected
+  if (document.getElementById('mcp-critical-css')) {
     return;
   }
-
-  // Check if critical CSS is already injected
-  if (!document.getElementById('critical-css')) {
-    const style = document.createElement('style');
-    style.id = 'critical-css';
-    style.innerHTML = CRITICAL_CSS;
-    
-    // Insert at the beginning of head to ensure it loads first
-    if (document.head.firstChild) {
-      document.head.insertBefore(style, document.head.firstChild);
-    } else {
-      document.head.appendChild(style);
-    }
-  }
+  
+  // Create style element
+  const styleEl = document.createElement('style');
+  styleEl.id = 'mcp-critical-css';
+  styleEl.innerHTML = CRITICAL_CSS;
+  
+  // Add to document head
+  document.head.appendChild(styleEl);
+  
+  // Log success
+  console.log('[CSS Injector] Critical CSS injected');
 }
 
 /**
- * Initializes the full CSS system
- * This loads the theme CSS file dynamically
+ * Create a safelist of critical CSS classes for Tailwind
  */
-export function initializeCss(): Promise<void> {
-  if (typeof document === 'undefined') {
-    return Promise.resolve();
-  }
+export function createCssSafelist(): string[] {
+  // Base classes that should never be purged
+  const safelist: string[] = [
+    'animate-fade-in',
+    'animate-fade-in-down',
+    'animate-fade-in-up',
+    'animate-fade-out',
+    'animate-spin',
+    'animate-pulse',
+    'invisible',
+    'visible',
+    'hidden',
+    'block',
+    'inline-block',
+    'flex',
+    'grid',
+    'opacity-0',
+    'opacity-100',
+  ];
+  
+  // Add critical class categories
+  return safelist;
+}
 
-  // Load theme CSS file
+/**
+ * Verify that critical CSS is loaded and functioning
+ */
+export function verifyCssLoaded(): boolean {
+  // Create a test element
+  const testEl = document.createElement('div');
+  testEl.className = 'animate-fade-in hidden';
+  testEl.id = 'mcp-css-test';
+  testEl.style.position = 'absolute';
+  testEl.style.top = '-9999px';
+  testEl.style.left = '-9999px';
+  
+  // Add to document
+  document.body.appendChild(testEl);
+  
+  // Get the computed style
+  const style = window.getComputedStyle(testEl);
+  
+  // Check if the animation property is set
+  const animationName = style.getPropertyValue('animation-name');
+  const display = style.getPropertyValue('display');
+  
+  // Remove test element
+  document.body.removeChild(testEl);
+  
+  // If the animation name is fadeIn and display is none, CSS is loaded
+  return animationName.includes('fadeIn') && display === 'none';
+}
+
+/**
+ * Load a CSS file dynamically
+ */
+export function loadCssFile(url: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    // Don't load if it's already loaded
-    if (document.getElementById('theme-css-link')) {
+    // Check if already loaded
+    const existingLink = document.querySelector(`link[href="${url}"]`);
+    if (existingLink) {
       resolve();
       return;
     }
-
+    
+    // Create link element
     const link = document.createElement('link');
-    link.id = 'theme-css-link';
     link.rel = 'stylesheet';
-    link.href = '/src/styles/theme.css';
+    link.href = url;
     
-    link.onload = () => {
-      console.log('[CSS Injector] Theme CSS loaded successfully');
-      resolve();
+    // Set up event handlers
+    link.onload = () => resolve();
+    link.onerror = () => {
+      console.error(`[CSS Injector] Failed to load CSS: ${url}`);
+      reject(new Error(`Failed to load CSS: ${url}`));
     };
     
-    link.onerror = (error) => {
-      console.error('[CSS Injector] Failed to load theme CSS:', error);
-      // Create a recovery style element with essential styles
-      recoverCriticalStyles();
-      reject(new Error('Failed to load theme CSS'));
-    };
-    
+    // Add to document head
     document.head.appendChild(link);
   });
 }
 
 /**
- * If loading the theme CSS fails, this function recovers essential styles
+ * Initialize CSS protection system
  */
-function recoverCriticalStyles(): void {
-  if (document.getElementById('recovery-css')) {
-    return;
+export function initCssProtection(): void {
+  // Inject critical CSS first
+  injectCriticalCSS();
+  
+  // Check if CSS is properly loaded, if not attempt recovery
+  const cssLoaded = verifyCssLoaded();
+  if (!cssLoaded) {
+    console.warn('[CSS Injector] Critical CSS not functioning, attempting recovery');
+    
+    // Try loading the theme CSS file
+    loadCssFile('/src/styles/theme.css')
+      .then(() => {
+        console.log('[CSS Injector] Theme CSS loaded successfully');
+      })
+      .catch(() => {
+        console.error('[CSS Injector] Failed to load theme CSS, UI may be inconsistent');
+      });
   }
-  
-  console.warn('[CSS Injector] Recovering critical styles');
-  
-  const style = document.createElement('style');
-  style.id = 'recovery-css';
-  style.innerHTML = `
-    /* Recovery CSS with animation classes that might be missing */
-    .animate-fade-in-down {
-      animation: fadeInDown 250ms ease-out forwards;
-    }
-    
-    .animate-fade-in {
-      animation: fadeIn 250ms ease-out forwards;
-    }
-    
-    .animate-fade-in-up {
-      animation: fadeInUp 250ms ease-out forwards;
-    }
-    
-    @keyframes fadeIn {
-      0% { opacity: 0; }
-      100% { opacity: 1; }
-    }
-    
-    @keyframes fadeInDown {
-      0% { opacity: 0; transform: translateY(-10px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
-    
-    @keyframes fadeInUp {
-      0% { opacity: 0; transform: translateY(10px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
-  `;
-  
-  document.head.appendChild(style);
-}
-
-/**
- * Get the user's preferred theme (light, dark, or system)
- */
-export function getPreferredTheme(): 'light' | 'dark' | 'system' {
-  if (typeof localStorage === 'undefined' || typeof window === 'undefined') {
-    return 'system';
-  }
-  
-  const savedTheme = localStorage.getItem('mcp-theme') as 'light' | 'dark' | 'system' | null;
-  return savedTheme || 'system';
-}
-
-/**
- * Update the theme on the root element
- */
-export function applyTheme(theme: 'light' | 'dark' | 'system'): void {
-  if (typeof document === 'undefined' || typeof window === 'undefined') {
-    return;
-  }
-  
-  const root = document.documentElement;
-  const realTheme = theme === 'system' 
-    ? window.matchMedia('(prefers-color-scheme: dark)').matches
-      ? 'dark'
-      : 'light'
-    : theme;
-  
-  root.dataset.theme = realTheme;
-  localStorage.setItem('mcp-theme', theme);
-}
-
-/**
- * Listen for system theme changes
- */
-export function initializeThemeListener(callback?: (theme: 'light' | 'dark') => void): () => void {
-  if (typeof window === 'undefined') {
-    return () => {};
-  }
-  
-  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-  
-  const handleChange = () => {
-    const savedTheme = localStorage.getItem('mcp-theme') as 'light' | 'dark' | 'system' | null;
-    if (savedTheme === 'system') {
-      const newTheme = mediaQuery.matches ? 'dark' : 'light';
-      document.documentElement.dataset.theme = newTheme;
-      if (callback) callback(newTheme);
-    }
-  };
-  
-  mediaQuery.addEventListener('change', handleChange);
-  return () => mediaQuery.removeEventListener('change', handleChange);
 }

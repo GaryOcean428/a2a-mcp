@@ -1,58 +1,72 @@
-import React, { lazy, Suspense, ComponentType, ReactNode } from 'react';
-import { ErrorBoundary } from './ErrorBoundary';
-import { LoadingSpinner } from './LoadingSpinner';
-
-interface LazyLoadProps {
-  component: () => Promise<{ default: ComponentType<any> }>;
-  fallback?: ReactNode;
-  errorFallback?: ReactNode | ((error: Error, resetError: () => void) => ReactNode);
-  props?: Record<string, any>;
-}
-
 /**
- * LazyLoad Component
+ * MCP Integration Platform - LazyLoad Component
  * 
- * This component provides a standardized way to lazy-load components with
- * built-in loading states and error handling.
+ * This component provides a standardized way to handle code splitting and
+ * lazy loading of components with loading states and error boundaries.
  */
-export function LazyLoad({ 
-  component, 
-  fallback = <LoadingSpinner />, 
-  errorFallback,
-  props = {}
-}: LazyLoadProps) {
-  // Lazy load the component
-  const LazyComponent = lazy(component);
 
+import { lazy, Suspense, ComponentType } from 'react';
+import { Loader2 } from 'lucide-react';
+
+// Loading spinner component
+export function LoadingSpinner() {
   return (
-    <ErrorBoundary fallback={errorFallback}>
-      <Suspense fallback={fallback}>
-        <LazyComponent {...props} />
-      </Suspense>
-    </ErrorBoundary>
+    <div className="flex justify-center items-center min-h-20 w-full py-4">
+      <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+    </div>
   );
 }
 
-/**
- * Create a lazy-loaded component with standardized error and loading handling
- */
-export function createLazyComponent<P extends Record<string, any>>(
-  importFn: () => Promise<{ default: ComponentType<P> }>,
-  options: {
-    fallback?: ReactNode;
-    errorFallback?: ReactNode | ((error: Error, resetError: () => void) => ReactNode);
-  } = {}
-): React.FC<P> {
-  const LazyComponent = lazy(importFn);
-
-  // Use JSX.Element instead of ReactNode for the return type
-  const LazyWrapper: React.FC<P> = (props: P) => (
-    <ErrorBoundary fallback={options.errorFallback}>
-      <Suspense fallback={options.fallback || <LoadingSpinner />}>
-        <LazyComponent {...props} />
-      </Suspense>
-    </ErrorBoundary>
-  );
+// Function to lazily load a component with proper typing
+export function lazyLoad<T extends ComponentType<any>>(
+  importFunc: () => Promise<{ default: T }>,
+  LoadingComponent: React.ComponentType = LoadingSpinner,
+  minDelay = 0 // Optional minimum delay for UI continuity
+): T {
+  // Create the lazy component
+  const LazyComponent = lazy(() => {
+    // If no delay is set, just load the component
+    if (minDelay <= 0) {
+      return importFunc();
+    }
+    
+    // Otherwise, add a minimum delay to prevent flickering
+    return Promise.all([
+      importFunc(),
+      new Promise(resolve => setTimeout(resolve, minDelay))
+    ]).then(([module]) => module);
+  });
   
-  return LazyWrapper;
+  // Create a wrapper component that handles rendering
+  const ComponentWithLoading = ((props: any) => (
+    <Suspense fallback={<LoadingComponent />}>
+      <LazyComponent {...props} />
+    </Suspense>
+  )) as unknown as T;
+  
+  return ComponentWithLoading;
+}
+
+// LazyRoute component for code-split routes
+interface LazyRouteProps {
+  component: React.LazyExoticComponent<React.ComponentType<any>>;
+}
+
+export function LazyRoute({ component: Component }: LazyRouteProps) {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <Component />
+    </Suspense>
+  );
+}
+
+// Export a type-safe version of React.lazy
+export function lazyImport<
+  T extends ComponentType<any>,
+  I extends { [K2 in K]: T },
+  K extends keyof I
+>(factory: () => Promise<I>, name: K): I {
+  return {
+    [name]: lazyLoad(() => factory().then((module) => ({ default: module[name] })))
+  } as I;
 }

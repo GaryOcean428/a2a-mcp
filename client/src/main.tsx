@@ -1,13 +1,18 @@
 import { createRoot } from "react-dom/client";
+import { StrictMode } from "react";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
+import { ThemeProvider } from "./components/ThemeProvider";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { VERSION } from "./version";
 import App from "./App";
 // Import the Vite HMR fix to patch WebSocket
 import "./vite-hmr-fix";
 // Import direct CSS injection
-import { initializeCss, injectCriticalCss } from "./utils/css-injector";
+import { injectCriticalCSS, initCssProtection } from "./utils/css-injector";
 
 // Apply essential CSS immediately, before anything else
-injectCriticalCss();
+injectCriticalCSS();
 
 // Log startup information
 console.log(`MCP Integration Platform v${VERSION} starting`);
@@ -29,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
   console.log('[MCP] Document loaded, initializing UI loading process');
   
   // Initialize our CSS system
-  initializeCss();
+  initCssProtection();
   
   // Create a simple loading overlay
   const createLoadingOverlay = () => {
@@ -116,8 +121,18 @@ function mountApp() {
       throw new Error("Root element not found");
     }
     
-    // Create and render React root
-    createRoot(rootElement).render(<App />);
+    // Create and render React root with providers
+    createRoot(rootElement).render(
+      <StrictMode>
+        <ErrorBoundary>
+          <QueryClientProvider client={queryClient}>
+            <ThemeProvider>
+              <App />
+            </ThemeProvider>
+          </QueryClientProvider>
+        </ErrorBoundary>
+      </StrictMode>
+    );
     
     // Remove any existing loading elements
     const loadingElement = document.querySelector('.loading') as HTMLElement | null;

@@ -9,8 +9,10 @@
 
 import { WS_PATH } from '../config/constants';
 import { mcpWebSocketClient } from './mcp-websocket-client';
+import { useEffect, useState } from 'react';
+import { useWebSocket as useNewWebSocket } from '../hooks/use-websocket';
 
-// Re-export types that match the old interface
+// Export types that match the old interface
 export type WebSocketEventHandler = (event: MessageEvent) => void;
 export type WebSocketErrorHandler = (error: Event) => void;
 export type WebSocketStatusHandler = (status: 'connecting' | 'connected' | 'disconnected' | 'error') => void;
@@ -20,6 +22,29 @@ interface WebSocketHandlers {
   onMessage?: WebSocketEventHandler;
   onError?: WebSocketErrorHandler;
   onStatusChange?: WebSocketStatusHandler;
+}
+
+/**
+ * Creates a MessageEvent-like object that's safe to use with TypeScript
+ */
+function createMessageEventLike(data: any): MessageEvent {
+  // Create a real MessageEvent by using MessageChannel
+  const channel = new MessageChannel();
+  const msg = typeof data === 'string' ? data : JSON.stringify(data);
+  
+  // We have to post a message to create a real event
+  // This is the safest way to create a MessageEvent that TypeScript accepts
+  channel.port1.onmessage = null; // to make TypeScript happy
+  channel.port2.postMessage(msg);
+  
+  // Create the event using the MessageEvent constructor
+  return new MessageEvent('message', {
+    data: msg,
+    origin: window.location.origin,
+    lastEventId: '',
+    source: null,
+    ports: []
+  });
 }
 
 // Create a compatibility layer that uses the new mcpWebSocketClient
@@ -90,8 +115,8 @@ class WebSocketServiceCompat {
    * Handle messages from the new client
    */
   private handleMessage(data: any): void {
-    // Create a message event-like object for backwards compatibility
-    const eventData = typeof data === 'string' ? data : JSON.stringify(data);
+    // Create a proper MessageEvent for handlers
+    const event = createMessageEventLike(data);
     
     // Notify all handlers
     this.messageHandlers.forEach(handler => {
@@ -121,15 +146,15 @@ class WebSocketServiceCompat {
    * Handle errors from the new client
    */
   private handleError(error: any): void {
-    // Create a synthetic Event for backwards compatibility
-    const event = new Event('error');
+    // Create a real Error Event
+    const event = new ErrorEvent('error', { error });
     
     // Notify all handlers
     this.errorHandlers.forEach(handler => {
       try {
         handler(event);
-      } catch (error) {
-        console.error('[WebSocketService] Error in error handler:', error);
+      } catch (err) {
+        console.error('[WebSocketService] Error in error handler:', err);
       }
     });
   }
@@ -137,10 +162,6 @@ class WebSocketServiceCompat {
 
 // Export the singleton instance
 export const webSocketService = WebSocketServiceCompat.getInstance();
-
-// Export a React hook for the WebSocket service
-import { useEffect, useState } from 'react';
-import { useWebSocket as useNewWebSocket } from '../hooks/use-websocket';
 
 // Compatibility hook that uses the new implementation
 export function useWebSocket(handlers: WebSocketHandlers = {}) {
@@ -158,28 +179,10 @@ export function useWebSocket(handlers: WebSocketHandlers = {}) {
   
   // Register handlers on mount
   useEffect(() => {
-    if (handlers.onMessage) {
-      // Create a wrapper to convert the data format
-      const handleMessage = (data: any) => {
-        const event = {
-          data: typeof data === 'string' ? data : JSON.stringify(data),
-          origin: window.location.origin,
-          lastEventId: '',
-          source: null,
-          ports: []
-        } as MessageEvent;
-        
-        handlers.onMessage!(event);
-      };
-      
-      // No need to register this as the new hook handles it
-    }
+    // Connect to the WebSocket service
+    webSocketService.connect(handlers);
     
-    if (handlers.onStatusChange) {
-      // Will be handled by the status effect above
-    }
-    
-    // We don't need to do cleanup as the new hook handles it
+    // No need for cleanup as the new hook handles it
   }, [handlers]);
   
   return {
