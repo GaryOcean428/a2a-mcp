@@ -5,7 +5,8 @@
  * with support for different log levels and structured data.
  */
 
-import { createLogger, format, transports } from 'winston';
+import { createLogger, format, transports, Logger } from 'winston';
+import { Request, Response, NextFunction } from 'express';
 
 // Define log levels and colors
 const logLevels = {
@@ -15,6 +16,8 @@ const logLevels = {
   http: 3,
   debug: 4,
 };
+
+type LogLevel = keyof typeof logLevels;
 
 const logColors = {
   error: '\x1b[31m', // Red
@@ -28,10 +31,12 @@ const logColors = {
 const resetColor = '\x1b[0m';
 
 // Custom format for console output
-const consoleFormat = format.printf(({ level, message, timestamp, tags, data, error }) => {
-  const color = logColors[level] || '';
+const consoleFormat = format.printf(info => {
+  // Cast to any to handle the Winston TransformableInfo format
+  const { level, message, timestamp, tags, data, error } = info as any;
+  const color = (level && logColors[level as LogLevel]) ? logColors[level as LogLevel] : '';
   const timestampStr = timestamp ? `${timestamp} ` : '';
-  const tagsStr = tags ? `[${tags.join(':')}] ` : '';
+  const tagsStr = tags && Array.isArray(tags) ? `[${tags.join(':')}] ` : '';
   
   // Format the message with color
   let formattedMessage = `${color}${timestampStr}[${level.toUpperCase()}]${resetColor} ${tagsStr}${message}`;
@@ -67,7 +72,7 @@ export const logger = createLogger({
 });
 
 // Add HTTP logging middleware for Express
-export const httpLogger = (req, res, next) => {
+export const httpLogger = (req: Request, res: Response, next: NextFunction): void => {
   const startTime = Date.now();
   
   // Log the request

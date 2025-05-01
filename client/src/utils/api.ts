@@ -1,242 +1,186 @@
 /**
  * MCP Integration Platform - API Utilities
  * 
- * This utility provides helpers for making API requests
- * with proper error handling and authentication.
+ * This module provides utility functions for making API requests with consistent error handling.
  */
 
 import { logger } from './logger';
-import { isDevelopment, isProduction } from './environment';
 
-/**
- * Get the base URL for API requests
- */
-export function getApiBaseUrl(): string {
-  // In development, we use the current hostname
-  if (typeof window !== 'undefined') {
-    const protocol = window.location.protocol;
-    const host = window.location.host;
-    return `${protocol}//${host}`;
-  }
-  
-  // Fallback for server-side rendering or tests
-  return isDevelopment() ? 'http://localhost:5000' : '';
-}
+// Default base URL for API requests
+const API_BASE_URL = '';
 
-/**
- * Options for API requests
- */
-export interface ApiRequestOptions extends RequestInit {
-  // Whether to include authentication headers
-  authenticate?: boolean;
-  // Custom tags for logging
-  tags?: string[];
-  // Timeout in milliseconds
-  timeout?: number;
-  // Custom headers
+// API request options interface
+interface RequestOptions {
   headers?: Record<string, string>;
-  // Whether to parse the response as JSON
-  parseJson?: boolean;
+  credentials?: RequestCredentials;
+  cache?: RequestCache;
+  signal?: AbortSignal;
 }
 
 /**
- * Make an API request with consistent error handling
+ * Make a GET request to the API
  */
-export async function apiRequest(
+export async function apiGet<T = any>(
   endpoint: string,
-  options: ApiRequestOptions = {}
-): Promise<Response> {
-  // Ensure endpoint starts with a slash or is a full URL
-  const url = endpoint.startsWith('http') 
-    ? endpoint 
-    : `${getApiBaseUrl()}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
-  
-  // Default options
-  const defaultOptions: ApiRequestOptions = {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    },
-    credentials: 'include', // Include cookies for authentication
-    parseJson: true,
-    timeout: 30000, // 30 second timeout
-  };
-  
-  // Merge options
-  const mergedOptions = {
-    ...defaultOptions,
-    ...options,
-    headers: {
-      ...defaultOptions.headers,
-      ...options.headers,
-    },
-  };
-  
-  // Log the request
-  logger.debug(`API Request: ${mergedOptions.method} ${url}`, {
-    tags: ['api', 'request', ...(mergedOptions.tags || [])],
-    data: { 
-      method: mergedOptions.method,
-      url,
-      headers: Object.keys(mergedOptions.headers || {}),
-    },
-  });
+  options: RequestOptions = {}
+): Promise<T> {
+  const url = `${API_BASE_URL}${endpoint}`;
+  logger.debug(`Fetching data from ${endpoint}`);
   
   try {
-    // Create abort controller for timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => {
-      controller.abort();
-    }, mergedOptions.timeout);
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        ...options.headers,
+      },
+      credentials: options.credentials || 'include',
+      cache: options.cache || 'no-cache',
+      signal: options.signal,
+    });
     
-    // Add the signal to the fetch options
-    const fetchOptions = {
-      ...mergedOptions,
-      signal: controller.signal,
-    };
-    
-    // Make the request
-    const response = await fetch(url, fetchOptions);
-    clearTimeout(timeoutId);
-    
-    // Check if the response is successful
+    // Handle non-OK responses
     if (!response.ok) {
-      // Try to parse error message
-      let errorData: any = {};
-      try {
-        errorData = await response.json();
-      } catch (e) {
-        // Couldn't parse JSON, use status text
-        errorData = { message: response.statusText };
-      }
-      
-      // Log the error
-      logger.error(`API Error: ${response.status} ${response.statusText}`, {
-        tags: ['api', 'error', ...(mergedOptions.tags || [])],
-        data: { 
-          status: response.status,
-          statusText: response.statusText,
-          url,
-          errorData,
-        },
-      });
-      
-      // Special handling for authentication errors
-      if (response.status === 401) {
-        logger.warn('Authentication required', {
-          tags: ['api', 'auth', 'error'],
-        });
-      }
-      
-      // Create error with additional properties
-      const error = new Error(
-        errorData.message || `API Error: ${response.status} ${response.statusText}`
-      ) as any;
-      error.status = response.status;
-      error.statusText = response.statusText;
-      error.data = errorData;
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+      const error = new Error(errorData.error || `API error: ${response.status} ${response.statusText}`);
+      (error as any).status = response.status;
+      (error as any).data = errorData;
       throw error;
     }
     
-    // Log success
-    logger.debug(`API Success: ${response.status} ${url}`, {
-      tags: ['api', 'success', ...(mergedOptions.tags || [])],
-      data: { 
-        status: response.status,
-        url,
-      },
-    });
-    
-    return response;
-  } catch (error: any) {
-    // Handle abort errors (timeouts)
-    if (error.name === 'AbortError') {
-      logger.error(`API Timeout: ${url}`, {
-        tags: ['api', 'timeout', ...(mergedOptions.tags || [])],
-        error,
-        data: { 
-          url,
-          timeout: mergedOptions.timeout,
-        },
-      });
-      
-      throw new Error(`API request timed out after ${mergedOptions.timeout}ms`);
-    }
-    
-    // Handle network errors
-    logger.error(`API Error: ${error.message}`, {
-      tags: ['api', 'error', ...(mergedOptions.tags || [])],
-      error,
-      data: { 
-        url,
-      },
-    });
-    
+    // Parse and return response data
+    return await response.json();
+  } catch (error) {
+    // Log API errors
+    logger.error(`Error fetching data from ${endpoint}:`, error);
     throw error;
   }
 }
 
 /**
- * Make a GET request and parse the response as JSON
- */
-export async function apiGet<T = any>(
-  endpoint: string,
-  options: ApiRequestOptions = {}
-): Promise<T> {
-  const response = await apiRequest(endpoint, {
-    method: 'GET',
-    ...options,
-  });
-  
-  return await response.json() as T;
-}
-
-/**
- * Make a POST request with a JSON body
+ * Make a POST request to the API
  */
 export async function apiPost<T = any>(
   endpoint: string,
   data: any,
-  options: ApiRequestOptions = {}
+  options: RequestOptions = {}
 ): Promise<T> {
-  const response = await apiRequest(endpoint, {
-    method: 'POST',
-    body: JSON.stringify(data),
-    ...options,
-  });
+  const url = `${API_BASE_URL}${endpoint}`;
+  logger.debug(`Posting data to ${endpoint}`);
   
-  return await response.json() as T;
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        ...options.headers,
+      },
+      credentials: options.credentials || 'include',
+      cache: options.cache || 'no-cache',
+      body: JSON.stringify(data),
+      signal: options.signal,
+    });
+    
+    // Handle non-OK responses
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+      const error = new Error(errorData.error || `API error: ${response.status} ${response.statusText}`);
+      (error as any).status = response.status;
+      (error as any).data = errorData;
+      throw error;
+    }
+    
+    // Parse and return response data
+    return await response.json();
+  } catch (error) {
+    // Log API errors
+    logger.error(`Error posting data to ${endpoint}:`, error);
+    throw error;
+  }
 }
 
 /**
- * Make a PUT request with a JSON body
+ * Make a PUT request to the API
  */
 export async function apiPut<T = any>(
   endpoint: string,
   data: any,
-  options: ApiRequestOptions = {}
+  options: RequestOptions = {}
 ): Promise<T> {
-  const response = await apiRequest(endpoint, {
-    method: 'PUT',
-    body: JSON.stringify(data),
-    ...options,
-  });
+  const url = `${API_BASE_URL}${endpoint}`;
+  logger.debug(`Putting data to ${endpoint}`);
   
-  return await response.json() as T;
+  try {
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        ...options.headers,
+      },
+      credentials: options.credentials || 'include',
+      cache: options.cache || 'no-cache',
+      body: JSON.stringify(data),
+      signal: options.signal,
+    });
+    
+    // Handle non-OK responses
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+      const error = new Error(errorData.error || `API error: ${response.status} ${response.statusText}`);
+      (error as any).status = response.status;
+      (error as any).data = errorData;
+      throw error;
+    }
+    
+    // Parse and return response data
+    return await response.json();
+  } catch (error) {
+    // Log API errors
+    logger.error(`Error putting data to ${endpoint}:`, error);
+    throw error;
+  }
 }
 
 /**
- * Make a DELETE request
+ * Make a DELETE request to the API
  */
 export async function apiDelete<T = any>(
   endpoint: string,
-  options: ApiRequestOptions = {}
+  options: RequestOptions = {}
 ): Promise<T> {
-  const response = await apiRequest(endpoint, {
-    method: 'DELETE',
-    ...options,
-  });
+  const url = `${API_BASE_URL}${endpoint}`;
+  logger.debug(`Deleting data from ${endpoint}`);
   
-  return await response.json() as T;
+  try {
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        ...options.headers,
+      },
+      credentials: options.credentials || 'include',
+      cache: options.cache || 'no-cache',
+      signal: options.signal,
+    });
+    
+    // Handle non-OK responses
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+      const error = new Error(errorData.error || `API error: ${response.status} ${response.statusText}`);
+      (error as any).status = response.status;
+      (error as any).data = errorData;
+      throw error;
+    }
+    
+    // Parse and return response data
+    return await response.json();
+  } catch (error) {
+    // Log API errors
+    logger.error(`Error deleting data from ${endpoint}:`, error);
+    throw error;
+  }
 }

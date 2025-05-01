@@ -68,6 +68,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Set up Swagger UI for API documentation
   setupApiDocs(app);
   
+  // Add route validation middleware for auth routes
+  app.use('/api/login', (req, res, next) => {
+    if (req.method === 'POST') {
+      try {
+        loginSchema.parse(req.body);
+        next();
+      } catch (error: any) {
+        res.status(400).json({ error: 'Invalid login data', details: error.errors || 'Validation error' });
+      }
+    } else {
+      next();
+    }
+  });
+  
+  app.use('/api/register', (req, res, next) => {
+    if (req.method === 'POST') {
+      try {
+        registerSchema.parse(req.body);
+        next();
+      } catch (error: any) {
+        res.status(400).json({ error: 'Invalid registration data', details: error.errors || 'Validation error' });
+      }
+    } else {
+      next();
+    }
+  });
+  
   // API Key management routes
   app.post('/api/keys/generate', async (req, res) => {
     try {

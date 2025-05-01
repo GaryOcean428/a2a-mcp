@@ -1,11 +1,24 @@
-import { useState } from "react";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useLocation } from "wouter";
-import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
+/**
+ * MCP Integration Platform - Authentication Page
+ * 
+ * This page handles user authentication with both login and registration forms.
+ */
 
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'wouter';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import {
   Card,
   CardContent,
@@ -13,334 +26,396 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+} from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle, LockIcon, UserIcon, Info, Mail } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuthHook';
+import { logger } from '@/utils/logger';
 
 // Login form schema
 const loginSchema = z.object({
-  username: z.string().min(3, {
-    message: "Username must be at least 3 characters.",
-  }),
-  password: z.string().min(6, {
-    message: "Password must be at least 6 characters.",
-  }),
+  username: z.string().min(3, 'Username must be at least 3 characters'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
 // Registration form schema
-const registerSchema = z.object({
-  username: z.string().min(3, {
-    message: "Username must be at least 3 characters.",
-  }),
-  email: z.string().email({
-    message: "Please enter a valid email address.",
-  }),
-  password: z.string().min(6, {
-    message: "Password must be at least 6 characters.",
-  }),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords do not match",
-  path: ["confirmPassword"],
+const registrationSchema = z.object({
+  username: z.string().min(3, 'Username must be at least 3 characters'),
+  password: z
+    .string()
+    .min(6, 'Password must be at least 6 characters')
+    .max(100, 'Password must be less than 100 characters'),
+  email: z.string().email('Please enter a valid email address'),
+  name: z.string().optional(),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
-type RegisterFormValues = z.infer<typeof registerSchema>;
+type RegistrationFormValues = z.infer<typeof registrationSchema>;
 
+/**
+ * Authentication Page Component
+ */
 export default function AuthPage() {
-  const [activeTab, setActiveTab] = useState("login");
-  const { login, register, isLoading } = useAuth();
+  const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [, navigate] = useLocation();
   const { toast } = useToast();
-
-  // Login form
+  const { user, isLoading, login, register } = useAuth();
+  
+  // Parse return URL from query string
+  const params = new URLSearchParams(window.location.search);
+  const returnUrl = params.get('returnUrl') || '/';
+  
+  // If user is already authenticated, redirect to returnUrl
+  useEffect(() => {
+    if (user && !isLoading) {
+      logger.info('User already authenticated, redirecting', {
+        tags: ['auth', 'redirect'],
+        data: { returnUrl }
+      });
+      navigate(returnUrl);
+    }
+  }, [user, isLoading, navigate, returnUrl]);
+  
+  // Set up login form
   const loginForm = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      username: "",
-      password: "",
+      username: '',
+      password: '',
     },
   });
-
-  // Registration form
-  const registerForm = useForm<RegisterFormValues>({
-    resolver: zodResolver(registerSchema),
+  
+  // Set up registration form
+  const registrationForm = useForm<RegistrationFormValues>({
+    resolver: zodResolver(registrationSchema),
     defaultValues: {
-      username: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
+      username: '',
+      password: '',
+      email: '',
+      name: '',
     },
   });
-
-  // Handle login submission
-  async function onLoginSubmit(values: LoginFormValues) {
+  
+  // Handle login form submission
+  const onLoginSubmit = async (values: LoginFormValues) => {
+    setSubmitting(true);
+    setError(null);
+    
     try {
+      logger.debug('Attempting login', {
+        tags: ['auth', 'login', 'submit'],
+        data: { username: values.username }
+      });
+      
       await login(values);
-    } catch (error) {
-      // Error handling is done in the useAuth hook
-      console.error("Login error:", error);
+      
+      toast({
+        title: 'Login Successful',
+        description: 'You have been logged in successfully',
+      });
+      
+      // Redirect to returnUrl or home page
+      navigate(returnUrl);
+    } catch (err: any) {
+      logger.error('Login error', {
+        tags: ['auth', 'login', 'error'],
+        error: err
+      });
+      setError(err.message || 'Failed to log in');
+    } finally {
+      setSubmitting(false);
     }
-  }
-
-  // Handle registration submission
-  async function onRegisterSubmit(values: RegisterFormValues) {
+  };
+  
+  // Handle registration form submission
+  const onRegisterSubmit = async (values: RegistrationFormValues) => {
+    setSubmitting(true);
+    setError(null);
+    
     try {
-      // Remove confirmPassword as it's not needed in the API call
-      const { confirmPassword, ...registrationData } = values;
+      logger.debug('Attempting registration', {
+        tags: ['auth', 'register', 'submit'],
+        data: { username: values.username, email: values.email }
+      });
       
-      await register(registrationData);
-
-      // Switch to login tab if needed
-      setActiveTab("login");
+      await register(values);
       
-      // Pre-fill the login form with the registered username
-      loginForm.setValue("username", values.username);
-    } catch (error) {
-      // Error handling is done in the useAuth hook
-      console.error("Registration error:", error);
+      toast({
+        title: 'Registration Successful',
+        description: 'Your account has been created',
+      });
+      
+      // Redirect to returnUrl or home page
+      navigate(returnUrl);
+    } catch (err: any) {
+      logger.error('Registration error', {
+        tags: ['auth', 'register', 'error'],
+        error: err
+      });
+      setError(err.message || 'Failed to register');
+    } finally {
+      setSubmitting(false);
     }
-  }
-
+  };
+  
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 p-4">
-      <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-        {/* Hero Section */}
-        <div className="order-2 md:order-1 text-center md:text-left p-6">
-          <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-transparent bg-clip-text">
-            MCP Integration Platform
-          </h1>
-          <p className="text-lg text-muted-foreground mb-8 max-w-[600px]">
-            Access web search, form automation, vector storage, and data scraping tools through a unified API. Empower your AI applications with advanced capabilities.
-          </p>
-          <div className="grid grid-cols-2 gap-4 mb-8">
-            <div className="flex flex-col items-center p-4 bg-card rounded-lg border shadow-sm">
-              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-3">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-6 w-6 text-primary"
-                >
-                  <circle cx="11" cy="11" r="8" />
-                  <path d="m21 21-4.3-4.3" />
-                </svg>
+    <div className="flex min-h-screen bg-background">
+      {/* Left side - Auth forms */}
+      <div className="flex flex-col justify-center w-full max-w-md px-4 py-8 sm:px-6 md:px-8 lg:w-1/2">
+        <div className="flex flex-col space-y-2 text-center mb-8">
+          <h1 className="text-3xl font-bold tracking-tighter">MCP Integration Platform</h1>
+          <p className="text-muted-foreground">Sign in to your account or create a new one</p>
+        </div>
+        
+        <Tabs defaultValue="login" value={activeTab} onValueChange={(value) => setActiveTab(value as 'login' | 'register')}>
+          <TabsList className="grid w-full grid-cols-2 mb-8">
+            <TabsTrigger value="login">Login</TabsTrigger>
+            <TabsTrigger value="register">Register</TabsTrigger>
+          </TabsList>
+          
+          {/* Login Tab */}
+          <TabsContent value="login">
+            <Card>
+              <CardHeader>
+                <CardTitle>Login to your account</CardTitle>
+                <CardDescription>
+                  Enter your credentials to access the platform
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {error && (
+                  <Alert variant="destructive" className="mb-4">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                )}
+                <Form {...loginForm}>
+                  <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
+                    <FormField
+                      control={loginForm.control}
+                      name="username"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Username</FormLabel>
+                          <FormControl>
+                            <div className="flex items-center relative">
+                              <UserIcon className="absolute left-3 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                placeholder="Enter your username"
+                                className="pl-10"
+                                {...field}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={loginForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Password</FormLabel>
+                          <FormControl>
+                            <div className="flex items-center relative">
+                              <LockIcon className="absolute left-3 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                type="password"
+                                placeholder="Enter your password"
+                                className="pl-10"
+                                {...field}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button type="submit" className="w-full" disabled={submitting}>
+                      {submitting ? 'Logging in...' : 'Login'}
+                    </Button>
+                  </form>
+                </Form>
+              </CardContent>
+              <CardFooter className="flex justify-center">
+                <p className="text-sm text-muted-foreground">
+                  Don't have an account?{' '}
+                  <button
+                    className="text-primary hover:underline"
+                    onClick={() => setActiveTab('register')}
+                  >
+                    Register
+                  </button>
+                </p>
+              </CardFooter>
+            </Card>
+          </TabsContent>
+          
+          {/* Register Tab */}
+          <TabsContent value="register">
+            <Card>
+              <CardHeader>
+                <CardTitle>Create an account</CardTitle>
+                <CardDescription>
+                  Fill out the form below to create your account
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {error && (
+                  <Alert variant="destructive" className="mb-4">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                )}
+                <Form {...registrationForm}>
+                  <form onSubmit={registrationForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
+                    <FormField
+                      control={registrationForm.control}
+                      name="username"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Username</FormLabel>
+                          <FormControl>
+                            <div className="flex items-center relative">
+                              <UserIcon className="absolute left-3 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                placeholder="Choose a username"
+                                className="pl-10"
+                                {...field}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={registrationForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <div className="flex items-center relative">
+                              <Mail className="absolute left-3 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                type="email"
+                                placeholder="Enter your email"
+                                className="pl-10"
+                                {...field}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={registrationForm.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Full Name (Optional)</FormLabel>
+                          <FormControl>
+                            <div className="flex items-center relative">
+                              <UserIcon className="absolute left-3 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                placeholder="Enter your full name"
+                                className="pl-10"
+                                {...field}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={registrationForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Password</FormLabel>
+                          <FormControl>
+                            <div className="flex items-center relative">
+                              <LockIcon className="absolute left-3 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                type="password"
+                                placeholder="Create a password"
+                                className="pl-10"
+                                {...field}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button type="submit" className="w-full" disabled={submitting}>
+                      {submitting ? 'Creating account...' : 'Create Account'}
+                    </Button>
+                  </form>
+                </Form>
+              </CardContent>
+              <CardFooter className="flex justify-center">
+                <p className="text-sm text-muted-foreground">
+                  Already have an account?{' '}
+                  <button
+                    className="text-primary hover:underline"
+                    onClick={() => setActiveTab('login')}
+                  >
+                    Login
+                  </button>
+                </p>
+              </CardFooter>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+      
+      {/* Right side - Hero section */}
+      <div className="hidden lg:block lg:w-1/2 bg-gradient-to-r from-purple-50 to-white">
+        <div className="flex flex-col justify-center items-center h-full p-12">
+          <div className="max-w-lg">
+            <h2 className="text-4xl font-bold mb-6">MCP Integration Platform</h2>
+            <p className="text-xl mb-8">
+              Connect and enhance your AI applications with powerful capabilities like web search, form automation, vector storage, and data scraping.  
+            </p>
+            <div className="space-y-4">
+              <div className="flex items-start">
+                <div className="bg-primary/10 p-2 rounded-full mr-4">
+                  <Info className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-1">Standardized Interface</h3>
+                  <p className="text-muted-foreground">Access multiple tool providers through a single, consistent API</p>
+                </div>
               </div>
-              <h3 className="text-base font-semibold">Web Search</h3>
-              <p className="text-sm text-muted-foreground">Multiple search providers</p>
-            </div>
-            <div className="flex flex-col items-center p-4 bg-card rounded-lg border shadow-sm">
-              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-3">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-6 w-6 text-primary"
-                >
-                  <rect width="18" height="18" x="3" y="3" rx="2" />
-                  <path d="M7 7h.01" />
-                  <path d="M11 7h.01" />
-                  <path d="M15 7h.01" />
-                  <path d="M7 11h.01" />
-                  <path d="M11 11h.01" />
-                  <path d="M15 11h.01" />
-                  <path d="M7 15h.01" />
-                  <path d="M11 15h.01" />
-                  <path d="M15 15h.01" />
-                </svg>
+              <div className="flex items-start">
+                <div className="bg-primary/10 p-2 rounded-full mr-4">
+                  <Info className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-1">Secure by Design</h3>
+                  <p className="text-muted-foreground">Built with security in mind, keeping your data and access safe</p>
+                </div>
               </div>
-              <h3 className="text-base font-semibold">Form Automation</h3>
-              <p className="text-sm text-muted-foreground">Submit forms via API</p>
-            </div>
-            <div className="flex flex-col items-center p-4 bg-card rounded-lg border shadow-sm">
-              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-3">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-6 w-6 text-primary"
-                >
-                  <path d="M21 7 6.82 21.18a2.83 2.83 0 0 1-3.99-.01v0a2.83 2.83 0 0 1 0-4L17 3" />
-                  <path d="m16 2 6 6" />
-                  <path d="M12.5 6.5 17 11" />
-                </svg>
+              <div className="flex items-start">
+                <div className="bg-primary/10 p-2 rounded-full mr-4">
+                  <Info className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-1">Easy Integration</h3>
+                  <p className="text-muted-foreground">Get up and running quickly with documentation and client libraries</p>
+                </div>
               </div>
-              <h3 className="text-base font-semibold">Vector Storage</h3>
-              <p className="text-sm text-muted-foreground">Semantic search & retrieval</p>
-            </div>
-            <div className="flex flex-col items-center p-4 bg-card rounded-lg border shadow-sm">
-              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-3">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-6 w-6 text-primary"
-                >
-                  <path d="M20 14V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7" />
-                  <path d="M10 18H6a2 2 0 0 1-2-2v-1" />
-                  <path d="M20 17v1a2 2 0 0 1-2 2h-2" />
-                  <path d="M4 9h16" />
-                  <path d="M15 13v4" />
-                  <path d="M6 13h4" />
-                </svg>
-              </div>
-              <h3 className="text-base font-semibold">Data Scraping</h3>
-              <p className="text-sm text-muted-foreground">Extract structured data</p>
             </div>
           </div>
-        </div>
-
-        {/* Auth Forms */}
-        <div className="order-1 md:order-2">
-          <Card className="w-full max-w-md mx-auto">
-            <CardHeader>
-              <CardTitle className="text-2xl">Welcome</CardTitle>
-              <CardDescription>
-                Sign in to your account or create a new one to access the MCP Integration Platform.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-4">
-                  <TabsTrigger value="login">Login</TabsTrigger>
-                  <TabsTrigger value="register">Register</TabsTrigger>
-                </TabsList>
-                
-                {/* Login Form */}
-                <TabsContent value="login">
-                  <Form {...loginForm}>
-                    <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
-                      <FormField
-                        control={loginForm.control}
-                        name="username"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Username</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Enter your username" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={loginForm.control}
-                        name="password"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Password</FormLabel>
-                            <FormControl>
-                              <Input type="password" placeholder="••••••••" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <Button type="submit" className="w-full" disabled={isLoading}>
-                        {isLoading ? "Logging in..." : "Login"}
-                      </Button>
-                    </form>
-                  </Form>
-                </TabsContent>
-                
-                {/* Register Form */}
-                <TabsContent value="register">
-                  <Form {...registerForm}>
-                    <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
-                      <FormField
-                        control={registerForm.control}
-                        name="username"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Username</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Choose a username" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={registerForm.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Email</FormLabel>
-                            <FormControl>
-                              <Input type="email" placeholder="you@example.com" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={registerForm.control}
-                        name="password"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Password</FormLabel>
-                            <FormControl>
-                              <Input type="password" placeholder="••••••••" {...field} />
-                            </FormControl>
-                            <FormDescription>
-                              Password must be at least 6 characters.
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={registerForm.control}
-                        name="confirmPassword"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Confirm Password</FormLabel>
-                            <FormControl>
-                              <Input type="password" placeholder="••••••••" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <Button type="submit" className="w-full" disabled={isLoading}>
-                        {isLoading ? "Creating account..." : "Create account"}
-                      </Button>
-                    </form>
-                  </Form>
-                </TabsContent>
-              </Tabs>
-            </CardContent>
-            <CardFooter className="flex flex-col space-y-2">
-              <p className="text-sm text-muted-foreground text-center">
-                By continuing, you agree to the terms of service and privacy policy.
-              </p>
-            </CardFooter>
-          </Card>
         </div>
       </div>
     </div>
