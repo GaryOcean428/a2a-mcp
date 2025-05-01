@@ -310,6 +310,21 @@ class McpWebSocketClient {
   public isConnected(): boolean {
     return this.socket?.readyState === WebSocket.OPEN;
   }
+  
+  /**
+   * Force a reconnection attempt
+   */
+  public reconnect(): void {
+    // Close existing connection if open
+    if (this.socket) {
+      this.socket.close();
+      this.socket = null;
+    }
+    
+    this.isConnecting = false;
+    this.reconnectAttempts = 0;
+    this.connect();
+  }
 }
 
 // Export a singleton instance

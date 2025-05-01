@@ -38,7 +38,7 @@ export default function Layout({ children, showSidebar }: LayoutProps) {
       
       {/* Main content area with optional sidebar */}
       <main className="flex-1 bg-gray-50">
-        <div className="flex">
+        <div className="flex relative">
           {/* Conditional Tool Sidebar */}
           {shouldShowSidebar && <ToolSidebar />}
           
@@ -48,7 +48,9 @@ export default function Layout({ children, showSidebar }: LayoutProps) {
             {activeRoute && <Breadcrumb />}
             
             {/* Page Content */}
-            {children}
+            <div className="mt-4">
+              {children}
+            </div>
           </div>
         </div>
       </main>

@@ -126,8 +126,8 @@ export function WebSocketProvider({ children, autoConnect = false }: WebSocketPr
     // Cleanup on unmount
     return () => {
       mcpWebSocketClient.off('message', handleMessage);
-      mcpWebSocketClient.off('status');
-      mcpWebSocketClient.off('error');
+      mcpWebSocketClient.off('status', (data) => handleStatus(data.status));
+      mcpWebSocketClient.off('error', handleWsError);
       mcpWebSocketClient.disconnect();
     };
   }, [autoConnect]);
