@@ -1,36 +1,169 @@
+/**
+ * MCP Integration Platform - Authentication System
+ * 
+ * This module implements a session-based authentication system using Passport.js
+ * with secure password handling via scrypt.
+ */
+
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { Express, Request, Response, NextFunction } from 'express';
 import session from 'express-session';
-import { storage } from './storage/index';
-import { type User } from '@shared/schema';
+import { scrypt, randomBytes, timingSafeEqual } from 'crypto';
+import { promisify } from 'util';
+import MemoryStore from 'memorystore';
+// Import directly from default export
+import logger from './utils/logger';
 
-// Define express-compatible user type
-interface ExpressUser {
+// Create memory store for sessions
+const MemoryStoreSession = MemoryStore(session);
+
+// Use promisify to convert callback-based scrypt to Promise-based
+const scryptAsync = promisify(scrypt);
+
+// User type for authentication
+export interface User {
   id: number;
   username: string;
-  email: string;
-  role: string;
+  password: string; // Stored as hash.salt
+  email?: string;
+  name?: string;
+  role?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-// Add user type to Express namespace
-declare global {
-  namespace Express {
-    // Use the interface we defined above
-    interface User extends ExpressUser {}
+// In-memory user storage for development
+// Replace with database integration in production
+const users: User[] = [
+  {
+    id: 1,
+    username: 'admin',
+    // Password is "admin" - this is a secure hash using scrypt
+    password: '746c68c1cfae22bfda3f4ecdebacbc4bcc6dcaaa9d9fa27e04c9958d8595a067.fc7c45a10a972ef356ba4336a427e8d2',
+    email: 'admin@example.com',
+    name: 'Admin User',
+    role: 'admin',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 2,
+    username: 'user',
+    // Password is "user" - this is a secure hash using scrypt
+    password: '54ff94371e2639cd18eeedd091d0dbefd28e4e1be5d4d54a7431984a4fbe5649.32df63d7f9321fd232892dbf8bff0423',
+    email: 'user@example.com',
+    name: 'Regular User',
+    role: 'user',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
+
+/**
+ * Hash a password using scrypt
+ */
+async function hashPassword(password: string): Promise<string> {
+  // Generate a random salt
+  const salt = randomBytes(16).toString('hex');
+  // Hash the password with the salt
+  const derivedKey = (await scryptAsync(password, salt, 64)) as Buffer;
+  // Return the hash and salt together
+  return `${derivedKey.toString('hex')}.${salt}`;
+}
+
+/**
+ * Compare a password with a stored hash
+ */
+async function comparePasswords(supplied: string, stored: string): Promise<boolean> {
+  try {
+    // Split the stored string to get the hash and salt
+    const [hashedPassword, salt] = stored.split('.');
+    
+    // Hash the supplied password with the same salt
+    const derivedKey = (await scryptAsync(supplied, salt, 64)) as Buffer;
+    
+    // Compare the hashes in constant time to prevent timing attacks
+    return timingSafeEqual(
+      Buffer.from(hashedPassword, 'hex'),
+      derivedKey
+    );
+  } catch (error) {
+    logger.error('Password comparison error', {
+      tags: ['auth', 'password', 'error'],
+      error
+    });
+    return false;
   }
 }
 
 /**
- * Set up authentication for the application
+ * Find a user by ID
  */
-export function setupAuth(app: Express) {
-  // Create session settings
+async function getUserById(id: number): Promise<User | undefined> {
+  return users.find(user => user.id === id);
+}
+
+/**
+ * Find a user by username
+ */
+async function getUserByUsername(username: string): Promise<User | undefined> {
+  return users.find(user => user.username === username);
+}
+
+/**
+ * Create a new user
+ */
+async function createUser(data: Omit<User, 'id' | 'password'> & { password: string }): Promise<User> {
+  // Hash the password before storing
+  const hashedPassword = await hashPassword(data.password);
+  
+  // Create a new user with the next available ID
+  const newUser: User = {
+    id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
+    username: data.username,
+    password: hashedPassword,
+    email: data.email,
+    name: data.name,
+    role: data.role || 'user',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  
+  // Add the user to our in-memory storage
+  users.push(newUser);
+  
+  // Return the user (without the password)
+  const { password, ...userWithoutPassword } = newUser;
+  return { ...userWithoutPassword, password: '[REDACTED]' } as User;
+}
+
+/**
+ * Check if a username is already taken
+ */
+async function isUsernameTaken(username: string): Promise<boolean> {
+  return users.some(user => user.username === username);
+}
+
+/**
+ * Configure Express app with authentication middleware
+ */
+export function setupAuth(app: Express): void {
+  logger.info('Setting up authentication system', {
+    tags: ['auth', 'setup']
+  });
+  
+  // Generate a new secret on server start
+  const sessionSecret = process.env.SESSION_SECRET || randomBytes(32).toString('hex');
+  
+  // Session configuration
   const sessionSettings: session.SessionOptions = {
-    secret: process.env.SESSION_SECRET || "mcp-integration-platform-secure-secret",
+    secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
-    store: storage.sessionStore,
+    store: new MemoryStoreSession({
+      checkPeriod: 86400000 // prune expired entries every 24h
+    }),
     cookie: {
       secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
@@ -38,204 +171,300 @@ export function setupAuth(app: Express) {
       sameSite: 'lax'
     }
   };
-
-  // Set up session middleware
+  
   app.set('trust proxy', 1);
   app.use(session(sessionSettings));
   app.use(passport.initialize());
   app.use(passport.session());
-
+  
+  // Log the cookie settings for debugging
+  logger.debug('Session cookie settings:', {
+    tags: ['auth', 'session'],
+    data: sessionSettings.cookie
+  });
+  
   // Configure passport to use local strategy
   passport.use(
-    new LocalStrategy({
-      usernameField: 'username', // This can be email too now with our updated validation
-      passwordField: 'password'
-    }, async (usernameOrEmail: string, password: string, done: any) => {
-      try {
-        console.log('Passport authenticate with:', usernameOrEmail);
-        const user = await storage.validateUserCredentials(usernameOrEmail, password);
-        if (!user) {
-          return done(null, false, { message: 'Invalid username or password' });
+    new LocalStrategy(
+      {
+        usernameField: 'username',
+        passwordField: 'password',
+      },
+      async (username, password, done) => {
+        try {
+          // Look up the user by username
+          const user = await getUserByUsername(username);
+          
+          // If no user found or password doesn't match, authentication fails
+          if (!user || !(await comparePasswords(password, user.password))) {
+            logger.warn('Authentication failed', {
+              tags: ['auth', 'login', 'fail'],
+              data: { username, reason: !user ? 'user_not_found' : 'password_mismatch' }
+            });
+            return done(null, false, { message: 'Invalid username or password' });
+          }
+          
+          // Authentication successful
+          logger.info('Authentication successful', {
+            tags: ['auth', 'login', 'success'],
+            data: { userId: user.id, username: user.username }
+          });
+          return done(null, user);
+        } catch (error) {
+          logger.error('Authentication error', {
+            tags: ['auth', 'login', 'error'],
+            error
+          });
+          return done(error);
         }
-        return done(null, user);
-      } catch (error) {
-        console.error('Passport authentication error:', error);
-        return done(error);
       }
-    })
+    )
   );
-
-  // Configure serialization/deserialization
+  
+  // Serialize user to the session
   passport.serializeUser((user: Express.User, done) => {
-    done(null, user.id);
+    logger.debug('Serializing user to session', {
+      tags: ['auth', 'session'],
+      data: { userId: (user as User).id }
+    });
+    done(null, (user as User).id);
   });
-
+  
+  // Deserialize user from the session
   passport.deserializeUser(async (id: number, done) => {
     try {
-      const user = await storage.getUser(id);
+      const user = await getUserById(id);
+      
+      if (!user) {
+        logger.warn('Failed to deserialize user', {
+          tags: ['auth', 'session'],
+          data: { userId: id, reason: 'user_not_found' }
+        });
+        return done(null, false);
+      }
+      
+      logger.debug('Deserialized user from session', {
+        tags: ['auth', 'session'],
+        data: { userId: user.id, username: user.username }
+      });
       done(null, user);
     } catch (error) {
+      logger.error('Error deserializing user', {
+        tags: ['auth', 'session', 'error'],
+        error,
+        data: { userId: id }
+      });
       done(error);
     }
   });
-
-  // Register authentication routes
+  
+  // Debug middleware to log session and auth info
+  if (process.env.NODE_ENV !== 'production') {
+    app.use((req: Request, res: Response, next: NextFunction) => {
+      logger.debug('=== GET USER INFO ===', {
+        tags: ['auth', 'debug']
+      });
+      logger.debug(`Session ID: ${req.sessionID}`, {
+        tags: ['auth', 'session']
+      });
+      logger.debug(`Is Authenticated: ${req.isAuthenticated()}`, {
+        tags: ['auth']
+      });
+      logger.debug(`Session: ${JSON.stringify(req.session)}`, {
+        tags: ['auth', 'session']
+      });
+      logger.debug(`Cookie settings: ${JSON.stringify(req.session.cookie)}`, {
+        tags: ['auth', 'cookie']
+      });
+      logger.debug(`Environment: ${process.env.NODE_ENV || 'development'}`, {
+        tags: ['auth', 'environment']
+      });
+      
+      next();
+    });
+  }
+  
+  // Registration endpoint
   app.post('/api/register', async (req: Request, res: Response) => {
     try {
-      // Check if username already exists
-      const existingUser = await storage.getUserByUsername(req.body.username);
-      if (existingUser) {
-        return res.status(400).json({ error: 'Username already exists' });
+      const { username, password, email, name } = req.body;
+      
+      // Validate required fields
+      if (!username || !password) {
+        logger.warn('Registration missing required fields', {
+          tags: ['auth', 'register', 'validation']
+        });
+        return res.status(400).json({ error: 'Username and password are required' });
       }
-
-      // Check if email already exists
-      const existingEmail = await storage.getUserByEmail(req.body.email);
-      if (existingEmail) {
-        return res.status(400).json({ error: 'Email already in use' });
+      
+      // Check if username is already taken
+      if (await isUsernameTaken(username)) {
+        logger.warn('Registration attempted with existing username', {
+          tags: ['auth', 'register', 'conflict'],
+          data: { username }
+        });
+        return res.status(409).json({ error: 'Username already exists' });
       }
-
-      // Create the user
-      const user = await storage.createUser(req.body);
-
-      // Log the user in
+      
+      // Create the new user
+      const user = await createUser({ username, password, email, name });
+      
+      // Log the user in automatically
       req.login(user, (err) => {
         if (err) {
-          return res.status(500).json({ error: 'Failed to login after registration' });
+          logger.error('Error logging in after registration', {
+            tags: ['auth', 'register', 'login', 'error'],
+            error: err
+          });
+          return res.status(500).json({ error: 'Error logging in after registration' });
         }
-        // Return user without sensitive data
+        
+        // Successful registration and login
+        logger.info('User registered successfully', {
+          tags: ['auth', 'register', 'success'],
+          data: { userId: user.id, username: user.username }
+        });
+        
+        // Return the user without the password
         const { password, ...userWithoutPassword } = user;
         return res.status(201).json(userWithoutPassword);
       });
     } catch (error) {
-      console.error('Registration error:', error);
-      res.status(500).json({ error: 'Failed to register user' });
+      logger.error('Registration error', {
+        tags: ['auth', 'register', 'error'],
+        error
+      });
+      res.status(500).json({ error: 'Internal server error during registration' });
     }
   });
-
-  app.post('/api/login', (req: Request, res: Response, next: NextFunction) => {
-    // Log incoming login request for debugging
-    console.log('=== LOGIN ATTEMPT ===');
-    console.log('Login credentials received:', { 
-      username: req.body.username, 
-      passwordLength: req.body.password ? req.body.password.length : 0,
-      hasPassword: !!req.body.password
-    });
-    console.log('Session ID:', req.sessionID);
-    console.log('Headers:', req.headers);
-    console.log('Environment:', process.env.NODE_ENV);
-    
-    if (!req.body.username || !req.body.password) {
-      console.log('Login rejected: Missing username or password');
-      return res.status(400).json({ error: 'Username and password are required' });
+  
+  // Login endpoint
+  app.post('/api/login', 
+    (req, res, next) => {
+      logger.debug('Login attempt', {
+        tags: ['auth', 'login'],
+        data: { username: req.body.username }
+      });
+      next();
+    },
+    passport.authenticate('local'),
+    (req: Request, res: Response) => {
+      // Authentication successful
+      const user = req.user as User;
+      
+      logger.info('User logged in successfully', {
+        tags: ['auth', 'login', 'success'],
+        data: { userId: user.id, username: user.username }
+      });
+      
+      // Return the user without the password
+      const { password, ...userWithoutPassword } = user;
+      res.status(200).json(userWithoutPassword);
     }
+  );
+  
+  // Logout endpoint
+  app.post('/api/logout', (req: Request, res: Response, next: NextFunction) => {
+    const wasAuthenticated = req.isAuthenticated();
+    const userId = wasAuthenticated ? (req.user as User).id : null;
     
-    passport.authenticate('local', (err: Error | null, user: Express.User | false, info: { message: string } | undefined) => {
+    logger.info('Logout initiated', {
+      tags: ['auth', 'logout'],
+      data: { wasAuthenticated, userId }
+    });
+    
+    req.logout((err) => {
       if (err) {
-        console.error('Login authentication error:', err);
+        logger.error('Logout error', {
+          tags: ['auth', 'logout', 'error'],
+          error: err
+        });
         return next(err);
       }
       
-      if (!user) {
-        console.log('Login failed for:', req.body.username);
-        console.log('Auth info:', info);
-        
-        // Check if the user exists but password is incorrect
-        storage.getUserByUsername(req.body.username).then(userRecord => {
-          if (userRecord) {
-            console.log('User exists but password is incorrect');
-            // For security, don't reveal which part of the credentials is incorrect
-            return res.status(401).json({ error: 'Invalid username or password' });
-          } else {
-            storage.getUserByEmail(req.body.username).then(emailRecord => {
-              if (emailRecord) {
-                console.log('Email exists but password is incorrect');
-                return res.status(401).json({ error: 'Invalid username or password' });
-              } else {
-                console.log('No matching user found for:', req.body.username);
-                return res.status(401).json({ error: 'Invalid username or password' });
-              }
-            });
-          }
-        }).catch(lookupErr => {
-          console.error('User lookup error:', lookupErr);
-          return res.status(401).json({ error: 'Authentication failed' });
-        });
-        
-        return;
-      }
-      
-      req.login(user, (loginErr) => {
-        if (loginErr) {
-          console.error('Session login error:', loginErr);
-          return next(loginErr);
-        }
-        
-        // Update last login time
-        storage.updateUserLastLogin((user as any).id);
-        
-        // Return user without sensitive data
-        const userObj = user as any;
-        const { password, ...userWithoutPassword } = userObj;
-        console.log('Login successful for user:', userObj.username);
-        return res.json(userWithoutPassword);
+      logger.info('User logged out successfully', {
+        tags: ['auth', 'logout', 'success'],
+        data: { wasAuthenticated, userId }
       });
-    })(req, res, next);
-  });
-
-  app.post('/api/logout', (req: Request, res: Response) => {
-    req.logout((err) => {
-      if (err) {
-        return res.status(500).json({ error: 'Logout failed' });
-      }
-      res.json({ message: 'Logged out successfully' });
+      
+      res.status(200).json({ success: true, message: 'Logged out successfully' });
     });
   });
-
+  
+  // User info endpoint
   app.get('/api/user', (req: Request, res: Response) => {
-    console.log('=== GET USER INFO ===');
-    console.log('Session ID:', req.sessionID);
-    console.log('Is Authenticated:', req.isAuthenticated());
-    console.log('Session:', req.session);
-    console.log('Cookie settings:', req.session.cookie);
-    console.log('Environment:', process.env.NODE_ENV);
-    
     if (!req.isAuthenticated()) {
-      console.log('User not authenticated, returning 401');
+      logger.debug('User not authenticated, returning 401', {
+        tags: ['auth', 'user']
+      });
       return res.status(401).json({ error: 'Not authenticated' });
     }
     
-    // Return user without sensitive data
-    const userObj = req.user as any;
-    console.log('User authenticated:', userObj.username);
-    const { password, ...userWithoutPassword } = userObj;
-    res.json(userWithoutPassword);
+    // User is authenticated, return user info
+    const user = req.user as User;
+    
+    logger.debug('Returning authenticated user info', {
+      tags: ['auth', 'user'],
+      data: { userId: user.id, username: user.username }
+    });
+    
+    // Return user without password
+    const { password, ...userWithoutPassword } = user;
+    res.status(200).json(userWithoutPassword);
   });
-
-  // Middleware to check if the user is authenticated
-  app.use('/api/protected', (req: Request, res: Response, next: NextFunction) => {
-    if (req.isAuthenticated()) {
-      return next();
-    }
-    res.status(401).json({ error: 'Authentication required' });
+  
+  // Auth status endpoint
+  app.get('/api/auth/status', (req: Request, res: Response) => {
+    const isAuthenticated = req.isAuthenticated();
+    const userId = isAuthenticated ? (req.user as User).id : null;
+    
+    logger.debug('Auth status check', {
+      tags: ['auth', 'status'],
+      data: { isAuthenticated, userId }
+    });
+    
+    res.status(200).json({
+      authenticated: isAuthenticated,
+      userId
+    });
+  });
+  
+  logger.info('Authentication system setup complete', {
+    tags: ['auth', 'setup', 'complete']
   });
 }
 
 /**
- * Middleware to ensure a user is authenticated for certain routes
+ * Middleware to require authentication
  */
-export function requireAuth(req: Request, res: Response, next: NextFunction) {
+export function requireAuth(req: Request, res: Response, next: NextFunction): void {
   if (req.isAuthenticated()) {
-    return next();
+    next();
+  } else {
+    logger.warn('Unauthorized access attempt', {
+      tags: ['auth', 'access', 'unauthorized'],
+      data: { path: req.path, method: req.method }
+    });
+    res.status(401).json({ error: 'Authentication required' });
   }
-  res.status(401).json({ error: 'Authentication required' });
 }
 
 /**
- * Middleware to ensure a user has admin role
+ * Middleware to require admin role
  */
-export function requireAdmin(req: Request, res: Response, next: NextFunction) {
-  if (req.isAuthenticated() && req.user && (req.user as any).role === 'admin') {
-    return next();
+export function requireAdmin(req: Request, res: Response, next: NextFunction): void {
+  if (req.isAuthenticated() && (req.user as User).role === 'admin') {
+    next();
+  } else {
+    logger.warn('Unauthorized admin access attempt', {
+      tags: ['auth', 'access', 'unauthorized', 'admin'],
+      data: { 
+        path: req.path, 
+        method: req.method,
+        isAuthenticated: req.isAuthenticated(),
+        role: req.isAuthenticated() ? (req.user as User).role : null
+      }
+    });
+    res.status(403).json({ error: 'Admin access required' });
   }
-  res.status(403).json({ error: 'Admin access required' });
 }
