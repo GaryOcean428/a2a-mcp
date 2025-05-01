@@ -8,7 +8,7 @@ import { NavigationProvider } from "@/hooks/use-navigation";
 import { StylesProtectedRoot } from "@/components/ui/StylesProtectedRoot";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { mcpWebSocketClient } from "./utils/mcp-websocket-client";
-import { WebSocketProvider } from "./hooks/use-websocket";
+import { WebSocketProvider } from "./components/WebSocketProvider";
 
 // Import CSS utilities
 import "./utils/css-injector";

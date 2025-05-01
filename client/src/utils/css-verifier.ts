@@ -1,13 +1,13 @@
 /**
  * MCP Integration Platform - CSS Verification Utility
  * 
- * This utility helps verify that critical CSS is correctly loaded and applies
- * recovery mechanisms when styles are missing or not properly applied.
+ * This utility verifies that critical CSS classes are loaded correctly,
+ * helping detect issues with CSS loading and purging in production builds.
  */
 
-import { loadCssFile } from './css-injector';
+import { logger } from './logger';
 
-// List of critical CSS classes that must be loaded for the UI to work properly
+// Critical CSS classes that must be available
 const CRITICAL_CSS_CLASSES = [
   'bg-grid-gray-100',
   'bg-blob-gradient',
@@ -16,234 +16,290 @@ const CRITICAL_CSS_CLASSES = [
   'from-purple-50',
   'to-white',
   'bg-gradient-to-r',
-  // Layout classes
-  'flex',
-  'flex-col',
-  'flex-row',
-  'grid',
-  'grid-cols-1',
-  'grid-cols-2',
-  'min-h-screen',
-  // Sidebar-related classes
-  'sidebar-container',
-  'content-container',
-  'main-content',
-];
-
-// List of failover CSS URLs to try loading if verification fails
-const FALLBACK_CSS_URLS = [
-  '/src/styles/theme.css',
-  '/src/styles/fix-sidebar.css',
-  '/production.css'
 ];
 
 /**
- * Result of a CSS class test
+ * Verify that critical CSS classes are available in the DOM
  */
-interface CssClassTestResult {
-  className: string;
-  loaded: boolean;
-  hasStyles: boolean;
-  error?: unknown;
-}
-
-/**
- * Check if a CSS class is properly loaded
- * Using multiple heuristics to detect styling effects
- */
-function isCssClassLoaded(className: string): CssClassTestResult {
-  const result: CssClassTestResult = {
-    className,
-    loaded: false,
-    hasStyles: false
-  };
+export function verifyCriticalCss(): {
+  success: boolean;
+  missing: string[];
+  present: string[];
+} {
+  logger.debug('Starting CSS verification', { tags: ['css', 'verification'] });
   
-  try {
-    // Create a test element
-    const testEl = document.createElement('div');
-    testEl.style.position = 'absolute';
-    testEl.style.top = '-9999px';
-    testEl.style.left = '-9999px';
-    testEl.className = className;
-    document.body.appendChild(testEl);
-    
-    // Create a reference element without the class
-    const refEl = document.createElement('div');
-    refEl.style.position = 'absolute';
-    refEl.style.top = '-9999px';
-    refEl.style.left = '-9999px';
-    document.body.appendChild(refEl);
-    
-    // Get computed styles
-    const computedStyle = window.getComputedStyle(testEl);
-    const refStyle = window.getComputedStyle(refEl);
-    
-    // Compare certain CSS properties to see if our class applies any styles
-    const propsToCheck = [
-      'backgroundColor', 'color', 'display', 'flexDirection', 'gridTemplateColumns',
-      'animation', 'transform', 'margin', 'padding', 'backgroundImage',
-      'boxShadow', 'borderRadius', 'fontWeight', 'textAlign'
-    ];
-    
-    // Check if at least one property is different
-    for (const prop of propsToCheck) {
-      if (computedStyle[prop as any] !== refStyle[prop as any]) {
-        result.hasStyles = true;
-        break;
-      }
-    }
-    
-    // Clean up
-    document.body.removeChild(testEl);
-    document.body.removeChild(refEl);
-    
-    // For keyframes and special rules, treat differently
-    if (className.startsWith('@keyframes') || className.includes(':')) {
-      // We can't test these directly as they can't be applied as classes
-      result.loaded = true;
-      result.hasStyles = true;
-    } else {
-      // For normal classes, we consider them loaded if we have the element
-      result.loaded = true;
-      // For utility classes and other no-visual-effect classes, we might not detect style changes
-      // but they might still exist. This is a limitation of this approach.
-    }
-  } catch (error) {
-    console.error(`[CSS Verify] Error testing class ${className}:`, error);
-    result.error = error;
-  }
-  
-  return result;
-}
-
-/**
- * Count number of stylesheets loaded
- */
-function countStylesheets(): { count: number, urls: string[] } {
-  const styleSheets = document.styleSheets;
-  const urls: string[] = [];
-  
-  for (let i = 0; i < styleSheets.length; i++) {
-    try {
-      const sheet = styleSheets[i];
-      if (sheet.href) {
-        urls.push(sheet.href);
-      }
-    } catch (e) {
-      // Ignore CORS errors for external stylesheets
-    }
-  }
-  
-  return { 
-    count: urls.length,
-    urls
-  };
-}
-
-/**
- * Check if inline styles are present
- */
-function hasInlineStyles(): boolean {
-  const styleElements = document.querySelectorAll('style');
-  return styleElements.length > 0;
-}
-
-/**
- * Run CSS verification and recovery if needed
- */
-export async function verifyCssAndRecover(): Promise<boolean> {
-  console.log('[CSS Verify] Starting verification...');
-  
-  // Check if we have any styles loaded at all
-  const hasInline = hasInlineStyles();
-  console.log('[CSS Verify] Critical inline styles present:', hasInline);
+  // Check if we have inline critical CSS
+  const hasCriticalCss = document.querySelector('style[data-critical="true"]') !== null;
+  logger.debug(`Critical inline styles present: ${hasCriticalCss}`, {
+    tags: ['css', 'verification']
+  });
   
   // Count external stylesheets
-  const { count, urls } = countStylesheets();
-  console.log('[CSS Verify] External stylesheets loaded:', count);
-  urls.forEach(url => console.log('[CSS Verify] -', url));
+  const styleSheets = document.querySelectorAll('link[rel="stylesheet"]');
+  logger.debug(`External stylesheets loaded: ${styleSheets.length}`, {
+    tags: ['css', 'verification']
+  });
   
-  // Test critical CSS classes
-  console.log('[CSS Verify] Testing critical CSS classes:');
-  const testResults: CssClassTestResult[] = [];
-  let missingClasses = 0;
-  let missingStyles = 0;
+  // Log stylesheet URLs
+  Array.from(styleSheets).forEach(sheet => {
+    logger.debug(`- ${(sheet as HTMLLinkElement).href}`, {
+      tags: ['css', 'verification']
+    });
+  });
   
-  for (const cssClass of CRITICAL_CSS_CLASSES) {
-    const result = isCssClassLoaded(cssClass);
-    testResults.push(result);
+  // Create a test element to check CSS class availability
+  const testElement = document.createElement('div');
+  testElement.style.position = 'absolute';
+  testElement.style.visibility = 'hidden';
+  testElement.style.pointerEvents = 'none';
+  document.body.appendChild(testElement);
+  
+  // Check each critical class
+  const missing: string[] = [];
+  const present: string[] = [];
+  
+  logger.debug('Testing critical CSS classes:', {
+    tags: ['css', 'verification']
+  });
+  
+  CRITICAL_CSS_CLASSES.forEach(className => {
+    testElement.className = className;
+    const computedStyle = window.getComputedStyle(testElement);
     
-    console.log('[CSS Verify] -', `${cssClass}:`, result.loaded ? (result.hasStyles ? 'OK' : 'LOADED BUT NO EFFECT') : 'MISSING');
+    // A class is considered present if it causes at least one style difference
+    // from the default
+    const isPresent = hasStyleEffect(testElement, className);
     
-    if (!result.loaded) {
-      missingClasses++;
-    } else if (!result.hasStyles && !cssClass.startsWith('.') && !cssClass.includes(':')) {
-      // Only count missing styles for regular classes, not special selectors
-      missingStyles++;
+    if (isPresent) {
+      present.push(className);
+      logger.debug(`- ${className}: OK`, { tags: ['css', 'verification'] });
+    } else {
+      missing.push(className);
+      logger.warn(`- ${className}: MISSING`, { tags: ['css', 'verification'] });
     }
-  }
+  });
   
-  // If we have missing classes or styles, try recovery
-  if (missingClasses > 0 || missingStyles > 2 || count === 0) { // Allow a few utility classes to have no visible effect
-    console.warn(`[CSS Verify] Found ${missingClasses} missing classes and ${missingStyles} classes without styles. Attempting recovery...`);
-    
-    // Load fallback CSS files
-    try {
-      const loadPromises = FALLBACK_CSS_URLS.map(url => loadCssFile(url));
-      const results = await Promise.allSettled(loadPromises);
-      
-      // Check if at least one succeeded
-      const anySuccess = results.some(r => r.status === 'fulfilled' && r.value === true);
-      
-      if (!anySuccess) {
-        console.warn('[CSS Verify] No fallback CSS files could be loaded');
-      }
-      
-      console.log('[CSS Verify] Recovery attempt completed. Verifying again...');
-      
-      // Re-check critical classes
-      let stillMissing = 0;
-      let stillNoStyles = 0;
-      
-      for (const cssClass of CRITICAL_CSS_CLASSES) {
-        const result = isCssClassLoaded(cssClass);
-        if (!result.loaded) {
-          stillMissing++;
-        } else if (!result.hasStyles && !cssClass.startsWith('.') && !cssClass.includes(':')) {
-          stillNoStyles++;
-        }
-      }
-      
-      // Only fail if we have a significant number of missing classes
-      if (stillMissing > 1) {
-        console.error(`[CSS Verify] Recovery incomplete. Still missing ${stillMissing} classes and ${stillNoStyles} classes without styles.`);
-        return false;
-      } else {
-        console.log('[CSS Verify] Recovery successful!');
-        return true;
-      }
-    } catch (error) {
-      console.error('[CSS Verify] Recovery failed:', error);
-      return false;
-    }
+  // Clean up
+  document.body.removeChild(testElement);
+  
+  // Log final result
+  if (missing.length === 0) {
+    logger.debug('All critical CSS classes verified ✓', {
+      tags: ['css', 'verification']
+    });
   } else {
-    console.log('[CSS Verify] All critical CSS classes verified ✓');
-    return true;
+    logger.warn(`Missing ${missing.length} critical CSS classes!`, {
+      tags: ['css', 'verification'],
+      data: { missing }
+    });
   }
+  
+  return {
+    success: missing.length === 0,
+    missing,
+    present,
+  };
 }
 
 /**
- * Run the verification process
+ * Check if a CSS class has any visible effect on an element
  */
-export function startCssVerification(): void {
-  // Wait for DOM to be fully loaded
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      console.log('[CSS Verify] Running verification...');
-      verifyCssAndRecover();
-    });
-  } else {
-    console.log('[CSS Verify] Running verification...');
-    verifyCssAndRecover();
+function hasStyleEffect(element: HTMLElement, className: string): boolean {
+  // Get baseline style
+  element.className = '';
+  const baselineStyle = window.getComputedStyle(element);
+  const baselineProperties: Record<string, string> = {};
+  
+  // Sample important properties that are likely to be affected by our classes
+  const propertiesToCheck = [
+    'backgroundColor',
+    'color', 
+    'borderColor',
+    'boxShadow',
+    'transform',
+    'opacity',
+    'display',
+    'position',
+    'backgroundImage',
+    'animation',
+    'transition'
+  ];
+  
+  // Collect baseline values
+  propertiesToCheck.forEach(prop => {
+    baselineProperties[prop] = baselineStyle.getPropertyValue(prop);
+  });
+  
+  // Apply the class and check for differences
+  element.className = className;
+  const newStyle = window.getComputedStyle(element);
+  
+  // Check if any property changed
+  for (const prop of propertiesToCheck) {
+    if (newStyle.getPropertyValue(prop) !== baselineProperties[prop]) {
+      return true;
+    }
   }
+  
+  return false;
+}
+
+/**
+ * Create a DOM observer to detect if CSS classes are dynamically inserted or removed
+ */
+export function createCssObserver(callback?: (additions: string[], removals: string[]) => void): () => void {
+  // Keep track of loaded stylesheets
+  const loadedSheets = new Set<string>();
+  Array.from(document.querySelectorAll('link[rel="stylesheet"]')).forEach(sheet => {
+    loadedSheets.add((sheet as HTMLLinkElement).href);
+  });
+  
+  // Watch for style and link changes
+  const observer = new MutationObserver(mutations => {
+    const cssAdditions: string[] = [];
+    const cssRemovals: string[] = [];
+    
+    mutations.forEach(mutation => {
+      // Check for added nodes
+      mutation.addedNodes.forEach(node => {
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          const element = node as Element;
+          
+          // Check if it's a stylesheet
+          if (
+            element.tagName === 'LINK' && 
+            element.getAttribute('rel') === 'stylesheet'
+          ) {
+            const href = (element as HTMLLinkElement).href;
+            if (!loadedSheets.has(href)) {
+              loadedSheets.add(href);
+              cssAdditions.push(href);
+            }
+          }
+          
+          // Check if it's an inline style
+          if (element.tagName === 'STYLE') {
+            cssAdditions.push(`[inline style] ${element.textContent?.slice(0, 20)}...`);
+          }
+        }
+      });
+      
+      // Check for removed nodes
+      mutation.removedNodes.forEach(node => {
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          const element = node as Element;
+          
+          // Check if it's a stylesheet
+          if (
+            element.tagName === 'LINK' && 
+            element.getAttribute('rel') === 'stylesheet'
+          ) {
+            const href = (element as HTMLLinkElement).href;
+            if (loadedSheets.has(href)) {
+              loadedSheets.delete(href);
+              cssRemovals.push(href);
+            }
+          }
+          
+          // Check if it's an inline style
+          if (element.tagName === 'STYLE') {
+            cssRemovals.push(`[inline style] ${element.textContent?.slice(0, 20)}...`);
+          }
+        }
+      });
+    });
+    
+    // If we had any changes, log them and run the callback
+    if (cssAdditions.length > 0 || cssRemovals.length > 0) {
+      logger.debug('CSS changes detected', {
+        tags: ['css', 'observer'],
+        data: { additions: cssAdditions, removals: cssRemovals }
+      });
+      
+      if (callback) {
+        callback(cssAdditions, cssRemovals);
+      }
+    }
+  });
+  
+  // Start observing
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+  });
+  
+  // Return a function to stop observing
+  return () => {
+    observer.disconnect();
+  };
+}
+
+/**
+ * Verify that WebSocket connections work
+ */
+export function verifyWebSocketConnection(wsPath: string = '/mcp-ws'): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    try {
+      // Get the full WebSocket URL
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const host = window.location.host;
+      const wsUrl = `${protocol}//${host}${wsPath}`;
+      
+      logger.debug(`Testing connection to ${wsUrl}`, {
+        tags: ['websocket', 'verification']
+      });
+      
+      // Create a test WebSocket
+      const socket = new WebSocket(wsUrl);
+      let timeoutId: number | null = null;
+      
+      // Set a timeout for the connection
+      timeoutId = window.setTimeout(() => {
+        if (socket.readyState !== WebSocket.OPEN) {
+          logger.error('WebSocket connection test timed out', {
+            tags: ['websocket', 'verification']
+          });
+          socket.close();
+          resolve(false);
+        }
+      }, 5000) as unknown as number;
+      
+      // Handle successful connection
+      socket.onopen = () => {
+        if (timeoutId !== null) {
+          clearTimeout(timeoutId);
+        }
+        
+        logger.debug('WebSocket connection test successful', {
+          tags: ['websocket', 'verification']
+        });
+        
+        // Close the socket since we don't need it anymore
+        socket.close();
+        resolve(true);
+      };
+      
+      // Handle connection errors
+      socket.onerror = (error) => {
+        if (timeoutId !== null) {
+          clearTimeout(timeoutId);
+        }
+        
+        logger.error('WebSocket connection test failed', {
+          tags: ['websocket', 'verification'],
+          error
+        });
+        
+        socket.close();
+        resolve(false);
+      };
+    } catch (error) {
+      logger.error('Error setting up WebSocket connection test', {
+        tags: ['websocket', 'verification'],
+        error
+      });
+      
+      resolve(false);
+    }
+  });
 }

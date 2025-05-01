@@ -1,180 +1,176 @@
 /**
  * MCP Integration Platform - WebSocket Utilities
  * 
- * This module provides helper functions for working with WebSockets
- * and handling common WebSocket-related tasks.
+ * This utility provides helper functions for WebSocket connections,
+ * including error handling and cleanup.
  */
 
-/**
- * Standard WebSocket message structure
- */
+import { logger } from './logger';
+
+// Message structure for WebSocket communication
 export interface WebSocketMessage {
   id?: string;
   type?: string;
   action?: string;
-  data?: Record<string, any>;
-  timestamp?: number;
+  payload?: any;
   success?: boolean;
-  error?: string | Error | Record<string, any>;
-  [key: string]: any;
+  error?: string | { message: string };
+  schemas?: any[];
 }
 
-/**
- * WebSocket connection status
- */
-export type ConnectionStatus = 
-  | { status: 'connected' }
-  | { status: 'connecting' }
-  | { status: 'disconnected' }
-  | { status: 'error'; error: Error | string | unknown };
+// Connection status structure
+export interface ConnectionStatus {
+  status: 'connecting' | 'connected' | 'disconnected' | 'error';
+  error?: Error | { message: string };
+}
 
-/**
- * WebSocket error with metadata
- */
+// WebSocket error structure
 export interface WebSocketError {
   message: string;
   code?: number;
-  originalError?: unknown;
-  timestamp?: number;
+  event?: Event;
 }
 
 /**
- * Generate a WebSocket URL from the current window location
- * @param path The path to connect to (e.g., '/mcp-ws')
+ * Get a normalized WebSocket URL from the current page
  */
-export function getWebSocketUrl(path: string = '/mcp-ws'): string {
-  try {
-    // Use the same host as the current page
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = window.location.host;
-    
-    // Ensure path starts with a slash
-    const normalizedPath = path.startsWith('/') ? path : `/${path}`;
-    
-    // Construct and validate the URL
-    const url = `${protocol}//${host}${normalizedPath}`;
-    
-    if (!url || url.includes('undefined')) {
-      throw new Error(`Invalid WebSocket URL generated: ${url}`);
-    }
-    
-    return url;
-  } catch (error) {
-    console.error('[WebSocket] Error generating WebSocket URL:', error);
-    throw error;
+export function getWebSocketUrl(path: string): string {
+  // Determine the WebSocket protocol (wss for HTTPS, ws for HTTP)
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const host = window.location.host;
+  
+  // Ensure path starts with a slash
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  
+  return `${protocol}//${host}${normalizedPath}`;
+}
+
+/**
+ * Check if a WebSocket is in the OPEN state
+ */
+export function isWebSocketReady(socket: WebSocket | null): boolean {
+  return socket !== null && socket.readyState === WebSocket.OPEN;
+}
+
+/**
+ * Handle WebSocket errors consistently
+ */
+export function handleWebSocketError(event: Event): string {
+  // Extract information from the error event
+  let errorMessage = 'Unknown WebSocket error';
+  
+  if (event instanceof ErrorEvent) {
+    errorMessage = event.message || 'WebSocket error event';
+  } else if (event instanceof CloseEvent) {
+    const reason = event.reason || getWebSocketCloseReason(event.code);
+    errorMessage = `WebSocket closed: ${event.code} ${reason}`;
+  }
+  
+  logger.error('WebSocket error occurred', {
+    tags: ['websocket', 'error'],
+    error: event,
+    data: { errorMessage }
+  });
+  
+  return errorMessage;
+}
+
+/**
+ * Get a human-readable explanation for a WebSocket close code
+ */
+export function getWebSocketCloseReason(code: number): string {
+  switch (code) {
+    case 1000:
+      return 'Normal closure';
+    case 1001:
+      return 'Going away';
+    case 1002:
+      return 'Protocol error';
+    case 1003:
+      return 'Unsupported data';
+    case 1005:
+      return 'No status received';
+    case 1006:
+      return 'Abnormal closure';
+    case 1007:
+      return 'Invalid frame payload data';
+    case 1008:
+      return 'Policy violation';
+    case 1009:
+      return 'Message too big';
+    case 1010:
+      return 'Extension required';
+    case 1011:
+      return 'Internal server error';
+    case 1012:
+      return 'Service restart';
+    case 1013:
+      return 'Try again later';
+    case 1014:
+      return 'Bad gateway';
+    case 1015:
+      return 'TLS handshake error';
+    default:
+      return 'Unknown close reason';
   }
 }
 
 /**
- * Create a ping message for keepalive
+ * Create a standard WebSocket error
  */
-export function createPingMessage(): WebSocketMessage {
+export function createWebSocketError(message: string, code?: number, event?: Event): WebSocketError {
   return {
-    type: 'ping',
-    data: {
-      timestamp: Date.now()
-    }
+    message,
+    code,
+    event
   };
 }
 
 /**
- * Check if a WebSocket is in a given ready state
- */
-export function isWebSocketInState(socket: WebSocket | null, state: number): boolean {
-  if (!socket) return false;
-  return socket.readyState === state;
-}
-
-/**
- * Check if a WebSocket is ready to receive messages
- */
-export function isWebSocketReady(socket: WebSocket | null): boolean {
-  return isWebSocketInState(socket, WebSocket.OPEN);
-}
-
-/**
  * Setup a keepalive ping for a WebSocket connection
+ * Returns a cleanup function to cancel the keepalive
  */
 export function setupWebSocketKeepalive(
   socket: WebSocket,
-  sendFn: (msg: WebSocketMessage) => boolean,
-  interval: number = 30000 // 30 seconds default
+  sendFn: (msg: any) => boolean,
+  interval: number = 30000 // 30 seconds by default
 ): () => void {
-  if (!socket) return () => {};
+  if (!socket || socket.readyState !== WebSocket.OPEN) {
+    logger.warn('Cannot setup keepalive on closed WebSocket', {
+      tags: ['websocket', 'keepalive']
+    });
+    return () => {};
+  }
   
-  // Create the interval
+  logger.debug('Setting up WebSocket keepalive', {
+    tags: ['websocket', 'keepalive'],
+    data: { intervalMs: interval }
+  });
+  
+  // Create the ping message with timestamp
+  const createPingMessage = () => ({
+    type: 'ping',
+    data: { timestamp: Date.now() }
+  });
+  
+  // Send an initial ping right away
+  sendFn(createPingMessage());
+  
+  // Set up the interval for regular pings
   const intervalId = setInterval(() => {
-    if (isWebSocketReady(socket)) {
+    if (socket.readyState === WebSocket.OPEN) {
       sendFn(createPingMessage());
+    } else {
+      // If the socket is no longer open, clear the interval
+      clearInterval(intervalId);
     }
   }, interval);
   
   // Return a cleanup function
   return () => {
-    if (intervalId) {
-      clearInterval(intervalId);
-    }
-  };
-}
-
-/**
- * Get WebSocket close reason from code
- */
-export function getWebSocketCloseReason(code: number): string {
-  const closeReasons: Record<number, string> = {
-    1000: 'Normal closure',
-    1001: 'Going away',
-    1002: 'Protocol error',
-    1003: 'Unsupported data',
-    1004: 'Reserved',
-    1005: 'No status received',
-    1006: 'Abnormal closure',
-    1007: 'Invalid frame payload data',
-    1008: 'Policy violation',
-    1009: 'Message too big',
-    1010: 'Mandatory extension',
-    1011: 'Internal server error',
-    1012: 'Service restart',
-    1013: 'Try again later',
-    1014: 'Bad gateway',
-    1015: 'TLS handshake',
-  };
-  
-  return closeReasons[code] || `Unknown close code: ${code}`;
-}
-
-/**
- * Handle common WebSocket errors
- */
-export function handleWebSocketError(error: unknown): string {
-  let errorMessage = 'Unknown WebSocket error';
-  
-  if (error instanceof Event) {
-    errorMessage = 'WebSocket connection error';
-  } else if (error instanceof DOMException) {
-    errorMessage = `WebSocket error: ${error.message}`;
-  } else if (error instanceof Error) {
-    errorMessage = error.message;
-  } else if (typeof error === 'string') {
-    errorMessage = error;
-  } else if (error && typeof error === 'object' && 'message' in error) {
-    errorMessage = String((error as {message: unknown}).message);
-  }
-  
-  console.error(`[WebSocket] ${errorMessage}`);
-  return errorMessage;
-}
-
-/**
- * Create a structured error object from WebSocket error
- */
-export function createWebSocketError(error: unknown): WebSocketError {
-  const message = handleWebSocketError(error);
-  
-  return {
-    message,
-    originalError: error,
-    timestamp: Date.now(),
-    code: error instanceof CloseEvent ? error.code : undefined
+    clearInterval(intervalId);
+    logger.debug('WebSocket keepalive cleanup', {
+      tags: ['websocket', 'keepalive']
+    });
   };
 }
