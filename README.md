@@ -1,5 +1,18 @@
 # MCP Integration Platform
 
+## Table of Contents
+- [Overview](#overview)
+- [Features](#features)
+  - [Web Search](#web-search)
+  - [Form Automation](#form-automation)
+  - [Vector Storage](#vector-storage)
+  - [Data Scraping](#data-scraping)
+- [Authentication](#authentication)
+- [Rate Limiting](#rate-limiting)
+- [Integration with Cline](#integration-with-cline)
+- [System Requirements](#system-requirements)
+- [Contact](#contact)
+
 ## Overview
 The MCP Integration Platform provides a standardized interface for AI applications to leverage web search, form automation, vector storage, and data scraping capabilities. Built to support the Model Context Protocol (MCP), this platform enables seamless integration with AI systems requiring real-time access to external tools and data sources.
 
