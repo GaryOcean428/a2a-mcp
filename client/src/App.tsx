@@ -14,8 +14,7 @@ import { WebSocketProvider } from "./hooks/use-websocket";
 import "./utils/css-injector";
 
 // Import LazyLoad utility for code splitting
-import { createLazyComponent } from "./components/LazyLoad";
-import { LoadingSpinner } from "./components/LoadingSpinner";
+import { createLazyComponent, LoadingSpinner } from "./components/LazyLoad";
 
 // Lazy load all pages for better performance
 const Home = createLazyComponent(() => import("@/pages/Home"));

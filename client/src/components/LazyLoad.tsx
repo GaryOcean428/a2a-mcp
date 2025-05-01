@@ -47,6 +47,14 @@ export function lazyLoad<T extends ComponentType<any>>(
   return ComponentWithLoading;
 }
 
+// Helper function that creates lazy-loaded components with standard configuration
+export function createLazyComponent<T extends ComponentType<any>>(
+  importFunc: () => Promise<{ default: T }>,
+  minDelay = 300 // Default minimum delay to prevent loading flicker
+): T {
+  return lazyLoad(importFunc, LoadingSpinner, minDelay);
+}
+
 // LazyRoute component for code-split routes
 interface LazyRouteProps {
   component: React.LazyExoticComponent<React.ComponentType<any>>;
@@ -68,5 +76,5 @@ export function lazyImport<
 >(factory: () => Promise<I>, name: K): I {
   return {
     [name]: lazyLoad(() => factory().then((module) => ({ default: module[name] })))
-  } as I;
+  } as unknown as I;
 }
