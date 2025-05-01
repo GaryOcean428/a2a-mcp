@@ -40,10 +40,14 @@ export default function Layout({ children, showSidebar }: LayoutProps) {
       <main className="flex-1 bg-gray-50">
         <div className="flex relative">
           {/* Conditional Tool Sidebar */}
-          {shouldShowSidebar && <ToolSidebar />}
+          {shouldShowSidebar && (
+            <div className="tool-sidebar">
+              <ToolSidebar />
+            </div>
+          )}
           
           {/* Page Content */}
-          <div className="flex-1 pt-6 pb-8 px-6">
+          <div className={`flex-1 pt-6 pb-8 px-6 ${shouldShowSidebar ? 'mcp-content-wrapper' : 'w-full'}`}>
             {/* Breadcrumb Navigation (only shown on pages with activeRoute) */}
             {activeRoute && <Breadcrumb />}
             

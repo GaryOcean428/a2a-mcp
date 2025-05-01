@@ -10,6 +10,8 @@ import App from "./App";
 import "./vite-hmr-fix";
 // Import direct CSS injection
 import { injectCriticalCSS, initCssProtection } from "./utils/css-injector";
+// Import sidebar fix CSS
+import "./styles/fix-sidebar.css";
 
 // Apply essential CSS immediately, before anything else
 injectCriticalCSS();
