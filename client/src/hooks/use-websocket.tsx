@@ -7,17 +7,10 @@
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { mcpWebSocketClient } from '../utils/mcp-websocket-client';
-import { handleError } from '../utils/error-handler';
+import { WebSocketMessage, ConnectionStatus } from '../utils/websocket-utils';
 
-// Define types used in the hook
+// Define types specific to the hook
 export type WebSocketStatus = 'connecting' | 'connected' | 'disconnected' | 'error';
-
-export type WebSocketMessage = {
-  type: string;
-  data?: any;
-  id?: string;
-  error?: string;
-};
 
 export type WebSocketSchemaType = {
   name: string;
@@ -75,16 +68,23 @@ export function WebSocketProvider({ children, autoConnect = false }: WebSocketPr
     }
   };
   
-  // Handle status changes
-  const handleStatus = (newStatus: WebSocketStatus) => {
+  // Handle status changes from the ConnectionStatus type
+  const handleStatus = (statusData: ConnectionStatus) => {
+    // Map ConnectionStatus to WebSocketStatus
+    const newStatus: WebSocketStatus = statusData.status;
     setStatus(newStatus);
     
     // Log status changes
     console.log(`[MCP WebSocket] ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`);
+    
+    // Additional error logging if available
+    if (newStatus === 'error' && 'error' in statusData) {
+      console.error('[WebSocket] Error details:', statusData.error);
+    }
   };
   
   // Handle WebSocket errors
-  const handleWsError = (error: any) => {
+  const handleWsError = (error: unknown) => {
     setStatus('error');
     console.error('[WebSocket] Error:', error);
   };
@@ -113,10 +113,15 @@ export function WebSocketProvider({ children, autoConnect = false }: WebSocketPr
   
   // Initialize the WebSocket connection when component mounts
   useEffect(() => {
+    // Create stable event handlers to avoid reference issues with off() method
+    const messageHandler = (data: unknown) => handleMessage(data);
+    const statusHandler = (data: ConnectionStatus) => handleStatus(data);
+    const errorHandler = (data: unknown) => handleWsError(data);
+    
     // Set up handlers
-    mcpWebSocketClient.on('message', handleMessage);
-    mcpWebSocketClient.on('status', (data) => handleStatus(data.status));
-    mcpWebSocketClient.on('error', handleWsError);
+    mcpWebSocketClient.on('message', messageHandler);
+    mcpWebSocketClient.on('status', statusHandler);
+    mcpWebSocketClient.on('error', errorHandler);
     
     // Initialize connection if autoConnect is true
     if (autoConnect) {
@@ -125,9 +130,9 @@ export function WebSocketProvider({ children, autoConnect = false }: WebSocketPr
     
     // Cleanup on unmount
     return () => {
-      mcpWebSocketClient.off('message', handleMessage);
-      mcpWebSocketClient.off('status', (data) => handleStatus(data.status));
-      mcpWebSocketClient.off('error', handleWsError);
+      mcpWebSocketClient.off('message', messageHandler);
+      mcpWebSocketClient.off('status', statusHandler);
+      mcpWebSocketClient.off('error', errorHandler);
       mcpWebSocketClient.disconnect();
     };
   }, [autoConnect]);

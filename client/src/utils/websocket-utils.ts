@@ -5,7 +5,38 @@
  * and handling common WebSocket-related tasks.
  */
 
-import { WebSocketMessage } from '../hooks/use-websocket';
+/**
+ * Standard WebSocket message structure
+ */
+export interface WebSocketMessage {
+  id?: string;
+  type?: string;
+  action?: string;
+  data?: Record<string, any>;
+  timestamp?: number;
+  success?: boolean;
+  error?: string | Error | Record<string, any>;
+  [key: string]: any;
+}
+
+/**
+ * WebSocket connection status
+ */
+export type ConnectionStatus = 
+  | { status: 'connected' }
+  | { status: 'connecting' }
+  | { status: 'disconnected' }
+  | { status: 'error'; error: Error | string | unknown };
+
+/**
+ * WebSocket error with metadata
+ */
+export interface WebSocketError {
+  message: string;
+  code?: number;
+  originalError?: unknown;
+  timestamp?: number;
+}
 
 /**
  * Generate a WebSocket URL from the current window location
@@ -79,13 +110,43 @@ export function setupWebSocketKeepalive(
   }, interval);
   
   // Return a cleanup function
-  return () => clearInterval(intervalId);
+  return () => {
+    if (intervalId) {
+      clearInterval(intervalId);
+    }
+  };
+}
+
+/**
+ * Get WebSocket close reason from code
+ */
+export function getWebSocketCloseReason(code: number): string {
+  const closeReasons: Record<number, string> = {
+    1000: 'Normal closure',
+    1001: 'Going away',
+    1002: 'Protocol error',
+    1003: 'Unsupported data',
+    1004: 'Reserved',
+    1005: 'No status received',
+    1006: 'Abnormal closure',
+    1007: 'Invalid frame payload data',
+    1008: 'Policy violation',
+    1009: 'Message too big',
+    1010: 'Mandatory extension',
+    1011: 'Internal server error',
+    1012: 'Service restart',
+    1013: 'Try again later',
+    1014: 'Bad gateway',
+    1015: 'TLS handshake',
+  };
+  
+  return closeReasons[code] || `Unknown close code: ${code}`;
 }
 
 /**
  * Handle common WebSocket errors
  */
-export function handleWebSocketError(error: any): string {
+export function handleWebSocketError(error: unknown): string {
   let errorMessage = 'Unknown WebSocket error';
   
   if (error instanceof Event) {
@@ -96,8 +157,24 @@ export function handleWebSocketError(error: any): string {
     errorMessage = error.message;
   } else if (typeof error === 'string') {
     errorMessage = error;
+  } else if (error && typeof error === 'object' && 'message' in error) {
+    errorMessage = String((error as {message: unknown}).message);
   }
   
   console.error(`[WebSocket] ${errorMessage}`);
   return errorMessage;
+}
+
+/**
+ * Create a structured error object from WebSocket error
+ */
+export function createWebSocketError(error: unknown): WebSocketError {
+  const message = handleWebSocketError(error);
+  
+  return {
+    message,
+    originalError: error,
+    timestamp: Date.now(),
+    code: error instanceof CloseEvent ? error.code : undefined
+  };
 }

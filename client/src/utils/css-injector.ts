@@ -5,52 +5,152 @@
  * is always available, especially for the critical path render.
  */
 
+/**
+ * CSS Rule types that can be injected
+ */
+type CSSRuleCategory = 
+  | 'base'           // Basic styles like margins, paddings
+  | 'layout'         // Layout-related styles
+  | 'animation'      // Animation and transition styles
+  | 'background'     // Background styles and patterns
+  | 'component'      // Component-specific styles
+  | 'utility'        // Utility classes (Tailwind-like)
+  | 'gradient';      // Gradient styles
+
+/**
+ * CSS Rule with metadata for better management
+ */
+interface CSSRule {
+  selector: string;  // The CSS selector
+  styles: string;    // The CSS styles
+  category: CSSRuleCategory; // Type of rule for organization
+  priority: number;  // Importance (1-10, higher = more critical)
+}
+
 // List of critical CSS rules to always inject
-const CRITICAL_CSS = [
+const CRITICAL_CSS: CSSRule[] = [
   // Base styles that must be immediately available
-  'html, body { margin: 0; padding: 0; }',
-  '.mcp-app { min-height: 100vh; }',
+  {
+    selector: 'html, body',
+    styles: 'margin: 0; padding: 0;',
+    category: 'base',
+    priority: 10
+  },
+  {
+    selector: '.mcp-app',
+    styles: 'min-height: 100vh;',
+    category: 'layout',
+    priority: 9
+  },
   
   // Fixes for layout and grid issues
-  '.sidebar-container { display: flex; }',
-  '.content-container { flex: 1; overflow-x: hidden; }',
+  {
+    selector: '.sidebar-container',
+    styles: 'display: flex;',
+    category: 'layout',
+    priority: 9
+  },
+  {
+    selector: '.content-container',
+    styles: 'flex: 1; overflow-x: hidden;',
+    category: 'layout',
+    priority: 9
+  },
   
   // Animation classes
-  '@keyframes fadeInDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }',
-  '.animate-fade-in-down { animation: fadeInDown 0.3s ease-out forwards; }',
+  {
+    selector: '@keyframes fadeInDown',
+    styles: 'from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); }',
+    category: 'animation',
+    priority: 7
+  },
+  {
+    selector: '.animate-fade-in-down',
+    styles: 'animation: fadeInDown 0.3s ease-out forwards;',
+    category: 'animation',
+    priority: 7
+  },
   
   // Grid and background styles
-  '.bg-grid-gray-100 { background-size: 2rem 2rem; background-image: linear-gradient(to right, #f3f4f6 1px, transparent 1px), linear-gradient(to bottom, #f3f4f6 1px, transparent 1px); }',
-  '.bg-blob-gradient { background-image: radial-gradient(circle, rgba(147, 51, 234, 0.1) 0%, rgba(255, 255, 255, 0) 70%); background-position: center; background-repeat: no-repeat; }',
+  {
+    selector: '.bg-grid-gray-100',
+    styles: 'background-size: 2rem 2rem; background-image: linear-gradient(to right, #f3f4f6 1px, transparent 1px), linear-gradient(to bottom, #f3f4f6 1px, transparent 1px);',
+    category: 'background',
+    priority: 6
+  },
+  {
+    selector: '.bg-blob-gradient',
+    styles: 'background-image: radial-gradient(circle, rgba(147, 51, 234, 0.1) 0%, rgba(255, 255, 255, 0) 70%); background-position: center; background-repeat: no-repeat;',
+    category: 'background',
+    priority: 6
+  },
   
   // Feature card hover effect
-  '.feature-card { transition: transform 0.2s, box-shadow 0.2s; }',
-  '.feature-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }',
+  {
+    selector: '.feature-card',
+    styles: 'transition: transform 0.2s, box-shadow 0.2s;',
+    category: 'component',
+    priority: 8
+  },
+  {
+    selector: '.feature-card:hover',
+    styles: 'transform: translateY(-5px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);',
+    category: 'component',
+    priority: 8
+  },
   
   // Gradient backgrounds
-  '.bg-gradient-to-r { background-image: linear-gradient(to right, var(--tw-gradient-stops)); }',
-  '.from-purple-50 { --tw-gradient-from: #faf5ff; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(250, 245, 255, 0)); }',
-  '.to-white { --tw-gradient-to: #ffffff; }'
+  {
+    selector: '.bg-gradient-to-r',
+    styles: 'background-image: linear-gradient(to right, var(--tw-gradient-stops));',
+    category: 'gradient',
+    priority: 5
+  },
+  {
+    selector: '.from-purple-50',
+    styles: '--tw-gradient-from: #faf5ff; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(250, 245, 255, 0));',
+    category: 'gradient',
+    priority: 5
+  },
+  {
+    selector: '.to-white',
+    styles: '--tw-gradient-to: #ffffff;',
+    category: 'gradient',
+    priority: 5
+  }
 ];
 
 /**
- * Inject critical CSS into the page
+ * Convert CSS rules array to a CSS string
  */
-export function injectCriticalCSS(): void {
+function rulesToCSSString(rules: CSSRule[]): string {
+  return rules
+    .sort((a, b) => b.priority - a.priority) // Sort by priority
+    .map(rule => `${rule.selector} { ${rule.styles} }`)
+    .join('\n');
+}
+
+/**
+ * Inject critical CSS into the page
+ * @returns Boolean indicating if CSS was successfully injected
+ */
+export function injectCriticalCSS(): boolean {
   try {
     // Check if critical CSS is already injected
     if (document.getElementById('mcp-critical-css')) {
-      return;
+      return true; // Already injected
     }
     
     const styleEl = document.createElement('style');
     styleEl.id = 'mcp-critical-css';
-    styleEl.innerHTML = CRITICAL_CSS.join('\n');
+    styleEl.innerHTML = rulesToCSSString(CRITICAL_CSS);
     document.head.appendChild(styleEl);
     
     console.log('[CSS Injector] Critical CSS injected');
+    return true;
   } catch (error) {
     console.error('[CSS Injector] Failed to inject critical CSS:', error);
+    return false;
   }
 }
 

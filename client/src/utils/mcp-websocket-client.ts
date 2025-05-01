@@ -5,20 +5,23 @@
  * It implements reconnection logic, authentication, and event handling.
  */
 
-import { getWebSocketUrl, isWebSocketReady, setupWebSocketKeepalive, handleWebSocketError } from './websocket-utils';
+import { 
+  getWebSocketUrl, 
+  isWebSocketReady, 
+  setupWebSocketKeepalive,
+  handleWebSocketError,
+  getWebSocketCloseReason,
+  createWebSocketError,
+  WebSocketMessage,
+  ConnectionStatus,
+  WebSocketError
+} from './websocket-utils';
 
+// Event types that can be listened to
+type EventType = 'status' | 'schemas' | 'error' | 'message' | 'response' | 'auth' | string;
+
+// Handler function type for WebSocket events
 type EventHandler = (data: any) => void;
-type EventType = 'status' | 'schemas' | 'error' | 'message' | 'response';
-
-interface WebSocketMessage {
-  id: string;
-  [key: string]: any;
-}
-
-interface ConnectionStatus {
-  status: 'connected' | 'disconnected' | 'connecting' | 'error';
-  error?: Error;
-}
 
 class McpWebSocketClient {
   private socket: WebSocket | null = null;
