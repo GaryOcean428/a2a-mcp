@@ -35,8 +35,7 @@ window.addEventListener('error', (event) => {
 document.addEventListener('DOMContentLoaded', () => {
   console.log('[MCP] Document loaded, initializing UI loading process');
   
-  // Initialize our CSS system
-  initCssProtection();
+  // CSS system is already initialized through initializeTheme()
   
   // Create a simple loading overlay
   const createLoadingOverlay = () => {

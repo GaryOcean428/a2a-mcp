@@ -5,6 +5,8 @@
  * It implements reconnection logic, authentication, and event handling.
  */
 
+import { getWebSocketUrl } from './websocket-utils';
+
 type EventHandler = (data: any) => void;
 type EventType = 'status' | 'schemas' | 'error' | 'message' | 'response';
 
@@ -50,14 +52,8 @@ class McpWebSocketClient {
     this.isConnecting = true;
     
     try {
-      // Determine the correct WebSocket URL
-      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const wsUrl = `${protocol}//${window.location.host}/mcp-ws`;
-      
-      // Verify the URL is valid before connecting
-      if (!wsUrl || wsUrl.includes('undefined')) {
-        throw new Error(`Invalid WebSocket URL: ${wsUrl}`);
-      }
+      // Use the utility function to get a safe WebSocket URL
+      const wsUrl = getWebSocketUrl('/mcp-ws');
       
       console.log(`[WebSocket] Connecting to ${wsUrl}...`);
       
