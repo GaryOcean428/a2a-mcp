@@ -1,166 +1,196 @@
 /**
  * MCP Integration Platform - WebSocket Hook
  * 
- * This hook provides a React context for WebSocket functionality across 
- * the application with automatic connection management.
+ * This hook provides a React interface to the WebSocket client,
+ * with proper lifecycle management and error handling.
  */
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { mcpWebSocketClient } from '../utils/mcp-websocket-client';
-import { WebSocketMessage, ConnectionStatus } from '../utils/websocket-utils';
+import { useState, useEffect, useCallback } from 'react';
+import { mcpWebSocketClient } from '@/utils/mcp-websocket-client';
+import { useErrorHandler } from './use-error-handler';
+import { logger } from '@/utils/logger';
 
-// Define types specific to the hook
-export type WebSocketStatus = 'connecting' | 'connected' | 'disconnected' | 'error';
+type ConnectionStatus = 'connecting' | 'connected' | 'disconnected' | 'error';
+type MessageHandler = (data: any) => void;
 
-export type WebSocketSchemaType = {
-  name: string;
-  description: string;
-  annotations: {
-    title: string;
-    readOnlyHint?: boolean;
-    destructiveHint?: boolean;
-    idempotentHint?: boolean;
-    openWorldHint?: boolean;
-  };
-};
-
-// Define the context props
-interface WebSocketContextProps {
-  status: WebSocketStatus;
-  schemas: WebSocketSchemaType[];
-  lastMessage: WebSocketMessage | null;
-  sendMessage: (message: WebSocketMessage) => boolean;
-  reconnect: () => void;
-  disconnect: () => void;
-}
-
-// Create the context
-const WebSocketContext = createContext<WebSocketContextProps | undefined>(undefined);
-
-// Define WebSocketProvider props
-interface WebSocketProviderProps {
-  children: ReactNode;
+interface UseWebSocketOptions {
+  // Whether to connect automatically when the component mounts
   autoConnect?: boolean;
+  // Whether to handle errors automatically
+  handleErrors?: boolean;
+  // Event handlers for different connection states
+  onConnect?: () => void;
+  onDisconnect?: () => void;
+  onError?: (error: any) => void;
+  // Whether to reconnect automatically on errors or disconnects
+  autoReconnect?: boolean;
 }
 
-// Context provider component
-export function WebSocketProvider({ children, autoConnect = false }: WebSocketProviderProps) {
-  const [status, setStatus] = useState<WebSocketStatus>('disconnected');
-  const [lastMessage, setLastMessage] = useState<WebSocketMessage | null>(null);
-  const [schemas, setSchemas] = useState<WebSocketSchemaType[]>([]);
+interface WebSocketHook {
+  // Current connection status
+  status: ConnectionStatus;
+  // Last error that occurred
+  error: Error | null;
+  // Whether the WebSocket is currently connected
+  isConnected: boolean;
+  // Connect to the WebSocket server
+  connect: () => void;
+  // Disconnect from the WebSocket server
+  disconnect: () => void;
+  // Send a message to the server
+  send: (message: any) => boolean;
+  // Listen for messages of a specific type
+  on: (event: string, handler: MessageHandler) => void;
+  // Remove a message handler
+  off: (event: string, handler: MessageHandler) => void;
+}
+
+/**
+ * React hook for WebSocket communication
+ */
+export function useWebSocket(options: UseWebSocketOptions = {}): WebSocketHook {
+  // Destructure options with defaults
+  const {
+    autoConnect = true,
+    handleErrors = true,
+    onConnect,
+    onDisconnect,
+    onError,
+    autoReconnect = true
+  } = options;
   
-  // Handle incoming messages
-  const handleMessage = (data: any) => {
-    try {
-      // If data is a string, parse it
-      const message = typeof data === 'string' ? JSON.parse(data) : data;
-      
-      // Set as last message
-      setLastMessage(message);
-      
-      // Check for schemas message
-      if (message && message.id === 'schemas' && Array.isArray(message.schemas)) {
-        setSchemas(message.schemas);
-        console.log(`Loaded ${message.schemas.length} tool schemas from WebSocket server`);
+  // Connection status state
+  const [status, setStatus] = useState<ConnectionStatus>('disconnected');
+  const [error, setError] = useState<Error | null>(null);
+  
+  // Use our error handler
+  const errorHandler = useErrorHandler({
+    module: 'WebSocket',
+    tags: ['websocket', 'hook'],
+    showToast: handleErrors,
+    defaultMessages: {
+      network: 'Lost connection to server. Attempting to reconnect...',
+      server: 'Server communication error. Please try again later.',
+      unknown: 'WebSocket error occurred. Please refresh the page.'
+    }
+  });
+  
+  // Handle status changes from the WebSocket client
+  const handleStatus = useCallback((data: any) => {
+    if (data.status === 'connected') {
+      setStatus('connected');
+      setError(null);
+      if (onConnect) onConnect();
+    } else if (data.status === 'disconnected') {
+      setStatus('disconnected');
+      if (onDisconnect) onDisconnect();
+    } else if (data.status === 'error') {
+      setStatus('error');
+      if (data.error) {
+        const wsError = new Error(data.error.message || 'WebSocket error');
+        setError(wsError);
+        
+        if (handleErrors) {
+          errorHandler.handleError(wsError);
+        }
+        
+        if (onError) onError(data.error);
       }
-    } catch (error) {
-      console.error('[WebSocket] Error processing message:', error);
     }
-  };
+  }, [onConnect, onDisconnect, onError, handleErrors, errorHandler]);
   
-  // Handle status changes from the ConnectionStatus type
-  const handleStatus = (statusData: ConnectionStatus) => {
-    // Map ConnectionStatus to WebSocketStatus
-    const newStatus: WebSocketStatus = statusData.status;
-    setStatus(newStatus);
+  // Connect to the WebSocket
+  const connect = useCallback(() => {
+    setStatus('connecting');
+    logger.info('Connecting to WebSocket server', { tags: ['websocket', 'connect'] });
+    mcpWebSocketClient.initialize();
+  }, []);
+  
+  // Disconnect from the WebSocket
+  const disconnect = useCallback(() => {
+    logger.info('Disconnecting from WebSocket server', { tags: ['websocket', 'disconnect'] });
+    mcpWebSocketClient.disconnect();
+    setStatus('disconnected');
+  }, []);
+  
+  // Helper to check if connected
+  const isConnected = status === 'connected';
+  
+  // Send a message to the server
+  const send = useCallback((message: any): boolean => {
+    if (!isConnected) {
+      logger.warn('Cannot send message: WebSocket not connected', {
+        tags: ['websocket', 'send-error']
+      });
+      return false;
+    }
     
-    // Log status changes
-    console.log(`[MCP WebSocket] ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`);
-    
-    // Additional error logging if available
-    if (newStatus === 'error' && 'error' in statusData) {
-      console.error('[WebSocket] Error details:', statusData.error);
-    }
-  };
+    return mcpWebSocketClient.send(message);
+  }, [isConnected]);
   
-  // Handle WebSocket errors
-  const handleWsError = (error: unknown) => {
-    setStatus('error');
-    console.error('[WebSocket] Error:', error);
-  };
+  // Register event handler
+  const on = useCallback((event: string, handler: MessageHandler) => {
+    mcpWebSocketClient.on(event, handler);
+  }, []);
   
-  // Function to safely send messages via WebSocket
-  const sendMessage = (message: WebSocketMessage): boolean => {
-    if (mcpWebSocketClient) {
-      return mcpWebSocketClient.send(message);
-    }
-    return false;
-  };
+  // Remove event handler
+  const off = useCallback((event: string, handler: MessageHandler) => {
+    mcpWebSocketClient.off(event, handler);
+  }, []);
   
-  // Function to safely reconnect WebSocket
-  const reconnect = () => {
-    if (mcpWebSocketClient) {
-      mcpWebSocketClient.reconnect();
-    }
-  };
-  
-  // Function to safely disconnect WebSocket
-  const disconnect = () => {
-    if (mcpWebSocketClient) {
-      mcpWebSocketClient.disconnect();
-    }
-  };
-  
-  // Initialize the WebSocket connection when component mounts
+  // Setup connection and event listeners when the component mounts
   useEffect(() => {
-    // Create stable event handlers to avoid reference issues with off() method
-    const messageHandler = (data: unknown) => handleMessage(data);
-    const statusHandler = (data: ConnectionStatus) => handleStatus(data);
-    const errorHandler = (data: unknown) => handleWsError(data);
+    // Always register the status handler
+    mcpWebSocketClient.on('status', handleStatus);
     
-    // Set up handlers
-    mcpWebSocketClient.on('message', messageHandler);
-    mcpWebSocketClient.on('status', statusHandler);
-    mcpWebSocketClient.on('error', errorHandler);
-    
-    // Initialize connection if autoConnect is true
+    // Connect if autoConnect is enabled
     if (autoConnect) {
-      mcpWebSocketClient.initialize();
+      connect();
     }
     
-    // Cleanup on unmount
+    // Cleanup when the component unmounts
     return () => {
-      mcpWebSocketClient.off('message', messageHandler);
-      mcpWebSocketClient.off('status', statusHandler);
-      mcpWebSocketClient.off('error', errorHandler);
-      mcpWebSocketClient.disconnect();
+      mcpWebSocketClient.off('status', handleStatus);
+      
+      // Only disconnect when we initiated the connection
+      // This way, if multiple components use the hook,
+      // they won't disconnect each other's connections
+      if (autoConnect) {
+        // Don't actually disconnect, just remove our listeners
+        // This allows the WebSocket connection to be shared
+        // between components
+      }
     };
-  }, [autoConnect]);
+  }, [autoConnect, connect, handleStatus]);
   
-  // Define context value with safe function references
-  const contextValue: WebSocketContextProps = {
+  // Setup reconnection if autoReconnect is enabled
+  useEffect(() => {
+    if (!autoReconnect) return;
+    
+    // If we're disconnected or in error state, try to reconnect
+    let reconnectTimeout: number | null = null;
+    if ((status === 'disconnected' || status === 'error') && !error?.message?.includes('authenticated')) {
+      reconnectTimeout = window.setTimeout(() => {
+        logger.info('Auto-reconnecting WebSocket', { tags: ['websocket', 'reconnect'] });
+        connect();
+      }, 5000) as unknown as number; // 5 second delay
+    }
+    
+    return () => {
+      if (reconnectTimeout !== null) {
+        clearTimeout(reconnectTimeout);
+      }
+    };
+  }, [status, error, autoReconnect, connect]);
+  
+  return {
     status,
-    schemas,
-    lastMessage,
-    sendMessage,
-    reconnect,
-    disconnect
+    error,
+    isConnected,
+    connect,
+    disconnect,
+    send,
+    on,
+    off
   };
-  
-  return (
-    <WebSocketContext.Provider value={contextValue}>
-      {children}
-    </WebSocketContext.Provider>
-  );
-}
-
-// Hook for using the WebSocket context
-export function useWebSocket() {
-  const context = useContext(WebSocketContext);
-  
-  if (context === undefined) {
-    throw new Error('useWebSocket must be used within a WebSocketProvider');
-  }
-  
-  return context;
 }

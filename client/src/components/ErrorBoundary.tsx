@@ -1,119 +1,129 @@
 /**
- * MCP Integration Platform - Error Boundary Component
+ * MCP Integration Platform - Error Boundary
  * 
- * This component catches JavaScript errors anywhere in its child component tree,
- * logs those errors, and displays a fallback UI instead of crashing.
+ * This component catches React errors in its child component tree and displays
+ * a fallback UI instead of crashing the entire application.
  */
 
-import React, { Component, ReactNode } from 'react';
-import { AlertTriangle } from 'lucide-react';
+import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { logger } from '../utils/logger';
 
-interface ErrorBoundaryProps {
+interface Props {
   children: ReactNode;
   fallback?: ReactNode;
-  onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
-  resetOnPropsChange?: boolean;
+  onError?: (error: Error, errorInfo: ErrorInfo) => void;
 }
 
-interface ErrorBoundaryState {
+interface State {
   hasError: boolean;
   error: Error | null;
-  errorInfo: React.ErrorInfo | null;
+  errorInfo: ErrorInfo | null;
 }
 
-class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  constructor(props: ErrorBoundaryProps) {
+class ErrorBoundary extends Component<Props, State> {
+  constructor(props: Props) {
     super(props);
     this.state = {
       hasError: false,
       error: null,
-      errorInfo: null,
+      errorInfo: null
     };
   }
 
-  // This lifecycle method runs when an error is thrown in a child component
-  static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
+  static getDerivedStateFromError(error: Error): State {
     // Update state so the next render will show the fallback UI
-    return { hasError: true, error };
+    return {
+      hasError: true,
+      error,
+      errorInfo: null
+    };
   }
 
-  // This lifecycle method allows logging the error
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
-    // Log the error to console
-    console.error('[ErrorBoundary] Caught an error:', error, errorInfo);
+  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+    // Log the error to our logging service
+    logger.error('React error boundary caught error', {
+      tags: ['react', 'error-boundary'],
+      error, 
+      data: { componentStack: errorInfo.componentStack }
+    });
     
-    // Store error info for display
-    this.setState({ errorInfo });
-    
-    // Call optional error handler
+    // Call the optional onError callback
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
     }
+    
+    // We also set errorInfo in state so we can display the component stack trace
+    this.setState({ errorInfo });
   }
 
-  // Reset error state when props change if requested
-  componentDidUpdate(prevProps: ErrorBoundaryProps): void {
-    if (
-      this.props.resetOnPropsChange &&
-      this.state.hasError &&
-      this.props.children !== prevProps.children
-    ) {
-      this.setState({
-        hasError: false,
-        error: null,
-        errorInfo: null,
-      });
-    }
-  }
-  
-  // Method to manually reset the error boundary
-  resetErrorBoundary = (): void => {
+  handleReload = (): void => {
+    window.location.reload();
+  };
+
+  handleReset = (): void => {
     this.setState({
       hasError: false,
       error: null,
-      errorInfo: null,
+      errorInfo: null
     });
   };
 
   render(): ReactNode {
-    // If there's an error, show fallback UI
     if (this.state.hasError) {
-      // Use custom fallback if provided
+      // If a custom fallback is provided, use it
       if (this.props.fallback) {
         return this.props.fallback;
       }
       
-      // Otherwise use default error UI
+      // Otherwise, show our default error UI
       return (
-        <div className="p-4 border border-red-200 rounded-md bg-red-50 text-red-800 my-4 mx-auto max-w-2xl">
-          <div className="flex items-center mb-2">
-            <AlertTriangle className="w-5 h-5 mr-2" />
-            <h3 className="text-lg font-semibold">Something went wrong</h3>
+        <div className="flex items-center justify-center min-h-screen bg-background">
+          <div className="p-6 mx-auto max-w-3xl rounded-lg shadow-lg bg-card border border-border">
+            <div className="flex flex-col items-center text-center gap-4">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+                <AlertTriangle size={32} className="text-red-600" />
+              </div>
+              
+              <h1 className="text-2xl font-bold text-foreground">Something went wrong</h1>
+              
+              <p className="text-muted-foreground mb-2">
+                The application encountered an unexpected error. Please try again or reload the page.
+              </p>
+              
+              {/* Error details (for development environments) */}
+              <div className="w-full overflow-auto text-left bg-muted p-4 rounded-md">
+                <p className="font-semibold text-foreground">{this.state.error?.toString()}</p>
+                {this.state.errorInfo && (
+                  <pre className="mt-2 text-xs text-muted-foreground">
+                    {this.state.errorInfo.componentStack}
+                  </pre>
+                )}
+              </div>
+              
+              <div className="flex gap-4 mt-4">
+                <button
+                  onClick={this.handleReset}
+                  className="px-4 py-2 rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/90"
+                >
+                  Try Again
+                </button>
+                
+                <button
+                  onClick={this.handleReload}
+                  className="px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 flex items-center gap-2"
+                >
+                  <RefreshCw size={16} />
+                  Reload Page
+                </button>
+              </div>
+            </div>
           </div>
-          
-          <p className="mb-4">
-            The application encountered an error. Try refreshing the page or contact support if the problem persists.
-          </p>
-          
-          <details className="text-sm">
-            <summary className="cursor-pointer font-medium">Error details</summary>
-            <pre className="mt-2 p-2 bg-red-100 rounded overflow-auto text-xs max-h-48">
-              {this.state.error?.toString() || 'Unknown error'}
-              {this.state.errorInfo?.componentStack || ''}
-            </pre>
-          </details>
-          
-          <button
-            onClick={this.resetErrorBoundary}
-            className="mt-4 px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 transition-colors"
-          >
-            Try again
-          </button>
         </div>
       );
     }
 
-    // Otherwise, render children normally
+    // Normally, just render children
     return this.props.children;
   }
 }

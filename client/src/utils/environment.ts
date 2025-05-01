@@ -1,188 +1,289 @@
 /**
- * MCP Integration Platform - Environment Utilities
+ * MCP Integration Platform - Environment Detection Utility
  * 
- * This module provides utilities for detecting the current environment
- * and runtime context of the application.
+ * This utility provides environment detection and browser capability detection
+ * to ensure consistent behavior across different environments.
  */
 
-// Possible environments
-export type Environment = 'development' | 'production' | 'test' | 'unknown';
+import { VERSION, ENV } from '../version';
+import { logger } from './logger';
 
-// Browser capabilities
+/**
+ * Browser capabilities information
+ */
 export interface BrowserCapabilities {
-  webSockets: boolean;
-  localStorage: boolean;
-  sessionStorage: boolean;
-  fetch: boolean;
-  serviceWorker: boolean;
-  webWorker: boolean;
-  webAssembly: boolean;
-  webGL: boolean;
-  mediaRecorder: boolean;
-  isSecureContext: boolean;
+  webSocketSupport: boolean;
+  localStorageSupport: boolean;
+  sessionStorageSupport: boolean;
+  webWorkersSupport: boolean;
+  serviceWorkersSupport: boolean;
+  indexedDBSupport: boolean;
+  webGLSupport: boolean;
+  cookiesEnabled: boolean;
+  userAgent: string;
+  language: string;
+  platform: string;
+  isMobile: boolean;
+  isBot: boolean;
 }
 
 /**
- * Detect the current environment
+ * Check if running in development mode
  */
-export function getEnvironment(): Environment {
-  // First check for explicitly set environment variables
-  if (import.meta.env?.MODE) {
-    if (['development', 'production', 'test'].includes(import.meta.env.MODE)) {
-      return import.meta.env.MODE as Environment;
-    }
+export function isDevelopment(): boolean {
+  return ENV.NODE_ENV === 'development';
+}
+
+/**
+ * Check if running in production mode
+ */
+export function isProduction(): boolean {
+  return ENV.NODE_ENV === 'production';
+}
+
+/**
+ * Check if running in test mode
+ */
+export function isTest(): boolean {
+  return ENV.NODE_ENV === 'test';
+}
+
+/**
+ * Check if running in a browser environment
+ */
+export function isBrowser(): boolean {
+  return typeof window !== 'undefined';
+}
+
+/**
+ * Check if running in a node.js environment
+ */
+export function isNode(): boolean {
+  return typeof process !== 'undefined' && 
+         process.versions != null && 
+         process.versions.node != null;
+}
+
+/**
+ * Check if running in a service worker environment
+ */
+export function isServiceWorker(): boolean {
+  return typeof self === 'object' && 
+         self.constructor && 
+         self.constructor.name === 'ServiceWorkerGlobalScope';
+}
+
+/**
+ * Check if the current browser is mobile
+ */
+export function isMobileDevice(): boolean {
+  if (!isBrowser()) return false;
+  
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+/**
+ * Check if the current user agent likely belongs to a bot
+ */
+export function isBot(): boolean {
+  if (!isBrowser()) return false;
+  
+  const botPatterns = [
+    'bot', 'spider', 'crawler', 'scraper', 'archiver',
+    'validator', 'monitor', 'prerender', 'indexer', 'googlebot',
+    'baiduspider', 'bingbot', 'yandex', 'ahrefsbot', 'msnbot',
+    'semrushbot', 'slurp', 'duckduckbot', 'facebookexternalhit'
+  ];
+  
+  const userAgent = navigator.userAgent.toLowerCase();
+  return botPatterns.some(pattern => userAgent.includes(pattern));
+}
+
+/**
+ * Get API base URL depending on environment
+ */
+export function getApiBaseUrl(): string {
+  if (isDevelopment()) {
+    return '';
+  } else {
+    // For production, use relative URL to ensure same-origin API calls
+    return '';
   }
-  
-  // Check for environment variables or global objects that indicate the environment
-  const isDevelopment = 
-    import.meta.env?.DEV === true ||
-    (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development');
-  
-  const isProduction = 
-    import.meta.env?.PROD === true ||
-    (typeof process !== 'undefined' && process.env?.NODE_ENV === 'production');
-  
-  const isTest = 
-    (typeof process !== 'undefined' && process.env?.NODE_ENV === 'test') ||
-    (typeof global !== 'undefined' && (global as any)['__TEST__']);
-  
-  // Return the detected environment
-  if (isDevelopment) return 'development';
-  if (isProduction) return 'production';
-  if (isTest) return 'test';
-  
-  // Check if we're in a browser environment
-  if (typeof window !== 'undefined') {
-    // Check for common development indicators in the URL or host
-    const url = window.location.href.toLowerCase();
-    const hostname = window.location.hostname.toLowerCase();
-    
-    if (
-      hostname === 'localhost' ||
-      hostname === '127.0.0.1' ||
-      hostname.includes('dev.') ||
-      hostname.includes('staging.') ||
-      hostname.includes('test.') ||
-      url.includes('?dev') ||
-      url.includes('&dev')
-    ) {
-      return 'development';
-    }
-    
-    // If none of the above, assume production
-    return 'production';
-  }
-  
-  // Fall back to unknown
-  return 'unknown';
 }
 
 /**
  * Detect browser capabilities
  */
 export function detectBrowserCapabilities(): BrowserCapabilities {
-  if (typeof window === 'undefined') {
-    // Sensible defaults for non-browser environments
+  if (!isBrowser()) {
+    // Return null values for non-browser environments
     return {
-      webSockets: false,
-      localStorage: false,
-      sessionStorage: false,
-      fetch: false,
-      serviceWorker: false,
-      webWorker: false,
-      webAssembly: false,
-      webGL: false,
-      mediaRecorder: false,
-      isSecureContext: false,
+      webSocketSupport: false,
+      localStorageSupport: false,
+      sessionStorageSupport: false,
+      webWorkersSupport: false,
+      serviceWorkersSupport: false,
+      indexedDBSupport: false,
+      webGLSupport: false,
+      cookiesEnabled: false,
+      userAgent: '',
+      language: '',
+      platform: 'node',
+      isMobile: false,
+      isBot: false
     };
   }
   
+  // Check WebSocket support
+  const webSocketSupport = 'WebSocket' in window;
+  
+  // Check localStorage support
+  let localStorageSupport = false;
+  try {
+    localStorageSupport = 'localStorage' in window && window.localStorage !== null;
+    // Verify we can actually use it (private browsing can throw errors)
+    if (localStorageSupport) {
+      window.localStorage.setItem('feature_test', '1');
+      window.localStorage.removeItem('feature_test');
+    }
+  } catch (e) {
+    localStorageSupport = false;
+  }
+  
+  // Check sessionStorage support
+  let sessionStorageSupport = false;
+  try {
+    sessionStorageSupport = 'sessionStorage' in window && window.sessionStorage !== null;
+    // Verify we can actually use it
+    if (sessionStorageSupport) {
+      window.sessionStorage.setItem('feature_test', '1');
+      window.sessionStorage.removeItem('feature_test');
+    }
+  } catch (e) {
+    sessionStorageSupport = false;
+  }
+  
+  // Check Web Workers support
+  const webWorkersSupport = 'Worker' in window;
+  
+  // Check Service Workers support
+  const serviceWorkersSupport = 'serviceWorker' in navigator;
+  
+  // Check IndexedDB support
+  const indexedDBSupport = 'indexedDB' in window;
+  
+  // Check WebGL support
+  let webGLSupport = false;
+  try {
+    const canvas = document.createElement('canvas');
+    webGLSupport = !!(window.WebGLRenderingContext && 
+      (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
+  } catch (e) {
+    webGLSupport = false;
+  }
+  
+  // Check if cookies are enabled
+  let cookiesEnabled = navigator.cookieEnabled;
+  if (!cookiesEnabled) {
+    document.cookie = 'testcookie=1';
+    cookiesEnabled = document.cookie.indexOf('testcookie=') !== -1;
+    document.cookie = 'testcookie=1; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+  }
+  
+  // Get user agent information
+  const userAgent = navigator.userAgent;
+  const language = navigator.language;
+  const platform = navigator.platform;
+  
+  // Mobile detection
+  const isMobile = isMobileDevice();
+  
+  // Bot detection
+  const isDetectedBot = isBot();
+  
+  logger.debug('Browser capabilities detected', {
+    tags: ['environment', 'capabilities'],
+    data: {
+      version: VERSION,
+      env: ENV.NODE_ENV,
+      webSocketSupport,
+      localStorageSupport,
+      serviceWorkersSupport
+    }
+  });
+  
   return {
-    webSockets: typeof WebSocket !== 'undefined',
-    localStorage: (() => {
-      try {
-        return typeof localStorage !== 'undefined';
-      } catch (e) {
-        return false;
-      }
-    })(),
-    sessionStorage: (() => {
-      try {
-        return typeof sessionStorage !== 'undefined';
-      } catch (e) {
-        return false;
-      }
-    })(),
-    fetch: typeof fetch !== 'undefined',
-    serviceWorker: !!('serviceWorker' in navigator),
-    webWorker: typeof Worker !== 'undefined',
-    webAssembly: typeof WebAssembly !== 'undefined',
-    webGL: (() => {
-      try {
-        return !!window.document.createElement('canvas').getContext('webgl');
-      } catch (e) {
-        return false;
-      }
-    })(),
-    mediaRecorder: typeof MediaRecorder !== 'undefined',
-    isSecureContext: !!window.isSecureContext,
+    webSocketSupport,
+    localStorageSupport,
+    sessionStorageSupport,
+    webWorkersSupport,
+    serviceWorkersSupport,
+    indexedDBSupport,
+    webGLSupport,
+    cookiesEnabled,
+    userAgent,
+    language,
+    platform,
+    isMobile,
+    isBot: isDetectedBot
   };
 }
 
 /**
- * Check if we're running in a development environment
+ * Get browser name from user agent
  */
-export function isDevelopment(): boolean {
-  return getEnvironment() === 'development';
+export function getBrowserName(): string {
+  if (!isBrowser()) return 'unknown';
+  
+  const userAgent = navigator.userAgent;
+  
+  if (userAgent.indexOf('Firefox') > -1) {
+    return 'Firefox';
+  } else if (userAgent.indexOf('Opera') > -1 || userAgent.indexOf('OPR') > -1) {
+    return 'Opera';
+  } else if (userAgent.indexOf('Trident') > -1) {
+    return 'Internet Explorer';
+  } else if (userAgent.indexOf('Edge') > -1) {
+    return 'Edge';
+  } else if (userAgent.indexOf('Chrome') > -1) {
+    return 'Chrome';
+  } else if (userAgent.indexOf('Safari') > -1) {
+    return 'Safari';
+  } else {
+    return 'unknown';
+  }
 }
 
 /**
- * Check if we're running in a production environment
+ * Check if the current browser is supported
  */
-export function isProduction(): boolean {
-  return getEnvironment() === 'production';
+export function isBrowserSupported(): boolean {
+  const capabilities = detectBrowserCapabilities();
+  
+  // Minimum requirements for MCP platform
+  return (
+    capabilities.webSocketSupport &&
+    capabilities.localStorageSupport &&
+    !capabilities.isBot
+  );
 }
 
 /**
- * Check if we're running in a test environment
+ * Log environment information
  */
-export function isTest(): boolean {
-  return getEnvironment() === 'test';
-}
-
-/**
- * Get URL based on environment
- */
-export function getApiBaseUrl(): string {
-  // Get from the environment if available
-  if (import.meta.env?.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
-  }
+export function logEnvironmentInfo(): void {
+  const capabilities = detectBrowserCapabilities();
+  const browserName = getBrowserName();
   
-  // Otherwise use current location (for same-origin APIs)
-  if (typeof window !== 'undefined') {
-    return window.location.origin;
-  }
-  
-  // Fallback for SSR or other environments
-  return '';
-}
-
-/**
- * Get WebSocket URL based on environment
- */
-export function getWebSocketBaseUrl(): string {
-  // Get from the environment if available
-  if (import.meta.env?.VITE_WS_URL) {
-    return import.meta.env.VITE_WS_URL;
-  }
-  
-  // Otherwise construct from current location
-  if (typeof window !== 'undefined') {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    return `${protocol}//${window.location.host}`;
-  }
-  
-  // Fallback for SSR or other environments
-  return '';
+  logger.info('Environment information', {
+    tags: ['environment', 'startup'],
+    data: {
+      version: VERSION,
+      environment: ENV.NODE_ENV,
+      browser: browserName,
+      mobile: capabilities.isMobile,
+      language: capabilities.language,
+      supported: isBrowserSupported()
+    }
+  });
 }
