@@ -1,81 +1,60 @@
 /**
  * MCP Integration Platform - Protected Route Component
  * 
- * This component restricts access to routes based on authentication status.
- * Unauthenticated users are redirected to the login page.
+ * This component ensures routes are only accessible to authenticated users.
+ * Unauthenticated users are redirected to the auth page.
  */
 
-import React, { ComponentType } from 'react';
-import { Route, Redirect, useLocation } from 'wouter';
+import React from 'react';
+import { useLocation, Route, Redirect } from 'wouter';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuthHook';
 import { logger } from '@/utils/logger';
 
 interface ProtectedRouteProps {
-  // The path this route should match
   path: string;
-  // The component to render when authenticated
-  component: ComponentType;
-  // Optional fallback URL to redirect to (defaults to /auth)
-  fallbackUrl?: string;
+  component: React.ComponentType<any>;
 }
 
-/**
- * Protected Route Component
- * 
- * Wraps a Route component to require authentication.
- * If the user is not authenticated, they are redirected to the login page.
- */
-export function ProtectedRoute({
-  path,
-  component: Component,
-  fallbackUrl = '/auth',
-}: ProtectedRouteProps) {
-  const { user, isLoading, isAuthenticated } = useAuth();
+export function ProtectedRoute({ path, component: Component }: ProtectedRouteProps) {
+  const { user, isLoading } = useAuth();
   const [location] = useLocation();
   
-  // Log access attempts to protected routes
+  // Log route access attempt for security auditing
   React.useEffect(() => {
-    if (location === path) {
-      if (isAuthenticated) {
-        logger.debug(`Authenticated access to protected route: ${path}`, {
-          tags: ['auth', 'route', 'access'],
-          data: { path, userId: user?.id }
-        });
-      } else if (!isLoading) {
-        logger.warn(`Unauthenticated access attempt to protected route: ${path}`, {
-          tags: ['auth', 'route', 'denied'],
-          data: { path, redirectTo: fallbackUrl }
-        });
-      }
-    }
-  }, [location, path, isAuthenticated, isLoading, user, fallbackUrl]);
+    logger.debug(`Protected route access attempt: ${path}`, {
+      tags: ['auth', 'route', 'access'],
+      data: { path, authenticated: !!user, isLoading },
+    });
+  }, [path, user, isLoading]);
   
-  return (
-    <Route path={path}>
-      {() => {
-        // Show loading spinner while checking authentication
-        if (isLoading) {
-          return (
-            <div className="flex items-center justify-center min-h-screen">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <span className="ml-2 text-lg text-muted-foreground">
-                Checking authentication...
-              </span>
-            </div>
-          );
-        }
-        
-        // If authenticated, render the component
-        if (isAuthenticated) {
-          return <Component />;
-        }
-        
-        // Otherwise, redirect to login with a return URL
-        const returnUrl = encodeURIComponent(path);
-        const redirectTo = `${fallbackUrl}?returnUrl=${returnUrl}`;
-        return <Redirect to={redirectTo} />;
-      }}
-    </Route>
-  );
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <Route path={path}>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="flex flex-col items-center space-y-4">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-muted-foreground">Verifying authentication...</p>
+          </div>
+        </div>
+      </Route>
+    );
+  }
+  
+  // If user is not authenticated, redirect to auth page with return URL
+  if (!user) {
+    logger.info(`Redirecting unauthenticated user from ${path} to auth page`, {
+      tags: ['auth', 'redirect'],
+    });
+    
+    return (
+      <Route path={path}>
+        <Redirect to={`/auth?returnUrl=${encodeURIComponent(location)}`} />
+      </Route>
+    );
+  }
+  
+  // If user is authenticated, render the protected component
+  return <Route path={path} component={Component} />;
 }

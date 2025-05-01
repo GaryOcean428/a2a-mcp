@@ -53,7 +53,7 @@ export async function apiGet<T = any>(
     return await response.json();
   } catch (error) {
     // Log API errors
-    logger.error(`Error fetching data from ${endpoint}:`, error);
+    logger.error(`Error fetching data from ${endpoint}:`, { error });
     throw error;
   }
 }
@@ -96,7 +96,7 @@ export async function apiPost<T = any>(
     return await response.json();
   } catch (error) {
     // Log API errors
-    logger.error(`Error posting data to ${endpoint}:`, error);
+    logger.error(`Error posting data to ${endpoint}:`, { error });
     throw error;
   }
 }
@@ -139,7 +139,7 @@ export async function apiPut<T = any>(
     return await response.json();
   } catch (error) {
     // Log API errors
-    logger.error(`Error putting data to ${endpoint}:`, error);
+    logger.error(`Error putting data to ${endpoint}:`, { error });
     throw error;
   }
 }
@@ -180,7 +180,7 @@ export async function apiDelete<T = any>(
     return await response.json();
   } catch (error) {
     // Log API errors
-    logger.error(`Error deleting data from ${endpoint}:`, error);
+    logger.error(`Error deleting data from ${endpoint}:`, { error });
     throw error;
   }
 }

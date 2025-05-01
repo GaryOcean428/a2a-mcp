@@ -2,168 +2,78 @@
  * MCP Integration Platform - Authentication System
  * 
  * This module implements a session-based authentication system using Passport.js
- * with secure password handling via scrypt.
+ * with secure password handling via scrypt and PostgreSQL database storage.
  */
 
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { Express, Request, Response, NextFunction } from 'express';
 import session from 'express-session';
-import { scrypt, randomBytes, timingSafeEqual } from 'crypto';
-import { promisify } from 'util';
-import MemoryStore from 'memorystore';
-// Import directly from default export
+import crypto from 'crypto';
 import logger from './utils/logger';
+import { storage } from './storage';
+import { registrationSchema, loginSchema, type User } from '@shared/schema';
+import { ZodError } from 'zod';
 
-// Create memory store for sessions
-const MemoryStoreSession = MemoryStore(session);
+// Create a specialized logger for auth operations
+const authLogger = logger.child('Auth');
 
-// Use promisify to convert callback-based scrypt to Promise-based
-const scryptAsync = promisify(scrypt);
+import { User as DbUser } from '@shared/schema';
 
-// User type for authentication
-export interface User {
+// Type assertion to handle null to undefined conversion
+type UserWithOptionals = {
   id: number;
   username: string;
-  password: string; // Stored as hash.salt
-  email?: string;
+  email: string;
+  password: string;
   name?: string;
   role?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
+  apiKey?: string;
+  active?: boolean;
+  lastLogin?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+};
 
-// In-memory user storage for development
-// Replace with database integration in production
-const users: User[] = [
-  {
-    id: 1,
-    username: 'admin',
-    // Password is "admin" - this is a secure hash using scrypt
-    password: '746c68c1cfae22bfda3f4ecdebacbc4bcc6dcaaa9d9fa27e04c9958d8595a067.fc7c45a10a972ef356ba4336a427e8d2',
-    email: 'admin@example.com',
-    name: 'Admin User',
-    role: 'admin',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 2,
-    username: 'user',
-    // Password is "user" - this is a secure hash using scrypt
-    password: '54ff94371e2639cd18eeedd091d0dbefd28e4e1be5d4d54a7431984a4fbe5649.32df63d7f9321fd232892dbf8bff0423',
-    email: 'user@example.com',
-    name: 'Regular User',
-    role: 'user',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
-
-/**
- * Hash a password using scrypt
- */
-async function hashPassword(password: string): Promise<string> {
-  // Generate a random salt
-  const salt = randomBytes(16).toString('hex');
-  // Hash the password with the salt
-  const derivedKey = (await scryptAsync(password, salt, 64)) as Buffer;
-  // Return the hash and salt together
-  return `${derivedKey.toString('hex')}.${salt}`;
-}
-
-/**
- * Compare a password with a stored hash
- */
-async function comparePasswords(supplied: string, stored: string): Promise<boolean> {
-  try {
-    // Split the stored string to get the hash and salt
-    const [hashedPassword, salt] = stored.split('.');
-    
-    // Hash the supplied password with the same salt
-    const derivedKey = (await scryptAsync(supplied, salt, 64)) as Buffer;
-    
-    // Compare the hashes in constant time to prevent timing attacks
-    return timingSafeEqual(
-      Buffer.from(hashedPassword, 'hex'),
-      derivedKey
-    );
-  } catch (error) {
-    logger.error('Password comparison error', {
-      tags: ['auth', 'password', 'error'],
-      error
-    });
-    return false;
-  }
-}
-
-/**
- * Find a user by ID
- */
-async function getUserById(id: number): Promise<User | undefined> {
-  return users.find(user => user.id === id);
-}
-
-/**
- * Find a user by username
- */
-async function getUserByUsername(username: string): Promise<User | undefined> {
-  return users.find(user => user.username === username);
-}
-
-/**
- * Create a new user
- */
-async function createUser(data: Omit<User, 'id' | 'password'> & { password: string }): Promise<User> {
-  // Hash the password before storing
-  const hashedPassword = await hashPassword(data.password);
-  
-  // Create a new user with the next available ID
-  const newUser: User = {
-    id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
-    username: data.username,
-    password: hashedPassword,
-    email: data.email,
-    name: data.name,
-    role: data.role || 'user',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+// Convert from database user type to Express user type
+function convertUser(dbUser: DbUser): UserWithOptionals {
+  return {
+    id: dbUser.id,
+    username: dbUser.username,
+    email: dbUser.email,
+    password: dbUser.password,
+    name: dbUser.name ?? undefined,
+    role: dbUser.role ?? undefined,
+    apiKey: dbUser.apiKey ?? undefined,
+    active: dbUser.active ?? undefined,
+    lastLogin: dbUser.lastLogin ?? undefined,
+    createdAt: dbUser.createdAt ?? undefined,
+    updatedAt: dbUser.updatedAt ?? undefined
   };
-  
-  // Add the user to our in-memory storage
-  users.push(newUser);
-  
-  // Return the user (without the password)
-  const { password, ...userWithoutPassword } = newUser;
-  return { ...userWithoutPassword, password: '[REDACTED]' } as User;
 }
 
-/**
- * Check if a username is already taken
- */
-async function isUsernameTaken(username: string): Promise<boolean> {
-  return users.some(user => user.username === username);
+declare global {
+  namespace Express {
+    // Extend Express User with our User type
+    interface User extends UserWithOptionals {}
+  }
 }
 
 /**
  * Configure Express app with authentication middleware
  */
 export function setupAuth(app: Express): void {
-  logger.info('Setting up authentication system', {
-    tags: ['auth', 'setup']
-  });
+  authLogger.info('Setting up authentication system');
   
-  // Generate a new secret on server start
-  const sessionSecret = process.env.SESSION_SECRET || randomBytes(32).toString('hex');
+  // Generate a new secret on server start if not provided in environment
+  const sessionSecret = process.env.SESSION_SECRET || crypto.randomUUID();
   
   // Session configuration
   const sessionSettings: session.SessionOptions = {
     secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
-    store: new MemoryStoreSession({
-      checkPeriod: 86400000 // prune expired entries every 24h
-    }),
+    store: storage.sessionStore,
     cookie: {
       secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
@@ -178,10 +88,7 @@ export function setupAuth(app: Express): void {
   app.use(passport.session());
   
   // Log the cookie settings for debugging
-  logger.debug('Session cookie settings:', {
-    tags: ['auth', 'session'],
-    data: sessionSettings.cookie
-  });
+  authLogger.debug('Session cookie settings:', sessionSettings.cookie);
   
   // Configure passport to use local strategy
   passport.use(
@@ -192,29 +99,22 @@ export function setupAuth(app: Express): void {
       },
       async (username, password, done) => {
         try {
-          // Look up the user by username
-          const user = await getUserByUsername(username);
+          // Use storage service to validate credentials
+          const user = await storage.validateUserCredentials(username, password);
           
-          // If no user found or password doesn't match, authentication fails
-          if (!user || !(await comparePasswords(password, user.password))) {
-            logger.warn('Authentication failed', {
-              tags: ['auth', 'login', 'fail'],
-              data: { username, reason: !user ? 'user_not_found' : 'password_mismatch' }
-            });
+          if (!user) {
+            authLogger.warn(`Authentication failed for username: ${username}`);
             return done(null, false, { message: 'Invalid username or password' });
           }
           
+          // Track last login time
+          await storage.updateUserLastLogin(user.id);
+          
           // Authentication successful
-          logger.info('Authentication successful', {
-            tags: ['auth', 'login', 'success'],
-            data: { userId: user.id, username: user.username }
-          });
-          return done(null, user);
+          authLogger.info(`User authenticated successfully: ${user.username} (${user.id})`);
+          return done(null, convertUser(user));
         } catch (error) {
-          logger.error('Authentication error', {
-            tags: ['auth', 'login', 'error'],
-            error
-          });
+          authLogger.error('Authentication error:', error);
           return done(error);
         }
       }
@@ -223,37 +123,29 @@ export function setupAuth(app: Express): void {
   
   // Serialize user to the session
   passport.serializeUser((user: Express.User, done) => {
-    logger.debug('Serializing user to session', {
-      tags: ['auth', 'session'],
-      data: { userId: (user as User).id }
-    });
-    done(null, (user as User).id);
+    authLogger.debug(`Serializing user to session: ${user.id}`);
+    done(null, user.id);
   });
   
   // Deserialize user from the session
   passport.deserializeUser(async (id: number, done) => {
     try {
-      const user = await getUserById(id);
+      const user = await storage.getUser(id);
       
       if (!user) {
-        logger.warn('Failed to deserialize user', {
-          tags: ['auth', 'session'],
-          data: { userId: id, reason: 'user_not_found' }
-        });
+        authLogger.warn(`Failed to deserialize user: ${id} (not found)`);
         return done(null, false);
       }
       
-      logger.debug('Deserialized user from session', {
-        tags: ['auth', 'session'],
-        data: { userId: user.id, username: user.username }
-      });
-      done(null, user);
+      if (!user.active) {
+        authLogger.warn(`Failed to deserialize user: ${id} (inactive account)`);
+        return done(null, false);
+      }
+      
+      authLogger.debug(`Deserialized user: ${user.username} (${user.id})`);
+      done(null, convertUser(user));
     } catch (error) {
-      logger.error('Error deserializing user', {
-        tags: ['auth', 'session', 'error'],
-        error,
-        data: { userId: id }
-      });
+      authLogger.error(`Error deserializing user ${id}:`, error);
       done(error);
     }
   });
@@ -261,24 +153,12 @@ export function setupAuth(app: Express): void {
   // Debug middleware to log session and auth info
   if (process.env.NODE_ENV !== 'production') {
     app.use((req: Request, res: Response, next: NextFunction) => {
-      logger.debug('=== GET USER INFO ===', {
-        tags: ['auth', 'debug']
-      });
-      logger.debug(`Session ID: ${req.sessionID}`, {
-        tags: ['auth', 'session']
-      });
-      logger.debug(`Is Authenticated: ${req.isAuthenticated()}`, {
-        tags: ['auth']
-      });
-      logger.debug(`Session: ${JSON.stringify(req.session)}`, {
-        tags: ['auth', 'session']
-      });
-      logger.debug(`Cookie settings: ${JSON.stringify(req.session.cookie)}`, {
-        tags: ['auth', 'cookie']
-      });
-      logger.debug(`Environment: ${process.env.NODE_ENV || 'development'}`, {
-        tags: ['auth', 'environment']
-      });
+      authLogger.debug(`Session ID: ${req.sessionID}`);
+      authLogger.debug(`Is Authenticated: ${req.isAuthenticated()}`);
+      
+      if (req.isAuthenticated()) {
+        authLogger.debug(`User: ${(req.user as User).username} (${(req.user as User).id})`);
+      }
       
       next();
     });
@@ -287,53 +167,64 @@ export function setupAuth(app: Express): void {
   // Registration endpoint
   app.post('/api/register', async (req: Request, res: Response) => {
     try {
-      const { username, password, email, name } = req.body;
-      
-      // Validate required fields
-      if (!username || !password) {
-        logger.warn('Registration missing required fields', {
-          tags: ['auth', 'register', 'validation']
-        });
-        return res.status(400).json({ error: 'Username and password are required' });
-      }
+      // Parse and validate the registration data
+      const validatedData = registrationSchema.parse(req.body);
       
       // Check if username is already taken
-      if (await isUsernameTaken(username)) {
-        logger.warn('Registration attempted with existing username', {
-          tags: ['auth', 'register', 'conflict'],
-          data: { username }
-        });
+      const existingUser = await storage.getUserByUsername(validatedData.username);
+      if (existingUser) {
+        authLogger.warn(`Registration attempted with existing username: ${validatedData.username}`);
         return res.status(409).json({ error: 'Username already exists' });
       }
       
+      // Check if email is already taken
+      const existingEmail = await storage.getUserByEmail(validatedData.email);
+      if (existingEmail) {
+        authLogger.warn(`Registration attempted with existing email: ${validatedData.email}`);
+        return res.status(409).json({ error: 'Email already exists' });
+      }
+      
       // Create the new user
-      const user = await createUser({ username, password, email, name });
+      const userData = {
+        username: validatedData.username,
+        email: validatedData.email,
+        password: validatedData.password,
+        name: validatedData.name
+      };
+      
+      const newUser = await storage.createUser(userData);
       
       // Log the user in automatically
-      req.login(user, (err) => {
+      req.login(convertUser(newUser), (err) => {
         if (err) {
-          logger.error('Error logging in after registration', {
-            tags: ['auth', 'register', 'login', 'error'],
-            error: err
-          });
+          authLogger.error('Error logging in after registration:', err);
           return res.status(500).json({ error: 'Error logging in after registration' });
         }
         
-        // Successful registration and login
-        logger.info('User registered successfully', {
-          tags: ['auth', 'register', 'success'],
-          data: { userId: user.id, username: user.username }
-        });
+        // Return user without sensitive fields
+        const safeUser = {
+          id: newUser.id,
+          username: newUser.username,
+          email: newUser.email,
+          name: newUser.name,
+          role: newUser.role,
+          createdAt: newUser.createdAt
+        };
         
-        // Return the user without the password
-        const { password, ...userWithoutPassword } = user;
-        return res.status(201).json(userWithoutPassword);
+        authLogger.info(`User registered successfully: ${newUser.username} (${newUser.id})`);
+        return res.status(201).json(safeUser);
       });
     } catch (error) {
-      logger.error('Registration error', {
-        tags: ['auth', 'register', 'error'],
-        error
-      });
+      if (error instanceof ZodError) {
+        // Handle validation errors
+        authLogger.warn('Registration validation error:', error.errors);
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: error.errors
+        });
+      }
+      
+      authLogger.error('Registration error:', error);
       res.status(500).json({ error: 'Internal server error during registration' });
     }
   });
@@ -341,97 +232,114 @@ export function setupAuth(app: Express): void {
   // Login endpoint
   app.post('/api/login', 
     (req, res, next) => {
-      logger.debug('Login attempt', {
-        tags: ['auth', 'login'],
-        data: { username: req.body.username }
-      });
-      next();
+      try {
+        // Validate the login data
+        loginSchema.parse(req.body);
+        authLogger.debug(`Login attempt: ${req.body.username}`);
+        next();
+      } catch (error) {
+        if (error instanceof ZodError) {
+          return res.status(400).json({
+            error: 'Validation failed',
+            details: error.errors
+          });
+        }
+        next(error);
+      }
     },
     passport.authenticate('local'),
     (req: Request, res: Response) => {
       // Authentication successful
       const user = req.user as User;
       
-      logger.info('User logged in successfully', {
-        tags: ['auth', 'login', 'success'],
-        data: { userId: user.id, username: user.username }
-      });
+      // Return user without sensitive fields
+      const safeUser = {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        createdAt: user.createdAt
+      };
       
-      // Return the user without the password
-      const { password, ...userWithoutPassword } = user;
-      res.status(200).json(userWithoutPassword);
+      authLogger.info(`User logged in successfully: ${user.username} (${user.id})`);
+      res.status(200).json(safeUser);
     }
   );
   
   // Logout endpoint
   app.post('/api/logout', (req: Request, res: Response, next: NextFunction) => {
-    const wasAuthenticated = req.isAuthenticated();
-    const userId = wasAuthenticated ? (req.user as User).id : null;
-    
-    logger.info('Logout initiated', {
-      tags: ['auth', 'logout'],
-      data: { wasAuthenticated, userId }
-    });
-    
-    req.logout((err) => {
-      if (err) {
-        logger.error('Logout error', {
-          tags: ['auth', 'logout', 'error'],
-          error: err
-        });
-        return next(err);
-      }
+    if (req.isAuthenticated()) {
+      const user = req.user as User;
+      authLogger.info(`Logout initiated for user: ${user.username} (${user.id})`);
       
-      logger.info('User logged out successfully', {
-        tags: ['auth', 'logout', 'success'],
-        data: { wasAuthenticated, userId }
+      req.logout((err) => {
+        if (err) {
+          authLogger.error('Logout error:', err);
+          return next(err);
+        }
+        
+        authLogger.info(`User logged out successfully: ${user.username} (${user.id})`);
+        res.status(200).json({ success: true });
       });
-      
-      res.status(200).json({ success: true, message: 'Logged out successfully' });
-    });
+    } else {
+      authLogger.debug('Logout attempted while not authenticated');
+      res.status(200).json({ success: true });
+    }
   });
   
   // User info endpoint
   app.get('/api/user', (req: Request, res: Response) => {
     if (!req.isAuthenticated()) {
-      logger.debug('User not authenticated, returning 401', {
-        tags: ['auth', 'user']
-      });
+      authLogger.debug('User info requested while not authenticated');
       return res.status(401).json({ error: 'Not authenticated' });
     }
     
-    // User is authenticated, return user info
     const user = req.user as User;
     
-    logger.debug('Returning authenticated user info', {
-      tags: ['auth', 'user'],
-      data: { userId: user.id, username: user.username }
-    });
+    // Return user without sensitive fields
+    const safeUser = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      createdAt: user.createdAt
+    };
     
-    // Return user without password
-    const { password, ...userWithoutPassword } = user;
-    res.status(200).json(userWithoutPassword);
+    authLogger.debug(`User info returned: ${user.username} (${user.id})`);
+    res.status(200).json(safeUser);
   });
   
-  // Auth status endpoint
-  app.get('/api/auth/status', (req: Request, res: Response) => {
-    const isAuthenticated = req.isAuthenticated();
-    const userId = isAuthenticated ? (req.user as User).id : null;
-    
-    logger.debug('Auth status check', {
-      tags: ['auth', 'status'],
-      data: { isAuthenticated, userId }
-    });
-    
-    res.status(200).json({
-      authenticated: isAuthenticated,
-      userId
-    });
+  // API key generation endpoint
+  app.post('/api/user/apikey', requireAuth, async (req: Request, res: Response) => {
+    try {
+      const user = req.user as User;
+      const apiKey = await storage.generateApiKey(user.id);
+      
+      authLogger.info(`API key generated for user: ${user.username} (${user.id})`);
+      res.status(200).json({ apiKey });
+    } catch (error) {
+      authLogger.error('API key generation error:', error);
+      res.status(500).json({ error: 'Failed to generate API key' });
+    }
   });
   
-  logger.info('Authentication system setup complete', {
-    tags: ['auth', 'setup', 'complete']
+  // API key revocation endpoint
+  app.delete('/api/user/apikey', requireAuth, async (req: Request, res: Response) => {
+    try {
+      const user = req.user as User;
+      await storage.revokeApiKey(user.id);
+      
+      authLogger.info(`API key revoked for user: ${user.username} (${user.id})`);
+      res.status(200).json({ success: true });
+    } catch (error) {
+      authLogger.error('API key revocation error:', error);
+      res.status(500).json({ error: 'Failed to revoke API key' });
+    }
   });
+  
+  authLogger.info('Authentication system setup complete');
 }
 
 /**

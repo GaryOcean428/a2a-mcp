@@ -1,151 +1,195 @@
 /**
- * MCP Integration Platform - Logger Utility
+ * MCP Integration Platform - Client Logger
  * 
- * This utility provides a unified logging interface with support for
- * multiple log levels, module-specific logging, and production safeguards.
+ * This module provides a structured logging system for the client,
+ * with support for different log levels and log storage for debug purposes.
  */
 
-import { isDevelopment, isProduction } from './environment';
+// Log levels and their numeric values (for filtering)
+const LOG_LEVELS = {
+  error: 0,
+  warn: 1,
+  info: 2,
+  debug: 3,
+};
 
-// Log levels
-export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+type LogLevel = keyof typeof LOG_LEVELS;
 
-// Optional extra information for logs
+// Log entry structure
+interface LogEntry {
+  timestamp: number;
+  level: LogLevel;
+  message: string;
+  tags?: string[];
+  data?: Record<string, any>;
+  error?: any;
+}
+
+// Configure log level based on environment
+// Higher log level = more verbose logs
+const DEFAULT_LOG_LEVEL: LogLevel = process.env.NODE_ENV === 'production' ? 'warn' : 'debug';
+
+// Maximum number of logs to store in memory
+const MAX_LOG_HISTORY = 1000;
+
+// Optional log options when calling log functions
 export interface LogOptions {
   tags?: string[];
   data?: Record<string, any>;
-  error?: Error | unknown;
-}
-
-interface LoggerOptions {
-  module: string;
-  minLevel?: LogLevel;
-  enabled?: boolean;
-  colorized?: boolean;
-  includeTimestamps?: boolean;
-}
-
-const LOG_LEVEL_MAP: Record<LogLevel, number> = {
-  debug: 0,
-  info: 1,
-  warn: 2,
-  error: 3,
-};
-
-const LOG_COLORS: Record<LogLevel, string> = {
-  debug: '#8b8b8b', // gray
-  info: '#2196f3',  // blue
-  warn: '#ff9800',  // orange
-  error: '#f44336', // red
-};
-
-/**
- * Format a log message with the appropriate styles
- */
-function formatLogMessage(
-  level: LogLevel,
-  module: string,
-  message: string,
-  options: LoggerOptions
-): string[] {
-  const { colorized, includeTimestamps } = options;
-  
-  const timestamp = includeTimestamps ? new Date().toISOString() : '';
-  const prefix = `[${module}]${timestamp ? ` ${timestamp}` : ''}`;
-  
-  const formattedPrefix = colorized
-    ? `%c${prefix}%c`
-    : prefix;
-  
-  const styles = colorized
-    ? [
-        `color: ${LOG_COLORS[level]}; font-weight: bold;`,
-        'color: inherit;',
-      ]
-    : [];
-  
-  return [formattedPrefix + ` ${message}`, ...styles];
+  error?: any;
 }
 
 /**
- * Create a logger instance for a specific module
+ * Client Logger Class
  */
-export function createLogger(options: LoggerOptions) {
-  const {
-    module,
-    minLevel = 'info',
-    enabled = true,
-    colorized = true,
-    includeTimestamps = false,
-  } = options;
+class ClientLogger {
+  private logLevel: LogLevel;
+  private logHistory: LogEntry[] = [];
   
-  const minLevelValue = LOG_LEVEL_MAP[minLevel];
+  constructor(initialLogLevel: LogLevel = DEFAULT_LOG_LEVEL) {
+    this.logLevel = initialLogLevel;
+    this.setupConsoleOverrides();
+  }
   
-  // Utility to check if a log level should be shown
-  const shouldLog = (level: LogLevel): boolean => {
-    // Don't log if logger is disabled
-    if (!enabled) return false;
-    
-    // In production, never show debug logs
-    if (isProduction() && level === 'debug') return false;
-    
-    // Check minimum level
-    return LOG_LEVEL_MAP[level] >= minLevelValue;
-  };
+  /**
+   * Set the current log level
+   */
+  setLogLevel(level: LogLevel): void {
+    this.logLevel = level;
+    console.info(`Log level set to ${level}`);
+  }
   
-  // Create a log method for the specified level
-  const logWithLevel = (level: LogLevel, message: string, options?: LogOptions) => {
-    if (!shouldLog(level)) return;
-    
-    const { tags, data, error } = options || {};
-    
-    const formattedMessage = formatLogMessage(
-      level,
-      module,
-      message + (tags && tags.length ? ` (${tags.join(', ')})` : ''),
-      { module, colorized, includeTimestamps }
-    );
-    
-    // Log to console with the appropriate level
-    switch (level) {
-      case 'debug':
-        console.debug(...formattedMessage, data || '', error || '');
-        break;
-      case 'info':
-        console.info(...formattedMessage, data || '', error || '');
-        break;
-      case 'warn':
-        console.warn(...formattedMessage, data || '', error || '');
-        break;
-      case 'error':
-        console.error(...formattedMessage, data || '', error || '');
-        break;
+  /**
+   * Get all stored logs
+   */
+  getLogs(): LogEntry[] {
+    return [...this.logHistory];
+  }
+  
+  /**
+   * Clear stored logs
+   */
+  clearLogs(): void {
+    this.logHistory = [];
+  }
+  
+  /**
+   * Filter logs by criteria
+   */
+  filterLogs({ level, tags }: { level?: LogLevel; tags?: string[] } = {}): LogEntry[] {
+    return this.logHistory.filter((log) => {
+      if (level && LOG_LEVELS[log.level] > LOG_LEVELS[level]) {
+        return false;
+      }
+      
+      if (tags && tags.length > 0 && (!log.tags || !tags.some(tag => log.tags?.includes(tag)))) {
+        return false;
+      }
+      
+      return true;
+    });
+  }
+  
+  /**
+   * Log a message at the error level
+   */
+  error(message: string, options?: LogOptions): void {
+    this.log('error', message, options);
+  }
+  
+  /**
+   * Log a message at the warn level
+   */
+  warn(message: string, options?: LogOptions): void {
+    this.log('warn', message, options);
+  }
+  
+  /**
+   * Log a message at the info level
+   */
+  info(message: string, options?: LogOptions): void {
+    this.log('info', message, options);
+  }
+  
+  /**
+   * Log a message at the debug level
+   */
+  debug(message: string, options?: LogOptions): void {
+    this.log('debug', message, options);
+  }
+  
+  /**
+   * Internal log method used by all log level methods
+   */
+  private log(level: LogLevel, message: string, options?: LogOptions): void {
+    // Check if this log level should be processed
+    if (LOG_LEVELS[level] > LOG_LEVELS[this.logLevel]) {
+      return;
     }
-  };
+    
+    const entry: LogEntry = {
+      timestamp: Date.now(),
+      level,
+      message,
+      tags: options?.tags,
+      data: options?.data,
+      error: options?.error,
+    };
+    
+    // Add to history, removing old entries if needed
+    this.logHistory.push(entry);
+    if (this.logHistory.length > MAX_LOG_HISTORY) {
+      this.logHistory.shift();
+    }
+    
+    // Output to console with appropriate styling
+    this.consoleOutput(entry);
+  }
   
-  return {
-    debug: (message: string, options?: LogOptions) => logWithLevel('debug', message, options),
-    info: (message: string, options?: LogOptions) => logWithLevel('info', message, options),
-    warn: (message: string, options?: LogOptions) => logWithLevel('warn', message, options),
-    error: (message: string, options?: LogOptions) => logWithLevel('error', message, options),
-    // Create a child logger with a submodule name
-    child: (submodule: string) =>
-      createLogger({
-        ...options,
-        module: `${module}:${submodule}`,
-      }),
-  };
+  /**
+   * Format and output log entry to console
+   */
+  private consoleOutput(entry: LogEntry): void {
+    const { level, message, tags, data, error } = entry;
+    
+    // Determine console method to use
+    const consoleMethod = level === 'debug' ? 'debug' : 
+                         level === 'info' ? 'info' : 
+                         level === 'warn' ? 'warn' : 'error';
+    
+    // Format tags if present
+    const tagsStr = tags && tags.length > 0 ? `[${tags.join(':')}] ` : '';
+    
+    // Log the message with tags
+    console[consoleMethod](`${tagsStr}${message}`);
+    
+    // Log additional data if present
+    if (data) {
+      console[consoleMethod]('Data:', data);
+    }
+    
+    // Log error details if present
+    if (error) {
+      if (error instanceof Error) {
+        console[consoleMethod]('Error:', error.message);
+        console[consoleMethod]('Stack:', error.stack);
+      } else {
+        console[consoleMethod]('Error:', error);
+      }
+    }
+  }
+  
+  /**
+   * Override console methods to capture logs
+   */
+  private setupConsoleOverrides(): void {
+    // Implementation can be added here to override console methods
+    // if desired to capture all console logs
+  }
 }
 
-// Create a default logger for general use
-export const logger = createLogger({
-  module: 'MCP',
-  minLevel: isDevelopment() ? 'debug' : 'info',
-  colorized: true,
-  includeTimestamps: false,
-});
+// Create singleton instance
+export const logger = new ClientLogger();
 
-// Create loggers for specific subsystems
-export const apiLogger = logger.child('API');
-export const wsLogger = logger.child('WebSocket');
-export const uiLogger = logger.child('UI');
+// Export default logger
+export default logger;

@@ -1,108 +1,125 @@
-import { QueryClient, QueryFunction } from "@tanstack/react-query";
-import { API_CONFIG } from "../config/app-config";
-import { handleApiError, createError, ErrorWithMetadata } from "../utils/error-handler";
-
-// Get the API base URL
-const getApiBaseUrl = () => API_CONFIG.BASE_URL;
-
 /**
- * Helper function to throw meaningful errors for non-ok responses
- * with improved error handling and categorization
+ * MCP Integration Platform - Query Client Configuration
+ * 
+ * This file sets up the TanStack Query client with default configurations,
+ * including error handling and authentication state management.
  */
-async function throwIfResNotOk(res: Response) {
-  if (!res.ok) {
-    throw await handleApiError(res, { toast: false });
-  }
+
+import { QueryClient } from '@tanstack/react-query';
+import { logger } from '@/utils/logger';
+
+// Default fetch options for API calls
+interface FetchOptions {
+  method?: string;
+  headers?: Record<string, string>;
+  body?: any;
+  credentials?: RequestCredentials;
+  on401?: '401' | 'throw' | 'returnNull';
 }
 
-/**
- * Normalized API request function that handles relative paths
- */
-export async function apiRequest(
-  method: string,
-  url: string,
-  data?: unknown | undefined,
-): Promise<Response> {
-  // Build full URL if it's a relative path
-  const fullUrl = url.startsWith('http') ? url : `${getApiBaseUrl()}${url}`;
-  
-  console.log(`API Request: ${method} ${fullUrl}`);
-  
-  try {
-    // Add more headers for better cross-domain cookie handling
-    const res = await fetch(fullUrl, {
-      method,
-      headers: {
-        ...(data ? { "Content-Type": "application/json" } : {}),
-        "Cache-Control": "no-cache",
-        "Pragma": "no-cache"
-      },
-      body: data ? JSON.stringify(data) : undefined,
-      credentials: "include", // Essential for cookies
-    });
-    
-    // Skip throwing for caller-handled errors
-    if (!res.ok && method === 'POST' && (url === '/api/login' || url === '/api/register')) {
-      return res;
-    }
-    
-    await throwIfResNotOk(res);
-    return res;
-  } catch (error) {
-    console.error(`API Request Error: ${method} ${url}`, error);
-    throw error;
-  }
-}
-
-type UnauthorizedBehavior = "returnNull" | "throw";
-
-/**
- * Create a query function with proper error handling
- */
-export const getQueryFn: <T>(options: {
-  on401: UnauthorizedBehavior;
-}) => QueryFunction<T> =
-  ({ on401: unauthorizedBehavior }) =>
-  async ({ queryKey }) => {
-    try {
-      const urlPath = queryKey[0] as string;
-      // Build full URL if it's a relative path
-      const fullUrl = urlPath.startsWith('http') ? urlPath : `${getApiBaseUrl()}${urlPath}`;
-      
-      console.log(`Query request: ${fullUrl}`);
-      
-      const res = await fetch(fullUrl, {
-        credentials: "include",
-        headers: {
-          "Cache-Control": "no-cache",
-          "Pragma": "no-cache"
-        }
-      });
-
-      if (unauthorizedBehavior === "returnNull" && res.status === 401) {
-        console.log(`Unauthorized access handled: ${fullUrl}`);
-        return null;
-      }
-
-      await throwIfResNotOk(res);
-      return await res.json();
-    } catch (error) {
-      console.error(`Query request error:`, error);
-      throw error;
-    }
-  };
-
+// Create a client with default options
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      queryFn: getQueryFn({ on401: "throw" }),
-      refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: Infinity,
-      retry: false,
+      refetchOnMount: true,
+      refetchOnReconnect: true,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: 1,
+      retryDelay: attempt => Math.min(1000 * 2 ** attempt, 30000), // Exponential backoff
     },
     mutations: {
-      retry: false,
+      retry: 1,
+      retryDelay: 1000,
     },
   },
 });
+
+// Wrapper for fetch with error handling
+export async function apiRequest<T = any>(
+  method: string,
+  endpoint: string,
+  data?: any,
+  options: Omit<FetchOptions, 'method' | 'body'> = {}
+): Promise<Response> {
+  const isFormData = data instanceof FormData;
+  
+  const headers: Record<string, string> = {
+    ...(!isFormData && { 'Content-Type': 'application/json' }),
+    'Accept': 'application/json',
+    ...options.headers,
+  };
+  
+  const fetchOptions: RequestInit = {
+    method,
+    headers,
+    credentials: options.credentials || 'include',
+    ...(data && { body: isFormData ? data : JSON.stringify(data) }),
+  };
+  
+  logger.debug(`API ${method} request to ${endpoint}`, {
+    tags: ['api', 'request', method.toLowerCase()],
+  });
+  
+  const response = await fetch(endpoint, fetchOptions);
+  
+  if (!response.ok) {
+    const status = response.status;
+    const statusText = response.statusText;
+    
+    // Handle 401 Unauthorized specially (for authentication flows)
+    if (status === 401 && options.on401 === 'returnNull') {
+      logger.debug('Not authenticated (401), returning null', {
+        tags: ['api', 'auth', '401'],
+      });
+      return response;
+    }
+    
+    try {
+      // Try to parse error response
+      const errorData = await response.json();
+      const errorMessage = errorData.error || `${status} ${statusText}`;
+      
+      logger.error(`API error: ${errorMessage}`, {
+        tags: ['api', 'error', `status-${status}`],
+        data: { status, endpoint, errorData },
+      });
+      
+      throw new Error(errorMessage);
+    } catch (jsonError) {
+      // If we can't parse the error, throw a generic one
+      logger.error(`API error: ${status} ${statusText}`, {
+        tags: ['api', 'error', `status-${status}`],
+        data: { status, endpoint },
+      });
+      
+      throw new Error(`API error: ${status} ${statusText}`);
+    }
+  }
+  
+  return response;
+}
+
+// Query function factory for use with useQuery
+export function getQueryFn<T = any>(options: FetchOptions = {}) {
+  return async ({ queryKey }: { queryKey: any }) => {
+    const [endpoint] = queryKey;
+    
+    try {
+      const response = await apiRequest<T>('GET', endpoint, null, options);
+      
+      // Handle 401 specially for authentication
+      if (response.status === 401 && options.on401 === 'returnNull') {
+        return null;
+      }
+      
+      return await response.json();
+    } catch (error) {
+      logger.error(`Query error for ${endpoint}`, {
+        tags: ['query', 'error'],
+        error,
+      });
+      throw error;
+    }
+  };
+}

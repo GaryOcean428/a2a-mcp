@@ -1,284 +1,393 @@
-import { pgTable, text, serial, integer, boolean, json, timestamp, pgEnum } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod";
+/**
+ * MCP Integration Platform - Database Schema
+ * 
+ * This file defines the database schema and types for the application.
+ */
 
-// Users table for authentication
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
-  email: text("email").notNull().unique(),
-  apiKey: text("api_key"),
-  role: text("role").default("user").notNull(), // 'user', 'admin'
-  active: boolean("active").default(true).notNull(),
-  lastLogin: timestamp("last_login"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+import { pgTable, serial, text, timestamp, json, boolean } from 'drizzle-orm/pg-core';
+import { createInsertSchema } from 'drizzle-zod';
+import { z } from 'zod';
+
+/**
+ * Users Table
+ */
+export const users = pgTable('users', {
+  id: serial('id').primaryKey(),
+  username: text('username').notNull().unique(),
+  password: text('password').notNull(),
+  email: text('email').notNull(),
+  name: text('name'),
+  role: text('role').default('user'),
+  apiKey: text('api_key'),
+  active: boolean('active').default(true),
+  lastLogin: timestamp('last_login'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
-  email: true,
+/**
+ * API Keys Table
+ */
+export const apiKeys = pgTable('api_keys', {
+  id: serial('id').primaryKey(),
+  userId: serial('user_id').notNull().references(() => users.id),
+  key: text('key').notNull().unique(),
+  name: text('name'),
+  expiresAt: timestamp('expires_at'),
+  createdAt: timestamp('created_at').defaultNow(),
+  lastUsedAt: timestamp('last_used_at'),
 });
 
-// Available MCP tool types
-export const toolTypeEnum = pgEnum("tool_type", [
-  "web_search",
-  "form_automation",
-  "vector_storage",
-  "data_scraper",
-  "status",
-  "sandbox"
-]);
+/**
+ * Types
+ */
 
-// Provider types for web search
-export const providerTypeEnum = pgEnum("provider_type", [
-  "openai",
-  "tavily",
-  "perplexity",
-]);
-
-// Configurations for tools
-export const toolConfigs = pgTable("tool_configs", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id),
-  toolType: toolTypeEnum("tool_type").notNull(),
-  active: boolean("active").default(true).notNull(),
-  config: json("config").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
-
-export const insertToolConfigSchema = createInsertSchema(toolConfigs).pick({
-  userId: true,
-  toolType: true,
-  active: true,
-  config: true,
-});
-
-// Log entries for all MCP requests
-export const requestLogs = pgTable("request_logs", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id),
-  toolType: toolTypeEnum("tool_type").notNull(),
-  requestData: json("request_data").notNull(),
-  responseData: json("response_data"),
-  statusCode: integer("status_code"),
-  executionTimeMs: integer("execution_time_ms"),
-  timestamp: timestamp("timestamp").defaultNow().notNull(),
-});
-
-export const insertRequestLogSchema = createInsertSchema(requestLogs).pick({
-  userId: true,
-  toolType: true,
-  requestData: true,
-  responseData: true,
-  statusCode: true,
-  executionTimeMs: true,
-});
-
-// Tool schemas for MCP
-export const webSearchSchema = z.object({
-  query: z.string().min(1).describe("The search query to execute"),
-  provider: z.enum(["openai", "tavily", "perplexity"]).default("openai").describe("Search provider to use"),
-  resultCount: z.number().int().min(1).max(50).default(5).describe("Number of results to return"),
-  openaiOptions: z.object({
-    model: z.enum([
-      "gpt-4.1", 
-      "chatgpt-4.1", 
-      "gpt-4.1-mini", 
-      "o1", 
-      "o1-mini",
-      "o1-pro",
-      "o3",
-      "o3-mini-2025-01-31",
-      "o4-mini"
-    ]).default("gpt-4.1").describe("OpenAI model to use"),
-    searchContextSize: z.enum(["low", "medium", "high"]).default("medium").describe("Amount of search context to retrieve"),
-  }).optional(),
-  tavilyOptions: z.object({
-    searchDepth: z.enum(["basic", "advanced"]).default("basic").describe("Depth of search to perform"),
-    topic: z.enum(["general", "news"]).default("general"),
-    includeRawContent: z.boolean().default(false),
-    includeImages: z.boolean().default(false),
-  }).optional(),
-  perplexityOptions: z.object({
-    model: z.enum(["sonar", "sonar-pro"]).default("sonar").describe("Perplexity model to use"),
-    searchContextSize: z.enum(["low", "medium", "high"]).default("medium"),
-    searchDomainFilter: z.array(z.string()).optional().describe("List of domains to filter by (prefix with - to exclude)"),
-  }).optional(),
-});
-
-export const formAutomationSchema = z.object({
-  url: z.string().url().describe("URL of the form to automate"),
-  formData: z.record(z.any()).describe("Key-value pairs of form fields and values"),
-  submitForm: z.boolean().default(true).describe("Whether to submit the form after filling"),
-  waitForNavigation: z.boolean().default(true).describe("Whether to wait for page navigation after submission"),
-  timeout: z.number().int().min(1000).max(30000).default(5000).describe("Maximum time to wait for operation completion (ms)"),
-});
-
-export const vectorStorageSchema = z.object({
-  provider: z.enum(["pinecone", "weaviate"]).default("pinecone").describe("Vector database provider to use"),
-  operation: z.enum(["search", "retrieve", "store", "delete"]).describe("Operation to perform"),
-  collection: z.string().describe("Vector collection/class to operate on"),
-  query: z.string().optional().describe("Query text for semantic search"),
-  embedding: z.array(z.number()).optional().describe("Pre-computed embedding vector (optional)"),
-  filters: z.record(z.any()).optional().describe("Metadata filters for search"),
-  limit: z.number().int().min(1).max(100).default(10).describe("Maximum number of results"),
-  data: z.record(z.any()).optional().describe("Data to store (for store operations)"),
-  ids: z.array(z.string()).optional().describe("Document IDs (for retrieve/delete operations)"),
-  
-  // Weaviate-specific options
-  weaviateOptions: z.object({
-    className: z.string().optional().describe("Class name (defaults to collection name if not provided)"),
-    consistencyLevel: z.enum(["ONE", "QUORUM", "ALL"]).default("ONE").optional().describe("Consistency level for write operations"),
-    vectorizer: z.enum(["none", "text2vec-openai"]).default("text2vec-openai").optional().describe("Vectorizer to use for automatic embeddings"),
-  }).optional().describe("Weaviate-specific configuration options"),
-});
-
-export const dataScraperSchema = z.object({
-  url: z.string().url().describe("URL to scrape"),
-  selectors: z.record(z.string()).optional().describe("Named CSS selectors to extract data"),
-  format: z.enum(["json", "csv", "text"]).default("json").describe("Output format"),
-  pagination: z.object({
-    enabled: z.boolean().default(false),
-    nextSelector: z.string().optional(),
-    maxPages: z.number().int().default(1),
-  }).optional().describe("Pagination configuration"),
-  javascript: z.boolean().default(true).describe("Whether to execute JavaScript on the page"),
-  timeout: z.number().int().min(1000).max(60000).default(10000).describe("Maximum time to wait for scraping completion (ms)"),
-});
-
-export const statusSchema = z.object({
-  toolName: z.string().optional().describe("Name of the tool to check status for (optional, if not provided, returns all tool statuses)"),
-});
-
-export const sandboxSchema = z.object({
-  operation: z.enum(["create", "execute", "upload", "download", "install", "close", "list"]).describe("Operation to perform on the sandbox"),
-  template: z.enum(["base", "data-science", "development", "web"]).default("base").describe("Sandbox template to use"),
-  sandboxId: z.string().optional().describe("ID of an existing sandbox (required for operations other than 'create' and 'list')"),
-  code: z.string().optional().describe("Code to execute (required for 'execute' operation)"),
-  language: z.enum(["javascript", "typescript", "python"]).default("javascript").optional().describe("Programming language of the code"),
-  localFilePath: z.string().optional().describe("Local file path (for file operations)"),
-  sandboxFilePath: z.string().optional().describe("Sandbox file path (for file operations)"),
-  packageName: z.string().optional().describe("Package name to install (required for 'install' operation)"),
-  packageManager: z.enum(["npm", "pip"]).default("npm").optional().describe("Package manager to use for installation"),
-});
-
-// Type definitions
+// User select type
 export type User = typeof users.$inferSelect;
+
+// User insert schema
+export const insertUserSchema = createInsertSchema(users, {
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  username: z.string().min(3, 'Username must be at least 3 characters'),
+}).omit({ id: true, createdAt: true, updatedAt: true });
+
+// Separate login schema (email + password)
+export const loginSchema = z.object({
+  username: z.string().min(3, 'Username must be at least 3 characters'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+});
+
+// Refined user insert schema for registration
+export const registrationSchema = insertUserSchema.extend({
+  confirmPassword: z.string().min(6, 'Password must be at least 6 characters'),
+}).refine(data => data.password === data.confirmPassword, {
+  message: 'Passwords do not match',
+  path: ['confirmPassword'],
+});
+
+// User insert type
 export type InsertUser = z.infer<typeof insertUserSchema>;
 
+// API Key select type
+export type ApiKey = typeof apiKeys.$inferSelect;
+
+// API Key insert schema
+export const insertApiKeySchema = createInsertSchema(apiKeys)
+  .omit({ id: true, createdAt: true, lastUsedAt: true });
+
+// API Key insert type
+export type InsertApiKey = z.infer<typeof insertApiKeySchema>;
+
+/**
+ * Tool Configuration Table
+ */
+export const toolConfigs = pgTable('tool_configs', {
+  id: serial('id').primaryKey(),
+  userId: serial('user_id').notNull().references(() => users.id),
+  toolType: text('tool_type').notNull(),
+  providerType: text('provider_type').notNull(),
+  name: text('name'),
+  active: boolean('active').notNull().default(true),
+  config: json('config').notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Tool Config select type
 export type ToolConfig = typeof toolConfigs.$inferSelect;
+
+// Tool Config insert schema
+export const insertToolConfigSchema = createInsertSchema(toolConfigs, {
+  toolType: z.string().min(1, 'Tool type is required'),
+  providerType: z.string().min(1, 'Provider type is required'),
+  config: z.record(z.string(), z.any()).refine(val => Object.keys(val).length > 0, {
+    message: 'Configuration cannot be empty',
+  }),
+}).omit({ id: true, createdAt: true, updatedAt: true });
+
+// Tool Config insert type
 export type InsertToolConfig = z.infer<typeof insertToolConfigSchema>;
 
+/**
+ * Request Logs Table
+ */
+export const requestLogs = pgTable('request_logs', {
+  id: serial('id').primaryKey(),
+  userId: serial('user_id').references(() => users.id),
+  toolType: text('tool_type').notNull(),
+  providerType: text('provider_type'),
+  endpoint: text('endpoint'),
+  requestData: json('request_data'),
+  responseData: json('response_data'),
+  statusCode: text('status_code'),
+  executionTimeMs: serial('execution_time_ms'),
+  errorMessage: text('error_message'),
+  timestamp: timestamp('timestamp').defaultNow(),
+});
+
+// Request Log select type
 export type RequestLog = typeof requestLogs.$inferSelect;
+
+// Request Log insert schema
+export const insertRequestLogSchema = createInsertSchema(requestLogs, {
+  toolType: z.string().min(1, 'Tool type is required'),
+  requestData: z.record(z.string(), z.any()).optional(),
+  responseData: z.record(z.string(), z.any()).optional(),
+}).omit({ id: true, timestamp: true });
+
+// Request Log insert type
 export type InsertRequestLog = z.infer<typeof insertRequestLogSchema>;
 
-export type WebSearchParams = z.infer<typeof webSearchSchema>;
-export type FormAutomationParams = z.infer<typeof formAutomationSchema>;
-export type VectorStorageParams = z.infer<typeof vectorStorageSchema>;
-export type DataScraperParams = z.infer<typeof dataScraperSchema>;
-export type StatusParams = z.infer<typeof statusSchema>;
-export type SandboxParams = z.infer<typeof sandboxSchema>;
-
-// Tool schemas with MCP annotations
-export const MCPToolSchemas = {
-  web_search: {
-    name: "web_search",
-    description: "Search the web for information with multiple provider options",
-    inputSchema: webSearchSchema,
-    annotations: {
-      title: "Web Search",
-      readOnlyHint: true,
-      openWorldHint: true
-    }
-  },
-  form_automation: {
-    name: "form_automation",
-    description: "Fill and submit web forms with validation",
-    inputSchema: formAutomationSchema,
-    annotations: {
-      title: "Form Automation",
-      readOnlyHint: false,
-      destructiveHint: true,
-      idempotentHint: false,
-      openWorldHint: true
-    }
-  },
-  vector_storage: {
-    name: "vector_storage",
-    description: "Connect to vector databases for semantic search and retrieval",
-    inputSchema: vectorStorageSchema,
-    annotations: {
-      title: "Vector Storage",
-      readOnlyHint: false,
-      destructiveHint: true,
-      idempotentHint: false,
-      openWorldHint: false
-    }
-  },
-  data_scraper: {
-    name: "data_scraper",
-    description: "Extract structured data from websites with configurable policies",
-    inputSchema: dataScraperSchema,
-    annotations: {
-      title: "Data Scraper",
-      readOnlyHint: true,
-      openWorldHint: true
-    }
-  },
-  status: {
-    name: "status",
-    description: "Check the status of MCP tools and platform health",
-    inputSchema: statusSchema,
-    annotations: {
-      title: "Status",
-      readOnlyHint: true,
-      openWorldHint: false
-    }
-  },
-  sandbox: {
-    name: "sandbox",
-    description: "Execute code in a secure isolated sandbox environment",
-    inputSchema: sandboxSchema,
-    annotations: {
-      title: "Secure Sandbox",
-      readOnlyHint: false,
-      destructiveHint: true,
-      idempotentHint: false,
-      openWorldHint: true
-    }
-  }
-};
-
-export type MCPRequest = {
-  id: string;
-  name: string;
-  parameters: any;
-};
-
-export type MCPResponse = {
-  id: string;
-  results?: any;
-  error?: {
-    message: string;
-    code?: string;
-  };
-};
-
-export type ToolStatus = {
+/**
+ * Status Types
+ */
+export interface ToolStatus {
   name: string;
   available: boolean;
   latency?: number;
-  error?: string;
   lastUsed?: string;
-};
+  error?: string;
+}
 
-export type SystemStatus = {
+export interface SystemStatus {
   version: string;
   uptime: number;
-  transport: 'STDIO' | 'SSE';
-  activeTools: ToolStatus[];
+  transport: string;
   lastRequest?: string;
+  activeTools: ToolStatus[];
+}
+
+/**
+ * MCP Protocol Types
+ */
+export interface MCPRequest {
+  id: string;
+  name: string;
+  parameters: any;
+}
+
+export interface MCPResponse {
+  id: string;
+  results?: any;
+  error?: {
+    code: string;
+    message: string;
+  };
+}
+
+// Web Search Parameters
+export interface WebSearchParams {
+  query: string;
+  numResults?: number;
+  includeLinks?: boolean;
+  searchType?: 'web' | 'news' | 'images';
+}
+
+// Form Automation Parameters
+export interface FormAutomationParams {
+  url: string;
+  fields: Record<string, string>;
+  submitSelector?: string;
+  waitForNavigation?: boolean;
+}
+
+// Vector Storage Parameters
+export interface VectorStorageParams {
+  operation: 'store' | 'retrieve' | 'delete' | 'list';
+  collection: string;
+  ids?: string[];
+  embeddings?: number[][];
+  metadata?: Record<string, any>[];
+  query?: number[];
+  topK?: number;
+}
+
+// Data Scraper Parameters
+export interface DataScraperParams {
+  url: string;
+  selectors: string[];
+  waitForSelector?: string;
+  transform?: 'table' | 'list' | 'json';
+}
+
+// Status Parameters
+export interface StatusParams {
+  toolName?: string;
+}
+
+// Sandbox Parameters
+export interface SandboxParams {
+  operation: 'create' | 'execute' | 'upload' | 'download' | 'install' | 'close' | 'list';
+  sandboxId?: string;
+  template?: string;
+  code?: string;
+  language?: string;
+  localFilePath?: string;
+  sandboxFilePath?: string;
+  packageName?: string;
+  packageManager?: 'npm' | 'pip';
+}
+
+export const sandboxSchema = z.object({
+  operation: z.enum(['create', 'execute', 'upload', 'download', 'install', 'close', 'list']),
+  sandboxId: z.string().optional(),
+  template: z.string().optional(),
+  code: z.string().optional(),
+  language: z.string().optional(),
+  localFilePath: z.string().optional(),
+  sandboxFilePath: z.string().optional(),
+  packageName: z.string().optional(),
+  packageManager: z.enum(['npm', 'pip']).optional()
+});
+
+// MCP Tool Schemas
+export const MCPToolSchemas = {
+  web_search: {
+    name: 'web_search',
+    description: 'Search the web for current information',
+    parameters: {
+      type: 'object',
+      properties: {
+        query: {
+          type: 'string',
+          description: 'The search query'
+        },
+        numResults: {
+          type: 'number',
+          description: 'Number of results to return',
+          default: 5
+        },
+        includeLinks: {
+          type: 'boolean',
+          description: 'Whether to include links in results',
+          default: true
+        },
+        searchType: {
+          type: 'string',
+          enum: ['web', 'news', 'images'],
+          description: 'Type of search to perform',
+          default: 'web'
+        }
+      },
+      required: ['query']
+    }
+  },
+  form_automation: {
+    name: 'form_automation',
+    description: 'Automate form filling and submission',
+    parameters: {
+      type: 'object',
+      properties: {
+        url: {
+          type: 'string',
+          description: 'URL of the form to automate'
+        },
+        fields: {
+          type: 'object',
+          description: 'Form fields to fill (field name to value)'
+        },
+        submitSelector: {
+          type: 'string',
+          description: 'CSS selector for submit button',
+          default: 'button[type="submit"]'
+        },
+        waitForNavigation: {
+          type: 'boolean',
+          description: 'Whether to wait for page navigation after submit',
+          default: true
+        }
+      },
+      required: ['url', 'fields']
+    }
+  },
+  vector_storage: {
+    name: 'vector_storage',
+    description: 'Store and retrieve vector embeddings',
+    parameters: {
+      type: 'object',
+      properties: {
+        operation: {
+          type: 'string',
+          enum: ['store', 'retrieve', 'delete', 'list'],
+          description: 'Operation to perform'
+        },
+        collection: {
+          type: 'string',
+          description: 'Collection name for vectors'
+        },
+        ids: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Vector IDs (for store/retrieve/delete)'
+        },
+        embeddings: {
+          type: 'array',
+          items: {
+            type: 'array',
+            items: { type: 'number' }
+          },
+          description: 'Vector embeddings to store'
+        },
+        metadata: {
+          type: 'array',
+          items: { type: 'object' },
+          description: 'Metadata for vectors'
+        },
+        query: {
+          type: 'array',
+          items: { type: 'number' },
+          description: 'Query vector for retrieval'
+        },
+        topK: {
+          type: 'number',
+          description: 'Number of results to return for retrieval',
+          default: 10
+        }
+      },
+      required: ['operation', 'collection']
+    }
+  },
+  data_scraper: {
+    name: 'data_scraper',
+    description: 'Scrape data from web pages',
+    parameters: {
+      type: 'object',
+      properties: {
+        url: {
+          type: 'string',
+          description: 'URL of the page to scrape'
+        },
+        selectors: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'CSS selectors for elements to scrape'
+        },
+        waitForSelector: {
+          type: 'string',
+          description: 'CSS selector to wait for before scraping'
+        },
+        transform: {
+          type: 'string',
+          enum: ['table', 'list', 'json'],
+          description: 'Transform the scraped data into this format',
+          default: 'json'
+        }
+      },
+      required: ['url', 'selectors']
+    }
+  },
+  status: {
+    name: 'status',
+    description: 'Get system or tool status',
+    parameters: {
+      type: 'object',
+      properties: {
+        toolName: {
+          type: 'string',
+          description: 'Specific tool to get status for'
+        }
+      }
+    }
+  }
 };
