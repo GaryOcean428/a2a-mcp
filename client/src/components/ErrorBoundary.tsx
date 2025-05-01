@@ -1,140 +1,121 @@
 /**
  * MCP Integration Platform - Error Boundary Component
  * 
- * This component provides a standardized way to catch and handle errors
- * in React components, preventing the entire application from crashing
- * when an error occurs in one component.
+ * This component catches JavaScript errors anywhere in its child component tree,
+ * logs those errors, and displays a fallback UI instead of crashing.
  */
 
-import { Component, ErrorInfo, ReactNode } from 'react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { handleError } from '../utils/error-handler';
+import React, { Component, ReactNode } from 'react';
 import { AlertTriangle } from 'lucide-react';
 
-// Define the error fallback props type
-export type FallbackProps = {
-  error: Error;
-  resetErrorBoundary: () => void;
-};
-
-// Type definition for the error fallback render function
-export type FallbackRender = (props: FallbackProps) => ReactNode;
-
-// Props for the ErrorBoundary component
 interface ErrorBoundaryProps {
   children: ReactNode;
-  fallback?: ReactNode | FallbackRender;
-  onError?: (error: Error, info: ErrorInfo) => void;
-  onReset?: () => void;
-  resetKeys?: Array<unknown>;
+  fallback?: ReactNode;
+  onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
+  resetOnPropsChange?: boolean;
 }
 
-// State for the ErrorBoundary component
 interface ErrorBoundaryState {
   hasError: boolean;
   error: Error | null;
+  errorInfo: React.ErrorInfo | null;
 }
 
-// Default error fallback component
-export function DefaultErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
-  return (
-    <Alert variant="destructive" className="my-4">
-      <AlertTriangle className="h-5 w-5 mr-2" />
-      <AlertTitle>Something went wrong</AlertTitle>
-      <AlertDescription className="mt-2 text-sm">
-        {error.message || 'An unexpected error occurred. Please try again.'}
-      </AlertDescription>
-      <div className="mt-4">
-        <Button variant="outline" onClick={resetErrorBoundary} size="sm">
-          Try Again
-        </Button>
-      </div>
-    </Alert>
-  );
-}
-
-/**
- * Error Boundary component that catches errors in its child component tree
- */
-export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
-    this.state = { hasError: false, error: null };
-    this.resetErrorBoundary = this.resetErrorBoundary.bind(this);
+    this.state = {
+      hasError: false,
+      error: null,
+      errorInfo: null,
+    };
   }
-  
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+
+  // This lifecycle method runs when an error is thrown in a child component
+  static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
     // Update state so the next render will show the fallback UI
     return { hasError: true, error };
   }
-  
-  componentDidCatch(error: Error, info: ErrorInfo) {
-    // Log the error
-    console.error('[ErrorBoundary] Caught error:', error, info);
+
+  // This lifecycle method allows logging the error
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
+    // Log the error to console
+    console.error('[ErrorBoundary] Caught an error:', error, errorInfo);
     
-    // Handle the error with our error handler
-    handleError(error, { toast: false });
+    // Store error info for display
+    this.setState({ errorInfo });
     
-    // Call the onError callback if provided
+    // Call optional error handler
     if (this.props.onError) {
-      this.props.onError(error, info);
+      this.props.onError(error, errorInfo);
     }
   }
-  
-  componentDidUpdate(prevProps: ErrorBoundaryProps) {
-    // Reset the error state if any reset key has changed
-    if (this.state.hasError && this.props.resetKeys) {
-      const hasResetKeyChanged = this.props.resetKeys.some(
-        (key, index) => key !== prevProps.resetKeys?.[index]
-      );
-      
-      if (hasResetKeyChanged) {
-        this.resetErrorBoundary();
-      }
-    }
-  }
-  
-  resetErrorBoundary() {
-    // Call the onReset callback if provided
-    if (this.props.onReset) {
-      this.props.onReset();
-    }
-    
-    // Reset the error state
-    this.setState({ hasError: false, error: null });
-  }
-  
-  render() {
-    const { hasError, error } = this.state;
-    
-    // If no error, render children
-    if (!hasError || !error) {
-      return this.props.children;
-    }
-    
-    // Render the fallback UI
-    const { fallback } = this.props;
-    
-    // If fallback is a function, call it with error and reset function
-    if (typeof fallback === 'function') {
-      return fallback({
-        error,
-        resetErrorBoundary: this.resetErrorBoundary
+
+  // Reset error state when props change if requested
+  componentDidUpdate(prevProps: ErrorBoundaryProps): void {
+    if (
+      this.props.resetOnPropsChange &&
+      this.state.hasError &&
+      this.props.children !== prevProps.children
+    ) {
+      this.setState({
+        hasError: false,
+        error: null,
+        errorInfo: null,
       });
     }
-    
-    // If fallback is a ReactNode, render it
-    if (fallback) {
-      return fallback;
+  }
+  
+  // Method to manually reset the error boundary
+  resetErrorBoundary = (): void => {
+    this.setState({
+      hasError: false,
+      error: null,
+      errorInfo: null,
+    });
+  };
+
+  render(): ReactNode {
+    // If there's an error, show fallback UI
+    if (this.state.hasError) {
+      // Use custom fallback if provided
+      if (this.props.fallback) {
+        return this.props.fallback;
+      }
+      
+      // Otherwise use default error UI
+      return (
+        <div className="p-4 border border-red-200 rounded-md bg-red-50 text-red-800 my-4 mx-auto max-w-2xl">
+          <div className="flex items-center mb-2">
+            <AlertTriangle className="w-5 h-5 mr-2" />
+            <h3 className="text-lg font-semibold">Something went wrong</h3>
+          </div>
+          
+          <p className="mb-4">
+            The application encountered an error. Try refreshing the page or contact support if the problem persists.
+          </p>
+          
+          <details className="text-sm">
+            <summary className="cursor-pointer font-medium">Error details</summary>
+            <pre className="mt-2 p-2 bg-red-100 rounded overflow-auto text-xs max-h-48">
+              {this.state.error?.toString() || 'Unknown error'}
+              {this.state.errorInfo?.componentStack || ''}
+            </pre>
+          </details>
+          
+          <button
+            onClick={this.resetErrorBoundary}
+            className="mt-4 px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 transition-colors"
+          >
+            Try again
+          </button>
+        </div>
+      );
     }
-    
-    // Otherwise, render the default fallback
-    return (
-      <DefaultErrorFallback 
-        error={error} 
-        resetErrorBoundary={this.resetErrorBoundary} 
-      />
-    );
+
+    // Otherwise, render children normally
+    return this.props.children;
   }
 }
+
+export default ErrorBoundary;

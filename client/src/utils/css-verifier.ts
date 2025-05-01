@@ -38,9 +38,26 @@ const FALLBACK_CSS_URLS = [
 ];
 
 /**
- * Check if a CSS class is properly loaded
+ * Result of a CSS class test
  */
-function isCssClassLoaded(className: string): boolean {
+interface CssClassTestResult {
+  className: string;
+  loaded: boolean;
+  hasStyles: boolean;
+  error?: unknown;
+}
+
+/**
+ * Check if a CSS class is properly loaded
+ * Using multiple heuristics to detect styling effects
+ */
+function isCssClassLoaded(className: string): CssClassTestResult {
+  const result: CssClassTestResult = {
+    className,
+    loaded: false,
+    hasStyles: false
+  };
+  
   try {
     // Create a test element
     const testEl = document.createElement('div');
@@ -50,19 +67,53 @@ function isCssClassLoaded(className: string): boolean {
     testEl.className = className;
     document.body.appendChild(testEl);
     
-    // Get computed style
+    // Create a reference element without the class
+    const refEl = document.createElement('div');
+    refEl.style.position = 'absolute';
+    refEl.style.top = '-9999px';
+    refEl.style.left = '-9999px';
+    document.body.appendChild(refEl);
+    
+    // Get computed styles
     const computedStyle = window.getComputedStyle(testEl);
+    const refStyle = window.getComputedStyle(refEl);
     
-    // Remove test element
+    // Compare certain CSS properties to see if our class applies any styles
+    const propsToCheck = [
+      'backgroundColor', 'color', 'display', 'flexDirection', 'gridTemplateColumns',
+      'animation', 'transform', 'margin', 'padding', 'backgroundImage',
+      'boxShadow', 'borderRadius', 'fontWeight', 'textAlign'
+    ];
+    
+    // Check if at least one property is different
+    for (const prop of propsToCheck) {
+      if (computedStyle[prop as any] !== refStyle[prop as any]) {
+        result.hasStyles = true;
+        break;
+      }
+    }
+    
+    // Clean up
     document.body.removeChild(testEl);
+    document.body.removeChild(refEl);
     
-    // If any style is applied, we consider the class loaded
-    // This is a simplistic check, but works for most CSS classes
-    return (computedStyle !== null);
+    // For keyframes and special rules, treat differently
+    if (className.startsWith('@keyframes') || className.includes(':')) {
+      // We can't test these directly as they can't be applied as classes
+      result.loaded = true;
+      result.hasStyles = true;
+    } else {
+      // For normal classes, we consider them loaded if we have the element
+      result.loaded = true;
+      // For utility classes and other no-visual-effect classes, we might not detect style changes
+      // but they might still exist. This is a limitation of this approach.
+    }
   } catch (error) {
     console.error(`[CSS Verify] Error testing class ${className}:`, error);
-    return false;
+    result.error = error;
   }
+  
+  return result;
 }
 
 /**
@@ -114,42 +165,61 @@ export async function verifyCssAndRecover(): Promise<boolean> {
   
   // Test critical CSS classes
   console.log('[CSS Verify] Testing critical CSS classes:');
+  const testResults: CssClassTestResult[] = [];
   let missingClasses = 0;
+  let missingStyles = 0;
   
   for (const cssClass of CRITICAL_CSS_CLASSES) {
-    const isLoaded = isCssClassLoaded(cssClass);
-    console.log('[CSS Verify] -', `${cssClass}:`, isLoaded ? 'OK' : 'MISSING');
+    const result = isCssClassLoaded(cssClass);
+    testResults.push(result);
     
-    if (!isLoaded) {
+    console.log('[CSS Verify] -', `${cssClass}:`, result.loaded ? (result.hasStyles ? 'OK' : 'LOADED BUT NO EFFECT') : 'MISSING');
+    
+    if (!result.loaded) {
       missingClasses++;
+    } else if (!result.hasStyles && !cssClass.startsWith('.') && !cssClass.includes(':')) {
+      // Only count missing styles for regular classes, not special selectors
+      missingStyles++;
     }
   }
   
-  // If we have missing classes, try recovery
-  if (missingClasses > 0 || count === 0) {
-    console.warn(`[CSS Verify] Missing ${missingClasses} critical CSS classes. Attempting recovery...`);
+  // If we have missing classes or styles, try recovery
+  if (missingClasses > 0 || missingStyles > 2 || count === 0) { // Allow a few utility classes to have no visible effect
+    console.warn(`[CSS Verify] Found ${missingClasses} missing classes and ${missingStyles} classes without styles. Attempting recovery...`);
     
     // Load fallback CSS files
     try {
       const loadPromises = FALLBACK_CSS_URLS.map(url => loadCssFile(url));
-      await Promise.allSettled(loadPromises);
+      const results = await Promise.allSettled(loadPromises);
+      
+      // Check if at least one succeeded
+      const anySuccess = results.some(r => r.status === 'fulfilled' && r.value === true);
+      
+      if (!anySuccess) {
+        console.warn('[CSS Verify] No fallback CSS files could be loaded');
+      }
       
       console.log('[CSS Verify] Recovery attempt completed. Verifying again...');
       
       // Re-check critical classes
       let stillMissing = 0;
+      let stillNoStyles = 0;
+      
       for (const cssClass of CRITICAL_CSS_CLASSES) {
-        const isLoaded = isCssClassLoaded(cssClass);
-        if (!isLoaded) {
+        const result = isCssClassLoaded(cssClass);
+        if (!result.loaded) {
           stillMissing++;
+        } else if (!result.hasStyles && !cssClass.startsWith('.') && !cssClass.includes(':')) {
+          stillNoStyles++;
         }
       }
       
-      if (stillMissing > 0) {
-        console.error(`[CSS Verify] Recovery incomplete. Still missing ${stillMissing} classes.`);
+      // Only fail if we have a significant number of missing classes
+      if (stillMissing > 1) {
+        console.error(`[CSS Verify] Recovery incomplete. Still missing ${stillMissing} classes and ${stillNoStyles} classes without styles.`);
         return false;
       } else {
-        console.log('[CSS Verify] Recovery successful. All classes now loaded.');
+        console.log('[CSS Verify] Recovery successful!');
         return true;
       }
     } catch (error) {

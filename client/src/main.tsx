@@ -3,13 +3,19 @@ import { StrictMode } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { ThemeProvider } from "./components/ThemeProvider";
-import { ErrorBoundary } from "./components/ErrorBoundary";
+import { Toaster } from "@/components/ui/toaster";
+import ErrorBoundary from "./components/ErrorBoundary";
 import { VERSION } from "./version";
 import App from "./App";
+
 // Import the Vite HMR fix to patch WebSocket - this must be loaded first
-import "./vite-hmr-fix";
-// Import our enhanced theme system
+import "./utils/vite-hmr-fix";
+
+// Import enhanced utilities
 import { initializeTheme } from "./utils/theme-loader";
+import { logger } from "./utils/logger";
+import { isDevelopment, detectBrowserCapabilities } from "./utils/environment";
+
 // Import sidebar fix CSS (important: keep this direct import)
 import "./styles/fix-sidebar.css";
 
@@ -17,14 +23,46 @@ import "./styles/fix-sidebar.css";
 initializeTheme();
 
 // Log startup information
-console.log(`MCP Integration Platform v${VERSION} starting`);
+logger.info(`MCP Integration Platform v${VERSION} starting`, {
+  tags: ['startup']
+});
 
-// Handle any errors proactively
+// Log environment information
+const capabilities = detectBrowserCapabilities();
+logger.debug('Browser capabilities detected', {
+  data: capabilities
+});
+
+// Create global error handler
 window.addEventListener('error', (event) => {
+  // Special handling for WebSocket errors which can be safely ignored in some cases
   if (event.message && event.message.includes('WebSocket')) {
-    console.warn('Suppressed WebSocket error:', event.message);
+    logger.warn('Suppressed WebSocket error', {
+      tags: ['error-handler'],
+      data: {
+        message: event.message,
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno
+      }
+    });
     event.preventDefault();
+    return;
   }
+  
+  // Log all other errors
+  logger.error('Uncaught error', {
+    tags: ['error-handler', 'unhandled-exception'],
+    error: event.error || event
+  });
+});
+
+// Handle promise rejections
+window.addEventListener('unhandledrejection', (event) => {
+  logger.error('Unhandled promise rejection', {
+    tags: ['error-handler', 'unhandled-rejection'],
+    error: event.reason
+  });
 });
 
 // -------------------------------------------------------------
@@ -33,7 +71,7 @@ window.addEventListener('error', (event) => {
 
 // Initialize the UI loading process
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('[MCP] Document loaded, initializing UI loading process');
+  logger.info('Document loaded, initializing UI', { tags: ['startup'] });
   
   // CSS system is already initialized through initializeTheme()
   
@@ -95,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Mount the app after a short delay to ensure CSS is loaded
   setTimeout(() => {
-    console.log('[MCP] Direct CSS initialization completed successfully');
+    logger.info('CSS initialization completed', { tags: ['startup', 'css'] });
     mountApp();
     
     // Remove the loading overlay with a fade effect
@@ -105,6 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
         if (loadingOverlay.parentNode) {
           loadingOverlay.parentNode.removeChild(loadingOverlay);
+          logger.debug('Removed loading overlay', { tags: ['ui'] });
         }
       }, 500);
     }
@@ -114,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Function to mount the React application
 function mountApp() {
   try {
-    console.log('[MCP] Mounting application');
+    logger.info('Mounting application', { tags: ['startup', 'render'] });
     
     // Get the root element
     const rootElement = document.getElementById("root");
@@ -125,9 +164,18 @@ function mountApp() {
     // Create and render React root with providers
     createRoot(rootElement).render(
       <StrictMode>
-        <ErrorBoundary>
+        <ErrorBoundary
+          onError={(error, errorInfo) => {
+            logger.error('React error boundary caught error', {
+              tags: ['react', 'error-boundary'],
+              error,
+              data: { componentStack: errorInfo.componentStack }
+            });
+          }}
+        >
           <QueryClientProvider client={queryClient}>
             <ThemeProvider>
+              <Toaster />
               <App />
             </ThemeProvider>
           </QueryClientProvider>
@@ -143,9 +191,14 @@ function mountApp() {
       }, 500);
     }
     
-    console.log("[MCP] Application mounted successfully");
+    logger.info("Application mounted successfully", {
+      tags: ['startup', 'complete']
+    });
   } catch (error) {
-    console.error("[MCP] Error mounting application:", error);
+    logger.error("Error mounting application", {
+      tags: ['startup', 'fatal-error'],
+      error
+    });
     
     // Display error message on page
     const rootElement = document.getElementById("root");
