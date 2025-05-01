@@ -35,7 +35,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuthHook";
 
 interface NavItem {
   href: string;
@@ -82,7 +82,8 @@ const navLinks: NavItem[] = [
 ];
 
 export default function Header() {
-  const { user, isAuthenticated, logout, isLoading: authLoading } = useAuth();
+  const { user, logout, isLoading: authLoading } = useAuth();
+  const isAuthenticated = !!user;
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [location, navigate] = useLocation();

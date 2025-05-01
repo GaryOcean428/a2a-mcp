@@ -1,0 +1,50 @@
+[css:verification] Starting CSS verification
+[css:verification] Critical inline styles present: false
+[css:verification] External stylesheets loaded: 1
+[css:verification] - https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/production.css?v=2.5.1745966538733
+[css:verification] Testing critical CSS classes:
+[css:verification] - bg-grid-gray-100: MISSING
+[css:verification] - bg-blob-gradient: MISSING
+[css:verification] - feature-card: OK
+[css:verification] - animate-fade-in-down: OK
+[css:verification] - from-purple-50: MISSING
+[css:verification] - to-white: MISSING
+[css:verification] - bg-gradient-to-r: MISSING
+[css:verification] Missing 5 critical CSS classes!
+Data: 
+Object {missing: Array(5)}
+[css:verification] Starting CSS verification
+[css:verification] Critical inline styles present: false
+[css:verification] External stylesheets loaded: 1
+[css:verification] - https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/production.css?v=2.5.1745966538733
+[css:verification] Testing critical CSS classes:
+[css:verification] - bg-grid-gray-100: MISSING
+[css:verification] - bg-blob-gradient: MISSING
+[css:verification] - feature-card: OK
+[css:verification] - animate-fade-in-down: OK
+[css:verification] - from-purple-50: MISSING
+[css:verification] - to-white: MISSING
+[css:verification] - bg-gradient-to-r: MISSING
+[css:verification] Missing 5 critical CSS classes!
+Data: 
+Object {missing: Array(5)}
+missing: Array(5)
+[[Prototype]]: Object
+[ui] Removed loading overlay
+[WebSocket Test] Testing connection to wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws
+[WebSocket Test] Connection test successful
+[StylesProtectedRoot] Timeout waiting for UI ready event, proceeding anyway
+useAuth must be used within an AuthProvider
+[error-handler:unhandled-exception] Uncaught error
+Error: useAuth must be used within an AuthProvider
+Stack: Error: useAuth must be used within an AuthProvider
+    at useAuth (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/hooks/useAuth.tsx:206:11)
+    at Header (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/Header.tsx:114:69)
+    at renderWithHooks (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:11596:26)
+    at mountIndeterminateComponent (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:14974:21)
+    at beginWork (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:15962:22)
+    at HTMLUnknownElement.callCallback2 (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:3680:22)
+    at Object.invokeGuardedCallbackDev (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:3705:24)
+    at invokeGuardedCallback (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:3739:39)
+    at beginWork$1 (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:19818:15)
+    at performUnitOfWork (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:19251:20)
