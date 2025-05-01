@@ -144,6 +144,12 @@ class McpWebSocketClient {
     this.socket = null;
     this.authenticated = false;
     
+    // Clean up keepalive
+    if (this.keepaliveCleanup) {
+      this.keepaliveCleanup();
+      this.keepaliveCleanup = null;
+    }
+    
     console.log(`[WebSocket] Connection closed: ${event.code} ${event.reason || ''}`);
     this.emitEvent('status', { status: 'disconnected' });
     
@@ -157,11 +163,14 @@ class McpWebSocketClient {
    * Handle WebSocket error event
    */
   private handleError(event: Event): void {
-    this.emitEvent('error', event);
-    this.emitEvent('status', { status: 'error', error: event });
+    // Use our utility to handle the error consistently
+    const errorMessage = handleWebSocketError(event);
+    
+    this.emitEvent('error', { message: errorMessage, originalEvent: event });
+    this.emitEvent('status', { status: 'error', error: { message: errorMessage } });
     
     // Socket will close after error, so we'll reconnect in the onclose handler
-    console.error('[WebSocket] Error occurred:', event);
+    console.error('[WebSocket] Error occurred:', errorMessage);
   }
   
   /**

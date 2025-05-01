@@ -7,8 +7,6 @@
 
 import { injectCriticalCSS, loadCssFile, verifyCssLoaded } from './css-injector';
 
-import { injectCriticalCSS, loadCssFile, verifyCssLoaded } from './css-injector';
-
 // We'll inject these critical CSS classes immediately on load
 const criticalClasses = [
   // Layout classes
