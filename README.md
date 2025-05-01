@@ -130,6 +130,16 @@ This platform integrates with the Cline VS Code extension, providing additional 
 - Node.js v18+
 - PostgreSQL database (for production deployments)
 
+## Documentation
+
+For detailed documentation, please refer to the following resources:
+
+- [Documentation Home](docs/index.md) - Main documentation portal
+- [Getting Started Guide](docs/getting-started.md) - Quick setup and first steps
+- [Feature Documentation](docs/features/index.md) - Detailed feature guides
+- [FAQ](docs/faq.md) - Frequently asked questions
+- [Troubleshooting](docs/troubleshooting.md) - Solutions to common issues
+
 ## Contact
 
 For additional support or feature requests, please contact the maintainers of this project.
