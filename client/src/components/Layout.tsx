@@ -47,7 +47,7 @@ export default function Layout({ children, showSidebar }: LayoutProps) {
           )}
           
           {/* Page Content */}
-          <div className={`flex-1 pt-6 pb-8 px-6 ${shouldShowSidebar ? 'mcp-content-wrapper' : 'w-full'}`}>
+          <div className="flex-1 pt-6 pb-8 px-6">
             {/* Breadcrumb Navigation (only shown on pages with activeRoute) */}
             {activeRoute && <Breadcrumb />}
             
