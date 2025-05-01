@@ -1,102 +1,102 @@
 /**
- * MCP Integration Platform - Vite HMR WebSocket Fix
+ * MCP Integration Platform - Vite HMR Fix
  * 
- * This module patches Vite HMR WebSocket errors to prevent them from
- * polluting the console and causing confusion with our application WebSocket.
+ * This utility patches the Vite Hot Module Replacement system to prevent
+ * WebSocket errors when using our own WebSocket connections.
+ * 
+ * The issue happens because Vite uses undocumented WebSocket internal behavior
+ * that can break when there are multiple WebSocket instances.
  */
 
-import { handleWebSocketError } from './websocket-utils';
+import { logger } from './logger';
 
-// Store original WebSocket constructor
+/**
+ * Flag to track if the fix has been applied
+ */
+let hmrFixed = false;
+
+/**
+ * Original WebSocket constructor
+ */
 const OriginalWebSocket = window.WebSocket;
 
-// A list of Vite HMR URLs to identify and handle specially
-const VITE_HMR_URLS = [
-  '/__vite-hmr',
-  'localhost',
-  '/_hmr',
-  '/vite-hmr'
-];
-
-// Check if a URL is a Vite HMR URL
-function isViteHmrUrl(url: string): boolean {
-  return VITE_HMR_URLS.some(pattern => url.includes(pattern));
-}
-
-// Create a wrapped WebSocket constructor that handles Vite HMR errors properly
-class WrappedWebSocket extends WebSocket {
-  constructor(url: string | URL, protocols?: string | string[]) {
-    try {
-      super(url, protocols);
+/**
+ * Apply the HMR fix
+ */
+function applyHmrFix() {
+  if (hmrFixed || typeof window === 'undefined') {
+    return;
+  }
+  
+  logger.debug('Applying Vite HMR WebSocket fix', {
+    tags: ['hmr', 'websocket']
+  });
+  
+  // Create a patched WebSocket constructor
+  class PatchedWebSocket extends OriginalWebSocket {
+    constructor(url: string | URL, protocols?: string | string[]) {
+      // Fix URL for Vite HMR WebSockets
+      let wsUrl = url instanceof URL ? url.toString() : url;
       
-      // Handle connection errors specifically for non-Vite WebSockets
-      if (!isViteHmrUrl(url.toString())) {
-        const originalOnError = this.onerror;
+      // Check if this is a Vite HMR WebSocket
+      const isViteHmr = typeof wsUrl === 'string' && (
+        wsUrl.includes('hmr') ||
+        wsUrl.includes('__vite') ||
+        wsUrl.includes('vite') ||
+        wsUrl.includes('[hmr]')
+      );
+      
+      // For Vite HMR, make sure to prefix the WebSocket path with /ws-hmr to avoid
+      // conflicts with our application WebSockets
+      if (isViteHmr && wsUrl.includes('ws')) {
+        // Get the origin from the current window
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const host = window.location.host;
         
-        this.onerror = (event: Event) => {
-          // Let our error handler process it first
-          handleWebSocketError(event);
-          
-          // Then call the original handler if it exists
-          if (originalOnError) {
-            originalOnError.call(this, event);
-          }
-        };
-      }
-    } catch (error) {
-      // Handle WebSocket construction errors
-      if (!isViteHmrUrl(url.toString())) {
-        console.error('[WebSocket] Error creating WebSocket:', error);
-      } else {
-        console.debug('[Vite HMR] Suppressed HMR WebSocket error:', error);
+        // Create a new URL with /ws-hmr path
+        wsUrl = `${protocol}//${host}/ws-hmr`;
+        
+        logger.debug('Patched Vite HMR WebSocket URL', {
+          tags: ['hmr', 'websocket'],
+          data: { original: url, patched: wsUrl }
+        });
       }
       
-      // Re-throw for the caller to handle
-      throw error;
+      // Call the original constructor with the potentially modified URL
+      super(wsUrl, protocols);
     }
+  }
+  
+  // Replace the WebSocket constructor
+  try {
+    // @ts-ignore - we need to override the constructor
+    window.WebSocket = PatchedWebSocket;
+    hmrFixed = true;
+    
+    logger.info('Successfully applied Vite HMR WebSocket fix', {
+      tags: ['hmr', 'websocket', 'startup']
+    });
+  } catch (error) {
+    logger.error('Failed to apply Vite HMR WebSocket fix', {
+      tags: ['hmr', 'websocket', 'error'],
+      error
+    });
   }
 }
 
-// Replace the global WebSocket constructor with our wrapped version
-window.WebSocket = WrappedWebSocket as any;
+// Apply the HMR fix when this module is imported
+applyHmrFix();
 
-// Install global error handlers for unhandled WebSocket errors
-function installErrorHandlers() {
-  window.addEventListener('error', (event) => {
-    if (event.message && (
-      event.message.includes('WebSocket') || 
-      event.message.includes('ws://') || 
-      event.message.includes('wss://')
-    )) {
-      if (event.message.includes('Vite') || event.message.includes('hmr')) {
-        console.debug('[Vite HMR] Suppressed HMR error:', event.message);
-        event.preventDefault();
-        return false;
-      }
-    }
-    return true;
-  });
-  
-  window.addEventListener('unhandledrejection', (event) => {
-    if (event.reason && event.reason.message && (
-      event.reason.message.includes('WebSocket') || 
-      event.reason.message.includes('ws://') || 
-      event.reason.message.includes('wss://')
-    )) {
-      if (event.reason.message.includes('Vite') || event.reason.message.includes('hmr')) {
-        console.debug('[Vite HMR] Suppressed unhandled promise rejection:', event.reason.message);
-        event.preventDefault();
-        return false;
-      }
-    }
-    return true;
-  });
-  
-  console.log('[Vite HMR Fix] Installed error handlers to suppress invalid WebSocket URL errors');
+// Export a function to check if the fix is applied
+export function isHmrFixed(): boolean {
+  return hmrFixed;
 }
 
-// Install the error handlers
-installErrorHandlers();
+// Export a function to manually apply the fix
+export function applyViteHmrFix(): boolean {
+  applyHmrFix();
+  return hmrFixed;
+}
 
-// Export original WebSocket for reference
+// Export the original WebSocket constructor
 export { OriginalWebSocket };
