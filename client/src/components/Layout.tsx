@@ -34,16 +34,22 @@ export default function Layout({ children, showSidebar }: LayoutProps) {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header with integrated navigation */}
-      <Header />
+      <div className="header-height">
+        <Header />
+      </div>
       
       {/* Main content area with optional sidebar */}
       <main className="flex-1 bg-gray-50 content-container">
         <div className="flex relative">
           {/* Conditional Tool Sidebar */}
-          {shouldShowSidebar && <ToolSidebar />}
+          {shouldShowSidebar && (
+            <div className="sidebar-container">
+              <ToolSidebar />
+            </div>
+          )}
           
           {/* Page Content */}
-          <div className="flex-1 pt-6 pb-8 px-6">
+          <div className="main-content flex-1 pt-6 pb-8 px-6">
             {/* Breadcrumb Navigation (only shown on pages with activeRoute) */}
             {activeRoute && <Breadcrumb />}
             

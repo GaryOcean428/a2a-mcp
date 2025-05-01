@@ -8,13 +8,13 @@ import { VERSION } from "./version";
 import App from "./App";
 // Import the Vite HMR fix to patch WebSocket - this must be loaded first
 import "./vite-hmr-fix";
-// Import direct CSS injection
-import { injectCriticalCSS, initCssProtection } from "./utils/css-injector";
-// Import sidebar fix CSS
+// Import our enhanced theme system
+import { initializeTheme } from "./utils/theme-loader";
+// Import sidebar fix CSS (important: keep this direct import)
 import "./styles/fix-sidebar.css";
 
-// Apply essential CSS immediately, before anything else
-injectCriticalCSS();
+// Apply essential CSS and initialize theme immediately
+initializeTheme();
 
 // Log startup information
 console.log(`MCP Integration Platform v${VERSION} starting`);

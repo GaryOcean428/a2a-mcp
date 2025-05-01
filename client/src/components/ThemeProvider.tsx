@@ -9,7 +9,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { STORAGE_KEYS } from '../config/constants';
 import { UI_CONFIG } from '../config/app-config';
-import { injectCriticalCSS } from '../utils/css-injector';
+import { initializeTheme, applyThemeToDom } from '../utils/theme-loader';
 
 // Theme types
 export type ThemeMode = 'light' | 'dark' | 'system';
@@ -33,14 +33,7 @@ function getSystemTheme(): 'light' | 'dark' {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
-// Helper to apply theme to DOM
-function applyThemeToDOM(theme: 'light' | 'dark'): void {
-  if (theme === 'dark') {
-    document.documentElement.classList.add('dark');
-  } else {
-    document.documentElement.classList.remove('dark');
-  }
-}
+// Helper functions moved to theme-loader.ts
 
 // Helper to get stored theme
 function getStoredTheme(): ThemeMode {
@@ -76,24 +69,28 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setThemeState(newTheme);
     storeTheme(newTheme);
     
-    // Apply theme immediately
+    // Apply theme immediately using the enhanced apply function
+    applyThemeToDom(newTheme);
+    
+    // Update isDark state based on computed theme
     const computedTheme = newTheme === 'system' ? getSystemTheme() : newTheme;
-    applyThemeToDOM(computedTheme);
     setIsDark(computedTheme === 'dark');
   };
   
   // Initialize theme when component mounts
   useEffect(() => {
-    // Inject critical CSS for immediate styling
-    injectCriticalCSS();
+    // Initialize theme with critical CSS
+    initializeTheme();
     
     // Get stored theme from localStorage
     const storedTheme = getStoredTheme();
     setThemeState(storedTheme);
     
-    // Apply the theme
+    // Apply the theme using the enhanced apply function
+    applyThemeToDom(storedTheme);
+    
+    // Update isDark state based on computed theme
     const computedTheme = storedTheme === 'system' ? getSystemTheme() : storedTheme;
-    applyThemeToDOM(computedTheme);
     setIsDark(computedTheme === 'dark');
     
     // Listen for system theme changes
@@ -102,7 +99,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const handleChange = () => {
       if (theme === 'system') {
         const newSystemTheme = getSystemTheme();
-        applyThemeToDOM(newSystemTheme);
+        applyThemeToDom('system'); // This will handle the system preference internally
         setIsDark(newSystemTheme === 'dark');
       }
     };
