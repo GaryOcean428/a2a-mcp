@@ -5,7 +5,9 @@
  * including development vs. production, browser capabilities, and version tracking.
  */
 
-import { version } from '../version';
+// Import the version from the version module
+import * as versionModule from '../version';
+const { version } = versionModule;
 
 /**
  * Check if the application is running in development mode

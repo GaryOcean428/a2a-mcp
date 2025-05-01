@@ -5,7 +5,7 @@ import { queryClient } from "@/lib/queryClient";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { Toaster } from "@/components/ui/toaster";
 import ErrorBoundary from "./components/ErrorBoundary";
-import { VERSION } from "./version";
+import { version } from "./version";
 import App from "./App";
 
 // Import the Vite HMR fix to patch WebSocket - this must be loaded first
@@ -14,7 +14,7 @@ import "./utils/vite-hmr-fix";
 // Import enhanced utilities
 import { initializeTheme } from "./utils/theme-loader";
 import { logger } from "./utils/logger";
-import { isDevelopment, detectBrowserCapabilities } from "./utils/environment";
+import { isDevelopment, getBrowserInfo, getDeviceInfo } from "./utils/environment";
 
 // Import sidebar fix CSS (important: keep this direct import)
 import "./styles/fix-sidebar.css";
@@ -23,14 +23,15 @@ import "./styles/fix-sidebar.css";
 initializeTheme();
 
 // Log startup information
-logger.info(`MCP Integration Platform v${VERSION} starting`, {
+logger.info(`MCP Integration Platform v${version} starting`, {
   tags: ['startup']
 });
 
 // Log environment information
-const capabilities = detectBrowserCapabilities();
+const browserInfo = getBrowserInfo();
+const deviceInfo = getDeviceInfo();
 logger.debug('Browser capabilities detected', {
-  data: capabilities
+  data: { browser: browserInfo, device: deviceInfo }
 });
 
 // Create global error handler

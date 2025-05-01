@@ -54,7 +54,7 @@ export function initializeTheme(): void {
   import('./css-verifier')
     .then(module => {
       // Start CSS verification process
-      module.startCssVerification();
+      module.verifyCriticalCss();
     })
     .catch(error => {
       console.error('[Theme] Failed to load CSS verifier:', error);
