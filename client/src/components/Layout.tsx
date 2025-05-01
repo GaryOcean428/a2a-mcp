@@ -37,14 +37,10 @@ export default function Layout({ children, showSidebar }: LayoutProps) {
       <Header />
       
       {/* Main content area with optional sidebar */}
-      <main className="flex-1 bg-gray-50">
+      <main className="flex-1 bg-gray-50 content-container">
         <div className="flex relative">
           {/* Conditional Tool Sidebar */}
-          {shouldShowSidebar && (
-            <div className="tool-sidebar">
-              <ToolSidebar />
-            </div>
-          )}
+          {shouldShowSidebar && <ToolSidebar />}
           
           {/* Page Content */}
           <div className="flex-1 pt-6 pb-8 px-6">

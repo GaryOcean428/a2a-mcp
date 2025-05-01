@@ -36,7 +36,7 @@ export default function ToolSidebar({ showRecent = true }: ToolSidebarProps) {
   const recentTools = toolRoutes.slice(0, 3);
   
   return (
-    <div className="w-full border-r border-gray-200 h-full flex-shrink-0 bg-white z-10 relative">
+    <div className="w-64 border-r border-gray-200 h-[calc(100vh-64px)] flex-shrink-0 bg-white z-10 relative">
       <ScrollArea className="h-full py-4">
         <div className="px-4 space-y-6">
           {showRecent && (
