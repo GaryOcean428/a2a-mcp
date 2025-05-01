@@ -7,6 +7,8 @@
 
 import { injectCriticalCSS, loadCssFile, verifyCssLoaded } from './css-injector';
 
+import { injectCriticalCSS, loadCssFile, verifyCssLoaded } from './css-injector';
+
 // We'll inject these critical CSS classes immediately on load
 const criticalClasses = [
   // Layout classes
@@ -50,25 +52,35 @@ export function initializeTheme(): void {
   styleEl.innerHTML = generateCriticalCSS();
   document.head.appendChild(styleEl);
   
-  // After a brief delay, verify CSS is working
-  setTimeout(() => {
-    const cssLoaded = verifyCssLoaded();
-    if (!cssLoaded) {
-      console.warn('[Theme] Critical CSS not functioning, attempting recovery');
+  // Import CSS verifier module to check and fix CSS issues
+  import('./css-verifier')
+    .then(module => {
+      // Start CSS verification process
+      module.startCssVerification();
+    })
+    .catch(error => {
+      console.error('[Theme] Failed to load CSS verifier:', error);
       
-      // Try loading theme files directly
-      Promise.all([
-        loadCssFile('/src/styles/theme.css'),
-        loadCssFile('/src/styles/fix-sidebar.css')
-      ])
-      .then(() => {
-        console.log('[Theme] Loaded CSS files successfully');
-      })
-      .catch(error => {
-        console.error('[Theme] Failed to load CSS files:', error);
-      });
-    }
-  }, 500);
+      // Fallback to our basic verification
+      setTimeout(() => {
+        const cssLoaded = verifyCssLoaded();
+        if (!cssLoaded) {
+          console.warn('[Theme] Critical CSS not functioning, attempting recovery');
+          
+          // Try loading theme files directly
+          Promise.all([
+            loadCssFile('/src/styles/theme.css'),
+            loadCssFile('/src/styles/fix-sidebar.css')
+          ])
+          .then(() => {
+            console.log('[Theme] Loaded CSS files successfully');
+          })
+          .catch(error => {
+            console.error('[Theme] Failed to load CSS files:', error);
+          });
+        }
+      }, 500);
+    });
 }
 
 /**

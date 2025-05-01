@@ -1,273 +1,121 @@
 /**
  * MCP Integration Platform - CSS Injector Utility
  * 
- * This utility provides functions to inject critical CSS classes directly
- * into the HTML document to ensure consistent rendering between development
- * and production environments.
+ * This utility helps inject CSS into the page to ensure correct styling
+ * is always available, especially for the critical path render.
  */
 
-import { ANIMATION_DURATIONS } from '../config/constants';
-
-// Class categories to be protected from purging in production
-const CRITICAL_CLASS_CATEGORIES = [
-  'animate-', // Animation classes
-  'transition-', // Transition classes
-  'bg-gradient', // Gradient backgrounds
-  'dark:', // Dark mode
-  'hover:', // Hover states
-  'focus:', // Focus states
-  'group-hover:', // Group hover states
-  'grid-cols-', // Grid columns
-  'grid-rows-', // Grid rows
-  'gap-', // Grid and flex gaps
-  'rounded-', // Border radius
-  'shadow-', // Shadows
-  'opacity-', // Opacity
-  'text-', // Text styling
-  'font-', // Font styling
-  'h-', // Height
-  'w-', // Width
-  'p-', // Padding
-  'm-', // Margin
-  'z-', // Z-index
+// List of critical CSS rules to always inject
+const CRITICAL_CSS = [
+  // Base styles that must be immediately available
+  'html, body { margin: 0; padding: 0; }',
+  '.mcp-app { min-height: 100vh; }',
+  
+  // Fixes for layout and grid issues
+  '.sidebar-container { display: flex; }',
+  '.content-container { flex: 1; overflow-x: hidden; }',
+  
+  // Animation classes
+  '@keyframes fadeInDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }',
+  '.animate-fade-in-down { animation: fadeInDown 0.3s ease-out forwards; }',
+  
+  // Grid and background styles
+  '.bg-grid-gray-100 { background-size: 2rem 2rem; background-image: linear-gradient(to right, #f3f4f6 1px, transparent 1px), linear-gradient(to bottom, #f3f4f6 1px, transparent 1px); }',
+  '.bg-blob-gradient { background-image: radial-gradient(circle, rgba(147, 51, 234, 0.1) 0%, rgba(255, 255, 255, 0) 70%); background-position: center; background-repeat: no-repeat; }',
+  
+  // Feature card hover effect
+  '.feature-card { transition: transform 0.2s, box-shadow 0.2s; }',
+  '.feature-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }',
+  
+  // Gradient backgrounds
+  '.bg-gradient-to-r { background-image: linear-gradient(to right, var(--tw-gradient-stops)); }',
+  '.from-purple-50 { --tw-gradient-from: #faf5ff; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(250, 245, 255, 0)); }',
+  '.to-white { --tw-gradient-to: #ffffff; }'
 ];
 
-// The basic CSS framework that should always be available
-const CRITICAL_CSS = `
-  /* MCP Integration Platform - Critical CSS - Injected by css-injector.ts */
-  
-  /* Basic animations that are required even before main CSS loads */
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  
-  @keyframes fadeInDown {
-    from {
-      opacity: 0;
-      transform: translateY(-0.5rem);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(0.5rem);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  @keyframes fadeOut {
-    from { opacity: 1; }
-    to { opacity: 0; }
-  }
-  
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-  
-  @keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
-  }
-  
-  /* Critical animation classes */
-  .animate-fade-in {
-    animation: fadeIn ${ANIMATION_DURATIONS.MEDIUM}ms ease-in-out forwards;
-  }
-  
-  .animate-fade-in-down {
-    animation: fadeInDown ${ANIMATION_DURATIONS.MEDIUM}ms ease-in-out forwards;
-  }
-  
-  .animate-fade-in-up {
-    animation: fadeInUp ${ANIMATION_DURATIONS.MEDIUM}ms ease-in-out forwards;
-  }
-  
-  .animate-fade-out {
-    animation: fadeOut ${ANIMATION_DURATIONS.MEDIUM}ms ease-in-out forwards;
-  }
-  
-  .animate-spin {
-    animation: spin 1s linear infinite;
-  }
-  
-  .animate-pulse {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-  
-  /* Critical utility classes */
-  .invisible {
-    visibility: hidden;
-  }
-  
-  .visible {
-    visibility: visible;
-  }
-  
-  .hidden {
-    display: none;
-  }
-  
-  .block {
-    display: block;
-  }
-  
-  .inline-block {
-    display: inline-block;
-  }
-  
-  .flex {
-    display: flex;
-  }
-  
-  .grid {
-    display: grid;
-  }
-  
-  .opacity-0 {
-    opacity: 0;
-  }
-  
-  .opacity-100 {
-    opacity: 1;
-  }
-`;
-
 /**
- * Inject critical CSS into the document head
+ * Inject critical CSS into the page
  */
 export function injectCriticalCSS(): void {
-  // Check if it's already injected
-  if (document.getElementById('mcp-critical-css')) {
-    return;
+  try {
+    // Check if critical CSS is already injected
+    if (document.getElementById('mcp-critical-css')) {
+      return;
+    }
+    
+    const styleEl = document.createElement('style');
+    styleEl.id = 'mcp-critical-css';
+    styleEl.innerHTML = CRITICAL_CSS.join('\n');
+    document.head.appendChild(styleEl);
+    
+    console.log('[CSS Injector] Critical CSS injected');
+  } catch (error) {
+    console.error('[CSS Injector] Failed to inject critical CSS:', error);
   }
-  
-  // Create style element
-  const styleEl = document.createElement('style');
-  styleEl.id = 'mcp-critical-css';
-  styleEl.innerHTML = CRITICAL_CSS;
-  
-  // Add to document head
-  document.head.appendChild(styleEl);
-  
-  // Log success
-  console.log('[CSS Injector] Critical CSS injected');
-}
-
-/**
- * Create a safelist of critical CSS classes for Tailwind
- */
-export function createCssSafelist(): string[] {
-  // Base classes that should never be purged
-  const safelist: string[] = [
-    'animate-fade-in',
-    'animate-fade-in-down',
-    'animate-fade-in-up',
-    'animate-fade-out',
-    'animate-spin',
-    'animate-pulse',
-    'invisible',
-    'visible',
-    'hidden',
-    'block',
-    'inline-block',
-    'flex',
-    'grid',
-    'opacity-0',
-    'opacity-100',
-  ];
-  
-  // Add critical class categories
-  return safelist;
-}
-
-/**
- * Verify that critical CSS is loaded and functioning
- */
-export function verifyCssLoaded(): boolean {
-  // Create a test element
-  const testEl = document.createElement('div');
-  testEl.className = 'animate-fade-in hidden';
-  testEl.id = 'mcp-css-test';
-  testEl.style.position = 'absolute';
-  testEl.style.top = '-9999px';
-  testEl.style.left = '-9999px';
-  
-  // Add to document
-  document.body.appendChild(testEl);
-  
-  // Get the computed style
-  const style = window.getComputedStyle(testEl);
-  
-  // Check if the animation property is set
-  const animationName = style.getPropertyValue('animation-name');
-  const display = style.getPropertyValue('display');
-  
-  // Remove test element
-  document.body.removeChild(testEl);
-  
-  // If the animation name is fadeIn and display is none, CSS is loaded
-  return animationName.includes('fadeIn') && display === 'none';
 }
 
 /**
  * Load a CSS file dynamically
  */
-export function loadCssFile(url: string): Promise<void> {
+export function loadCssFile(url: string): Promise<boolean> {
   return new Promise((resolve, reject) => {
-    // Check if already loaded
-    const existingLink = document.querySelector(`link[href="${url}"]`);
-    if (existingLink) {
-      resolve();
-      return;
+    try {
+      // Check if the stylesheet is already loaded
+      const existingLinks = document.querySelectorAll('link[rel="stylesheet"]');
+      for (let i = 0; i < existingLinks.length; i++) {
+        const link = existingLinks[i] as HTMLLinkElement;
+        if (link.href.includes(url)) {
+          resolve(true);
+          return;
+        }
+      }
+      
+      // Create a new link element
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = url;
+      link.onload = () => {
+        console.log(`[CSS Injector] Loaded CSS: ${url}`);
+        resolve(true);
+      };
+      link.onerror = (error) => {
+        console.error(`[CSS Injector] Failed to load CSS: ${url}`, error);
+        reject(error);
+      };
+      
+      document.head.appendChild(link);
+    } catch (error) {
+      console.error(`[CSS Injector] Error loading CSS: ${url}`, error);
+      reject(error);
     }
-    
-    // Create link element
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = url;
-    
-    // Set up event handlers
-    link.onload = () => resolve();
-    link.onerror = () => {
-      console.error(`[CSS Injector] Failed to load CSS: ${url}`);
-      reject(new Error(`Failed to load CSS: ${url}`));
-    };
-    
-    // Add to document head
-    document.head.appendChild(link);
   });
 }
 
 /**
- * Initialize CSS protection system
+ * Test if key style elements are present to verify CSS is working
  */
-export function initCssProtection(): void {
-  // Inject critical CSS first
-  injectCriticalCSS();
-  
-  // Check if CSS is properly loaded, if not attempt recovery
-  const cssLoaded = verifyCssLoaded();
-  if (!cssLoaded) {
-    console.warn('[CSS Injector] Critical CSS not functioning, attempting recovery');
+export function verifyCssLoaded(): boolean {
+  try {
+    // Create a test element with key classes
+    const testEl = document.createElement('div');
+    testEl.style.position = 'absolute';
+    testEl.style.top = '-9999px';
+    testEl.style.left = '-9999px';
+    testEl.className = 'bg-gradient-to-r from-purple-50 to-white animate-fade-in-down';
+    document.body.appendChild(testEl);
     
-    // Try loading the theme CSS file
-    loadCssFile('/src/styles/theme.css')
-      .then(() => {
-        console.log('[CSS Injector] Theme CSS loaded successfully');
-      })
-      .catch(() => {
-        console.error('[CSS Injector] Failed to load theme CSS, UI may be inconsistent');
-      });
+    // Get computed style
+    const computedStyle = window.getComputedStyle(testEl);
+    
+    // Check if at least gradient background is applied
+    const hasBackgroundImage = computedStyle.backgroundImage !== 'none';
+    
+    // Remove test element
+    document.body.removeChild(testEl);
+    
+    return hasBackgroundImage;
+  } catch (error) {
+    console.error('[CSS Injector] Error verifying CSS:', error);
+    return false;
   }
 }

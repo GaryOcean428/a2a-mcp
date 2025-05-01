@@ -5,7 +5,7 @@
  * It implements reconnection logic, authentication, and event handling.
  */
 
-import { getWebSocketUrl } from './websocket-utils';
+import { getWebSocketUrl, isWebSocketReady, setupWebSocketKeepalive, handleWebSocketError } from './websocket-utils';
 
 type EventHandler = (data: any) => void;
 type EventType = 'status' | 'schemas' | 'error' | 'message' | 'response';
@@ -29,6 +29,7 @@ class McpWebSocketClient {
   private events: Map<EventType, Set<EventHandler>> = new Map();
   private authenticated = false;
   private pendingAuthentication = false;
+  private keepaliveCleanup: (() => void) | null = null;
   
   /**
    * Initialize the WebSocket connection
@@ -86,6 +87,12 @@ class McpWebSocketClient {
    * Disconnect from the WebSocket server
    */
   public disconnect(): void {
+    // Clean up keepalive
+    if (this.keepaliveCleanup) {
+      this.keepaliveCleanup();
+      this.keepaliveCleanup = null;
+    }
+
     if (this.socket) {
       this.socket.close();
       this.socket = null;
@@ -95,7 +102,7 @@ class McpWebSocketClient {
     this.authenticated = false;
     this.reconnectAttempts = 0;
   }
-  
+
   /**
    * Handle WebSocket open event
    */
@@ -110,6 +117,22 @@ class McpWebSocketClient {
     // Authenticate if needed
     if (!this.authenticated && !this.pendingAuthentication) {
       this.authenticate();
+    }
+    
+    // Set up keepalive ping to help maintain the connection
+    if (this.socket) {
+      // Clean up any existing keepalive
+      if (this.keepaliveCleanup) {
+        this.keepaliveCleanup();
+        this.keepaliveCleanup = null;
+      }
+      
+      // Setup a new keepalive
+      this.keepaliveCleanup = setupWebSocketKeepalive(
+        this.socket,
+        this.send.bind(this),
+        15000 // 15 seconds
+      );
     }
   }
   
