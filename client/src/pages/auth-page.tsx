@@ -69,16 +69,19 @@ export default function AuthPage() {
   const params = new URLSearchParams(window.location.search);
   const returnUrl = params.get('returnUrl') || '/';
   
+  // Add derived isAuthenticated property
+  const isAuthenticated = !!user;
+
   // If user is already authenticated, redirect to returnUrl
   useEffect(() => {
-    if (user && !isLoading) {
+    if (isAuthenticated && !isLoading) {
       logger.info('User already authenticated, redirecting', {
         tags: ['auth', 'redirect'],
         data: { returnUrl }
       });
       navigate(returnUrl);
     }
-  }, [user, isLoading, navigate, returnUrl]);
+  }, [isAuthenticated, isLoading, navigate, returnUrl]);
   
   // Set up login form
   const loginForm = useForm<LoginFormValues>({

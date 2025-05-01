@@ -18,15 +18,16 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ path, component: Component }: ProtectedRouteProps) {
   const { user, isLoading } = useAuth();
+  const isAuthenticated = !!user;
   const [location] = useLocation();
   
   // Log route access attempt for security auditing
   React.useEffect(() => {
     logger.debug(`Protected route access attempt: ${path}`, {
       tags: ['auth', 'route', 'access'],
-      data: { path, authenticated: !!user, isLoading },
+      data: { path, authenticated: isAuthenticated, isLoading },
     });
-  }, [path, user, isLoading]);
+  }, [path, user, isAuthenticated, isLoading]);
   
   // Show loading state while checking authentication
   if (isLoading) {
@@ -43,7 +44,7 @@ export function ProtectedRoute({ path, component: Component }: ProtectedRoutePro
   }
   
   // If user is not authenticated, redirect to auth page with return URL
-  if (!user) {
+  if (!isAuthenticated) {
     logger.info(`Redirecting unauthenticated user from ${path} to auth page`, {
       tags: ['auth', 'redirect'],
     });
