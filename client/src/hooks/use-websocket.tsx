@@ -44,8 +44,14 @@ interface WebSocketContextProps {
 // Create the context
 const WebSocketContext = createContext<WebSocketContextProps | undefined>(undefined);
 
+// Define WebSocketProvider props
+interface WebSocketProviderProps {
+  children: ReactNode;
+  autoConnect?: boolean;
+}
+
 // Context provider component
-export function WebSocketProvider({ children }: { children: ReactNode }) {
+export function WebSocketProvider({ children, autoConnect = false }: WebSocketProviderProps) {
   const [status, setStatus] = useState<WebSocketStatus>('disconnected');
   const [lastMessage, setLastMessage] = useState<WebSocketMessage | null>(null);
   const [schemas, setSchemas] = useState<WebSocketSchemaType[]>([]);
@@ -77,10 +83,32 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
     console.log(`[MCP WebSocket] ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`);
   };
   
-  // Handle errors
-  const handleError = (error: any) => {
+  // Handle WebSocket errors
+  const handleWsError = (error: any) => {
     setStatus('error');
     console.error('[WebSocket] Error:', error);
+  };
+  
+  // Function to safely send messages via WebSocket
+  const sendMessage = (message: WebSocketMessage): boolean => {
+    if (mcpWebSocketClient) {
+      return mcpWebSocketClient.send(message);
+    }
+    return false;
+  };
+  
+  // Function to safely reconnect WebSocket
+  const reconnect = () => {
+    if (mcpWebSocketClient) {
+      mcpWebSocketClient.reconnect();
+    }
+  };
+  
+  // Function to safely disconnect WebSocket
+  const disconnect = () => {
+    if (mcpWebSocketClient) {
+      mcpWebSocketClient.disconnect();
+    }
   };
   
   // Initialize the WebSocket connection when component mounts
@@ -88,10 +116,12 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
     // Set up handlers
     mcpWebSocketClient.on('message', handleMessage);
     mcpWebSocketClient.on('status', (data) => handleStatus(data.status));
-    mcpWebSocketClient.on('error', handleError);
+    mcpWebSocketClient.on('error', handleWsError);
     
-    // Initialize connection
-    mcpWebSocketClient.initialize();
+    // Initialize connection if autoConnect is true
+    if (autoConnect) {
+      mcpWebSocketClient.initialize();
+    }
     
     // Cleanup on unmount
     return () => {
@@ -100,16 +130,16 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
       mcpWebSocketClient.off('error');
       mcpWebSocketClient.disconnect();
     };
-  }, []);
+  }, [autoConnect]);
   
-  // Define context value
+  // Define context value with safe function references
   const contextValue: WebSocketContextProps = {
     status,
     schemas,
     lastMessage,
-    sendMessage: mcpWebSocketClient.send.bind(mcpWebSocketClient),
-    reconnect: mcpWebSocketClient.reconnect.bind(mcpWebSocketClient),
-    disconnect: mcpWebSocketClient.disconnect.bind(mcpWebSocketClient)
+    sendMessage,
+    reconnect,
+    disconnect
   };
   
   return (
