@@ -1,0 +1,1095 @@
+ Replit version c8cde763, pid2 version 0.0.1246
+ 
+      /////////////////////
+   ///////////////////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////        Curious and driven?
+  ///////////////@@@@@@@///////        Work with us!
+  ///////////////@@@@@@@///////
+  ///////////////@@@@@@@///////        https://join.replit.com/hack.with.us
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@#//////////////
+   ///////////////////////////
+      /////////////////////
+      
+ [LaunchDarkly] LaunchDarkly client initialized
+ Adding extension: GPT-Replit - ChatGPT in your Repl. Object
+/~:1 Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner.
+ Adding extension: Perplexity Object
+ Adding extension: Javascript Commands Object
+ [Report Only] Refused to compile or instantiate WebAssembly module because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: "script-src 'self'".
+
+ [Report Only] Refused to compile or instantiate WebAssembly module because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: "script-src 'self'".
+
+ Adding extension: GPT-Replit - ChatGPT in your Repl. Object
+ Adding extension: Perplexity Object
+ Adding extension: Javascript Commands Object
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+ Unrecognized feature: 'ambient-light-sensor'.
+_ @ framework-d72273b061c8cda3.js:1
+ Unrecognized feature: 'battery'.
+_ @ framework-d72273b061c8cda3.js:1
+ Unrecognized feature: 'execution-while-not-rendered'.
+_ @ framework-d72273b061c8cda3.js:1
+ Unrecognized feature: 'execution-while-out-of-viewport'.
+_ @ framework-d72273b061c8cda3.js:1
+ Unrecognized feature: 'layout-animations'.
+_ @ framework-d72273b061c8cda3.js:1
+ Unrecognized feature: 'legacy-image-formats'.
+_ @ framework-d72273b061c8cda3.js:1
+ Unrecognized feature: 'navigation-override'.
+_ @ framework-d72273b061c8cda3.js:1
+ Unrecognized feature: 'oversized-images'.
+_ @ framework-d72273b061c8cda3.js:1
+ Unrecognized feature: 'publickey-credentials'.
+_ @ framework-d72273b061c8cda3.js:1
+ Unrecognized feature: 'speaker-selection'.
+_ @ framework-d72273b061c8cda3.js:1
+ Unrecognized feature: 'unoptimized-images'.
+_ @ framework-d72273b061c8cda3.js:1
+ Unrecognized feature: 'unsized-media'.
+_ @ framework-d72273b061c8cda3.js:1
+ Unrecognized feature: 'web-share'.
+_ @ framework-d72273b061c8cda3.js:1
+ Unrecognized feature: 'pointer-lock'.
+_ @ framework-d72273b061c8cda3.js:1
+ Allow attribute will take precedence over 'allowfullscreen'.
+_ @ framework-d72273b061c8cda3.js:1
+ Allow attribute will take precedence over 'allowpaymentrequest'.
+_ @ framework-d72273b061c8cda3.js:1
+ Command: hello has unrecognized contributions: editor-context-menu. Valid contributions are commandbar,filetree-context-menu,sidebar-search,editor-context-menu Object
+overrideMethod @ installHook.js:1
+ Command: javascript-root-command has unrecognized contributions: commandbar. Valid contributions are commandbar,filetree-context-menu,sidebar-search,editor-context-menu Object
+overrideMethod @ installHook.js:1
+dotdevproxy.janeway.repl.co/__reachability:1  Failed to load resource: net::ERR_CERT_COMMON_NAME_INVALID
+dotdevproxy.janeway.repl.co/__reachability:1  Failed to load resource: net::ERR_CERT_COMMON_NAME_INVALID
+dotdevproxy.janeway.repl.co/__reachability:1  Failed to load resource: net::ERR_CERT_COMMON_NAME_INVALID
+dotdevproxy.picard.repl.co/__reachability:1  Failed to load resource: net::ERR_CERT_COMMON_NAME_INVALID
+dotdevproxy.picard.repl.co/__reachability:1  Failed to load resource: net::ERR_CERT_COMMON_NAME_INVALID
+dotdevproxy.picard.repl.co/__reachability:1  Failed to load resource: net::ERR_CERT_COMMON_NAME_INVALID
+dotdevproxy.riker.repl.co/__reachability:1  Failed to load resource: net::ERR_CERT_COMMON_NAME_INVALID
+dotdevproxy.riker.repl.co/__reachability:1  Failed to load resource: net::ERR_CERT_COMMON_NAME_INVALID
+dotdevproxy.riker.repl.co/__reachability:1  Failed to load resource: net::ERR_CERT_COMMON_NAME_INVALID
+dotdevproxy.worf.repl.co/__reachability:1  Failed to load resource: net::ERR_CERT_COMMON_NAME_INVALID
+dotdevproxy.worf.repl.co/__reachability:1  Failed to load resource: net::ERR_CERT_COMMON_NAME_INVALID
+dotdevproxy.worf.repl.co/__reachability:1  Failed to load resource: net::ERR_CERT_COMMON_NAME_INVALID
+ stallwart: failed ping 1
+ stallwart: failed ping 2
+IntegrationMaster:1 Uncaught (in promise) 
+IntegrationMaster:1 Uncaught (in promise) 
+IntegrationMaster:1 Uncaught (in promise) 
+IntegrationMaster:1 Uncaught (in promise) 
+IntegrationMaster:1 Uncaught (in promise) 
+IntegrationMaster:1 Uncaught (in promise) 
+IntegrationMaster:1 Uncaught (in promise) 
+IntegrationMaster:1 Uncaught (in promise) 
+IntegrationMaster:1 Uncaught (in promise) 
+IntegrationMaster:1 Uncaught (in promise) 
+ WebSocket connection to 'wss://replit.com/graphql_subscriptions' failed: 
+(anonymous) @ _app-6d20b0150c005a1e.js:15
+ WebSocket connection to 'wss://replit.com/graphql_subscriptions' failed: 
+(anonymous) @ _app-6d20b0150c005a1e.js:15
+ WebSocket connection to 'wss://replit.com/graphql_subscriptions' failed: 
+(anonymous) @ _app-6d20b0150c005a1e.js:15
+ WebSocket connection to 'wss://replit.com/graphql_subscriptions' failed: 
+(anonymous) @ _app-6d20b0150c005a1e.js:15
+ WebSocket connection to 'wss://replit.com/graphql_subscriptions' failed: 
+(anonymous) @ _app-6d20b0150c005a1e.js:15
+ WebSocket connection to 'wss://replit.com/graphql_subscriptions' failed: 
+(anonymous) @ _app-6d20b0150c005a1e.js:15
+ WebSocket connection to 'wss://replit.com/graphql_subscriptions' failed: 
+(anonymous) @ _app-6d20b0150c005a1e.js:15
+ WebSocket connection to 'wss://replit.com/graphql_subscriptions' failed: 
+(anonymous) @ _app-6d20b0150c005a1e.js:15
+/graphql:1  Failed to load resource: net::ERR_CONNECTION_CLOSED
+/graphql:1  Failed to load resource: the server responded with a status of 502 ()
+ WebSocket connection to 'wss://replit.com/graphql_subscriptions' failed: 
+(anonymous) @ _app-6d20b0150c005a1e.js:15
+/graphql:1  Failed to load resource: the server responded with a status of 504 ()
+ stallwart: failed ping 1
+workspace_iframe.html:32 Unrecognized feature: 'ambient-light-sensor'.
+workspace_iframe.html:32 Unrecognized feature: 'battery'.
+workspace_iframe.html:32 Unrecognized feature: 'execution-while-not-rendered'.
+workspace_iframe.html:32 Unrecognized feature: 'execution-while-out-of-viewport'.
+workspace_iframe.html:32 Unrecognized feature: 'layout-animations'.
+workspace_iframe.html:32 Unrecognized feature: 'legacy-image-formats'.
+workspace_iframe.html:32 Unrecognized feature: 'navigation-override'.
+workspace_iframe.html:32 Unrecognized feature: 'oversized-images'.
+workspace_iframe.html:32 Unrecognized feature: 'publickey-credentials'.
+workspace_iframe.html:32 Unrecognized feature: 'speaker-selection'.
+workspace_iframe.html:32 Unrecognized feature: 'unoptimized-images'.
+workspace_iframe.html:32 Unrecognized feature: 'unsized-media'.
+workspace_iframe.html:32 Unrecognized feature: 'web-share'.
+workspace_iframe.html:32 Allow attribute will take precedence over 'allowfullscreen'.
+workspace_iframe.html:32 Allow attribute will take precedence over 'allowpaymentrequest'.
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/?token=a1RrIXK98KcN' failed: 
+t @ eruda.js:2
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/?token=a1RrIXK98KcN' failed: 
+t @ eruda.js:2
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/api/user:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)
+events.launchdarkly.com/events/diagnostic/62b35a865152ab14c5942820:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+events.launchdarkly.com/events/diagnostic/62b35a865152ab14c5942820:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+ stallwart: failed ping 1
+ stallwart: failed ping 2
+ stallwart: failed ping 3
+ stallwart: failed ping 4
+ stallwart: failed ping 5
+ stallwart: session stalled
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/?token=a1RrIXK98KcN' failed: 
+t @ eruda.js:2
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/api/user:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/?token=a1RrIXK98KcN' failed: 
+t @ eruda.js:2
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/api/user:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/api/status:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/api/status:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/api/status:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/api/status:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/api/status:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/api/status:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/api/status:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/api/status:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/api/status:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/api/status:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/api/status:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/api/status:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/api/status:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/api/status:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/api/status:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/api/status:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/api/status:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/api/status:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/api/status:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/api/status:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/api/status:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/api/status:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/api/status:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/api/status:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/?token=9tCwKXltq_nh' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://localhost:5173/?token=9tCwKXltq_nh' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/?token=9tCwKXltq_nh' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://localhost:5173/?token=9tCwKXltq_nh' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/?token=9tCwKXltq_nh' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://localhost:5173/?token=9tCwKXltq_nh' failed: 
+t @ eruda.js:2
+ [vite] failed to connect to websocket.
+your current setup:
+  (browser) a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/ <--[HTTP]--> localhost:5173/ (server)
+  (browser) a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev:/ <--[WebSocket (failing)]--> localhost:5173/ (server)
+Check out your Vite / network configuration and https://vite.dev/config/server-options.html#server-hmr .
+Mt.forEach.n.<computed> @ eruda.js:2
+ MCP Integration Platform v1.0.1746093594268
+ Build: 2025-05-01T09:59:54.268Z (development)
+ [hmr:websocket:startup] Successfully applied Vite HMR WebSocket fix
+ MCP Integration Platform v1.0.1746093594269
+ Build: 2025-05-01T09:59:54.269Z (development)
+ [hmr:websocket:startup] Successfully applied Vite HMR WebSocket fix
+ [CSS Injector] Critical CSS injected
+ [startup] MCP Integration Platform v1.0.1746093594268 starting
+ [CSS Verify] Starting verification...
+ [startup] Document loaded, initializing UI
+ [CSS Verify] Running verification...
+ [CSS Verify] Critical inline styles present: true
+ [CSS Verify] External stylesheets loaded: 1
+ [CSS Verify] - https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/production.css?v=2.5.1745966538733
+ [CSS Verify] Testing critical CSS classes:
+ [CSS Verify] - bg-grid-gray-100: OK
+ [CSS Verify] - bg-blob-gradient: OK
+ [CSS Verify] - feature-card: OK
+ [CSS Verify] - animate-fade-in-down: OK
+ [CSS Verify] - from-purple-50: OK
+ [CSS Verify] - to-white: OK
+ [CSS Verify] - bg-gradient-to-r: OK
+ [CSS Verify] All critical CSS classes verified ✓
+ [css:verification] - bg-grid-gray-100: MISSING
+Mt.forEach.n.<computed> @ eruda.js:2
+ [css:verification] - bg-blob-gradient: MISSING
+Mt.forEach.n.<computed> @ eruda.js:2
+ [css:verification] - from-purple-50: MISSING
+Mt.forEach.n.<computed> @ eruda.js:2
+ [css:verification] - to-white: MISSING
+Mt.forEach.n.<computed> @ eruda.js:2
+ [css:verification] - bg-gradient-to-r: MISSING
+Mt.forEach.n.<computed> @ eruda.js:2
+ [css:verification] Missing 5 critical CSS classes!
+Mt.forEach.n.<computed> @ eruda.js:2
+ Data: [object Object]
+Mt.forEach.n.<computed> @ eruda.js:2
+ [startup:css] CSS initialization completed
+ [startup:render] Mounting application
+ [startup:complete] Application mounted successfully
+ [css:verification] - bg-grid-gray-100: MISSING
+Mt.forEach.n.<computed> @ eruda.js:2
+ [css:verification] - bg-blob-gradient: MISSING
+Mt.forEach.n.<computed> @ eruda.js:2
+ [css:verification] - from-purple-50: MISSING
+Mt.forEach.n.<computed> @ eruda.js:2
+ [css:verification] - to-white: MISSING
+Mt.forEach.n.<computed> @ eruda.js:2
+ [css:verification] - bg-gradient-to-r: MISSING
+Mt.forEach.n.<computed> @ eruda.js:2
+ [css:verification] Missing 5 critical CSS classes!
+Mt.forEach.n.<computed> @ eruda.js:2
+ Data: [object Object]
+Mt.forEach.n.<computed> @ eruda.js:2
+ [css:verification] - bg-grid-gray-100: MISSING
+Mt.forEach.n.<computed> @ eruda.js:2
+ [css:verification] - bg-blob-gradient: MISSING
+Mt.forEach.n.<computed> @ eruda.js:2
+ [css:verification] - from-purple-50: MISSING
+Mt.forEach.n.<computed> @ eruda.js:2
+ [css:verification] - to-white: MISSING
+Mt.forEach.n.<computed> @ eruda.js:2
+ [css:verification] - bg-gradient-to-r: MISSING
+Mt.forEach.n.<computed> @ eruda.js:2
+ [css:verification] Missing 5 critical CSS classes!
+Mt.forEach.n.<computed> @ eruda.js:2
+ Data: [object Object]
+Mt.forEach.n.<computed> @ eruda.js:2
+ [WebSocket Test] Testing connection to wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws
+ [WebSocket Test] Connection test successful
+ [StylesProtectedRoot] Timeout waiting for UI ready event, proceeding anyway
+Mt.forEach.n.<computed> @ eruda.js:2
+ [websocket:connect] Connecting to WebSocket server
+ [websocket] Connecting to WebSocket server
+ Data: [object Object]
+ [websocket:connect] Connecting to WebSocket server
+ [websocket:connect] Connecting to WebSocket server
+ [css:verification] - bg-grid-gray-100: MISSING
+Mt.forEach.n.<computed> @ eruda.js:2
+ [css:verification] - bg-blob-gradient: MISSING
+Mt.forEach.n.<computed> @ eruda.js:2
+ [css:verification] - from-purple-50: MISSING
+Mt.forEach.n.<computed> @ eruda.js:2
+ [css:verification] - to-white: MISSING
+Mt.forEach.n.<computed> @ eruda.js:2
+ [css:verification] - bg-gradient-to-r: MISSING
+Mt.forEach.n.<computed> @ eruda.js:2
+ [css:verification] Missing 5 critical CSS classes!
+Mt.forEach.n.<computed> @ eruda.js:2
+ Data: [object Object]
+Mt.forEach.n.<computed> @ eruda.js:2
+ [css:verification] - bg-grid-gray-100: MISSING
+Mt.forEach.n.<computed> @ eruda.js:2
+ [css:verification] - bg-blob-gradient: MISSING
+Mt.forEach.n.<computed> @ eruda.js:2
+ [css:verification] - from-purple-50: MISSING
+Mt.forEach.n.<computed> @ eruda.js:2
+ [css:verification] - to-white: MISSING
+Mt.forEach.n.<computed> @ eruda.js:2
+ [css:verification] - bg-gradient-to-r: MISSING
+Mt.forEach.n.<computed> @ eruda.js:2
+ [css:verification] Missing 5 critical CSS classes!
+Mt.forEach.n.<computed> @ eruda.js:2
+ Data: [object Object]
+Mt.forEach.n.<computed> @ eruda.js:2
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/api/user:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)
+ [websocket:connection] WebSocket connection established
+ [websocket:provider] WebSocket connected
+ [websocket:auth] Authenticating WebSocket connection
+ Data: [object Object]
+ [websocket:connect] Connecting to WebSocket server
+ [websocket:connect] Connecting to WebSocket server
+ Development mode: Using default API key
+ MCP client initialized with baseUrl: https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev
+ [error-handler:unhandled-exception] Uncaught error
+Mt.forEach.n.<computed> @ eruda.js:2
+ Error: useAuth must be used within an AuthProvider
+Mt.forEach.n.<computed> @ eruda.js:2
+ Stack: Error: useAuth must be used within an AuthProvider
+    at useAuth (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/hooks/useAuth.tsx:206:11)
+    at LoginPrompt (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/LoginPrompt.tsx:24:37)
+    at renderWithHooks (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:11596:26)
+    at mountIndeterminateComponent (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:14974:21)
+    at beginWork (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:15962:22)
+    at HTMLUnknownElement.callCallback2 (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:3680:22)
+    at Object.invokeGuardedCallbackDev (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:3705:24)
+    at invokeGuardedCallback (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:3739:39)
+    at beginWork$1 (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:19818:15)
+    at performUnitOfWork (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:19251:20)
+Mt.forEach.n.<computed> @ eruda.js:2
+useAuth.tsx:206 Uncaught Error: useAuth must be used within an AuthProvider
+ [vite] TypeError: Cannot read properties of undefined (reading 'send')
+Mt.forEach.n.<computed> @ eruda.js:2
+ [error-handler:unhandled-exception] Uncaught error
+Mt.forEach.n.<computed> @ eruda.js:2
+ Error: useAuth must be used within an AuthProvider
+Mt.forEach.n.<computed> @ eruda.js:2
+ Stack: Error: useAuth must be used within an AuthProvider
+    at useAuth (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/hooks/useAuth.tsx:206:11)
+    at LoginPrompt (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/LoginPrompt.tsx:24:37)
+    at renderWithHooks (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:11596:26)
+    at mountIndeterminateComponent (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:14974:21)
+    at beginWork (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:15962:22)
+    at HTMLUnknownElement.callCallback2 (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:3680:22)
+    at Object.invokeGuardedCallbackDev (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:3705:24)
+    at invokeGuardedCallback (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:3739:39)
+    at beginWork$1 (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:19818:15)
+    at performUnitOfWork (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:19251:20)
+Mt.forEach.n.<computed> @ eruda.js:2
+useAuth.tsx:206 Uncaught Error: useAuth must be used within an AuthProvider
+ The above error occurred in the <LoginPrompt> component:
+
+    at LoginPrompt (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/LoginPrompt.tsx:24:37)
+    at div
+    at div
+    at Home (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/pages/Home.tsx:29:31)
+    at Suspense
+    at ComponentWithLoading
+    at Route (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=8005245b:323:16)
+    at Switch (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=8005245b:379:17)
+    at div
+    at div
+    at div
+    at main
+    at div
+    at Layout (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/Layout.tsx?t=1746093573006:26:34)
+    at Route (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=8005245b:323:16)
+    at Switch (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=8005245b:379:17)
+    at Router
+    at WebSocketProvider (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/WebSocketProvider.tsx:31:37)
+    at NavigationProvider (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/hooks/use-navigation.tsx:72:38)
+    at AuthProvider (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/hooks/useAuthHook.tsx:27:32)
+    at QueryClientProvider (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=8005245b:2805:3)
+    at ThemeProvider (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/ThemeProvider.tsx:50:33)
+    at ErrorBoundary (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/ui/StylesProtectedRoot.tsx:100:1)
+    at StylesProtectedRoot (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/ui/StylesProtectedRoot.tsx:21:3)
+    at App (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/App.tsx?t=1746093573006&v=sZ7a4Qircrm3X6tTAyEuj:148:3)
+    at ThemeProvider (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/ThemeProvider.tsx?v=sZ7a4Qircrm3X6tTAyEuj:50:33)
+    at QueryClientProvider (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=8005245b:2805:3)
+    at ErrorBoundary (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/ErrorBoundary.tsx?v=sZ7a4Qircrm3X6tTAyEuj:9:5)
+
+React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.
+Mt.forEach.n.<computed> @ eruda.js:2
+ Warning: %s: Error boundaries should implement getDerivedStateFromError(). In that method, return a state update to display an error message or fallback UI.%s ErrorBoundary 
+    at ErrorBoundary (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/ui/StylesProtectedRoot.tsx:100:1)
+    at StylesProtectedRoot (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/ui/StylesProtectedRoot.tsx:21:3)
+    at App (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/App.tsx?t=1746093573006&v=sZ7a4Qircrm3X6tTAyEuj:148:3)
+    at ThemeProvider (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/ThemeProvider.tsx?v=sZ7a4Qircrm3X6tTAyEuj:50:33)
+    at QueryClientProvider (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=8005245b:2805:3)
+    at ErrorBoundary (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/ErrorBoundary.tsx?v=sZ7a4Qircrm3X6tTAyEuj:9:5)
+Mt.forEach.n.<computed> @ eruda.js:2
+ [vite] TypeError: Cannot read properties of undefined (reading 'send')
+Mt.forEach.n.<computed> @ eruda.js:2
+ WebSocket connection to 'wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/?token=9tCwKXltq_nh' failed: 
+t @ eruda.js:2
+ WebSocket connection to 'wss://localhost:5173/?token=9tCwKXltq_nh' failed: 
+t @ eruda.js:2
+ [vite] failed to connect to websocket.
+your current setup:
+  (browser) a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/ <--[HTTP]--> localhost:5173/ (server)
+  (browser) a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev:/ <--[WebSocket (failing)]--> localhost:5173/ (server)
+Check out your Vite / network configuration and https://vite.dev/config/server-options.html#server-hmr .
+Mt.forEach.n.<computed> @ eruda.js:2
+ MCP Integration Platform v1.0.1746094701113
+ Build: 2025-05-01T10:18:21.113Z (development)
+ [hmr:websocket:startup] Successfully applied Vite HMR WebSocket fix
+ MCP Integration Platform v1.0.1746094701115
+ Build: 2025-05-01T10:18:21.115Z (development)
+ [hmr:websocket:startup] Successfully applied Vite HMR WebSocket fix
+ [CSS Injector] Critical CSS injected
+ [startup] MCP Integration Platform v1.0.1746094701113 starting
+ [CSS Verify] Starting verification...
+Console.js:61 [startup] Document loaded, initializing UI
+Console.js:61 [CSS Verify] Running verification...
+Console.js:61 [CSS Verify] Critical inline styles present: true
+Console.js:61 [CSS Verify] External stylesheets loaded: 1
+Console.js:61 [CSS Verify] - https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/production.css?v=2.5.1745966538733
+Console.js:61 [CSS Verify] Testing critical CSS classes:
+Console.js:61 [CSS Verify] - bg-grid-gray-100: OK
+Console.js:61 [CSS Verify] - bg-blob-gradient: OK
+Console.js:61 [CSS Verify] - feature-card: OK
+Console.js:61 [CSS Verify] - animate-fade-in-down: OK
+Console.js:61 [CSS Verify] - from-purple-50: OK
+Console.js:61 [CSS Verify] - to-white: OK
+Console.js:61 [CSS Verify] - bg-gradient-to-r: OK
+Console.js:61 [CSS Verify] All critical CSS classes verified ✓
+Console.js:61 [startup:css] CSS initialization completed
+Console.js:61 [startup:render] Mounting application
+Console.js:61 [startup:complete] Application mounted successfully
+Console.js:61 [css:verification] - bg-grid-gray-100: MISSING
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [css:verification] - bg-blob-gradient: MISSING
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [css:verification] - from-purple-50: MISSING
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [css:verification] - to-white: MISSING
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [css:verification] - bg-gradient-to-r: MISSING
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [css:verification] Missing 5 critical CSS classes!
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 Data: Object
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [css:verification] - bg-grid-gray-100: MISSING
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [css:verification] - bg-blob-gradient: MISSING
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [css:verification] - from-purple-50: MISSING
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [css:verification] - to-white: MISSING
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [css:verification] - bg-gradient-to-r: MISSING
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [css:verification] Missing 5 critical CSS classes!
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 Data: Object
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [css:verification] - bg-grid-gray-100: MISSING
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [css:verification] - bg-blob-gradient: MISSING
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [css:verification] - from-purple-50: MISSING
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [css:verification] - to-white: MISSING
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [css:verification] - bg-gradient-to-r: MISSING
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [css:verification] Missing 5 critical CSS classes!
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 Data: Object
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [WebSocket Test] Testing connection to wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws
+Console.js:61 [WebSocket Test] Connection test successful
+Console.js:61 [StylesProtectedRoot] Timeout waiting for UI ready event, proceeding anyway
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [websocket:connect] Connecting to WebSocket server
+Console.js:61 [websocket] Connecting to WebSocket server
+Console.js:61 Data: Object
+Console.js:61 [websocket:connect] Connecting to WebSocket server
+Console.js:61 [websocket:connect] Connecting to WebSocket server
+Console.js:61 [css:verification] - bg-grid-gray-100: MISSING
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [css:verification] - bg-blob-gradient: MISSING
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [css:verification] - from-purple-50: MISSING
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [css:verification] - to-white: MISSING
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [css:verification] - bg-gradient-to-r: MISSING
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [css:verification] Missing 5 critical CSS classes!
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 Data: Object
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [css:verification] - bg-grid-gray-100: MISSING
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [css:verification] - bg-blob-gradient: MISSING
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [css:verification] - from-purple-50: MISSING
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [css:verification] - to-white: MISSING
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [css:verification] - bg-gradient-to-r: MISSING
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [css:verification] Missing 5 critical CSS classes!
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 Data: Object
+Mt.forEach.n.<computed> @ Console.js:61
+a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/api/user:1 
+            
+            
+           Failed to load resource: the server responded with a status of 401 (Unauthorized)
+Console.js:61 Development mode: Using default API key
+Console.js:61 MCP client initialized with baseUrl: https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev
+Console.js:61 [error-handler:unhandled-exception] Uncaught error
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 Error: useAuth must be used within an AuthProvider
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 Stack: Error: useAuth must be used within an AuthProvider
+    at useAuth (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/hooks/useAuth.tsx:206:11)
+    at LoginPrompt (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/LoginPrompt.tsx:24:37)
+    at renderWithHooks (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:11596:26)
+    at mountIndeterminateComponent (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:14974:21)
+    at beginWork (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:15962:22)
+    at HTMLUnknownElement.callCallback2 (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:3680:22)
+    at Object.invokeGuardedCallbackDev (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:3705:24)
+    at invokeGuardedCallback (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:3739:39)
+    at beginWork$1 (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:19818:15)
+    at performUnitOfWork (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:19251:20)
+Mt.forEach.n.<computed> @ Console.js:61
+useAuth.tsx:237 Uncaught Error: useAuth must be used within an AuthProvider
+    at useAuth (useAuth.tsx:237:11)
+    at LoginPrompt (LoginPrompt.tsx:8:37)
+    at renderWithHooks (chunk-SXRIVT2P.js?v=8005245b:11596:26)
+    at mountIndeterminateComponent (chunk-SXRIVT2P.js?v=8005245b:14974:21)
+    at beginWork (chunk-SXRIVT2P.js?v=8005245b:15962:22)
+    at HTMLUnknownElement.callCallback2 (chunk-SXRIVT2P.js?v=8005245b:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-SXRIVT2P.js?v=8005245b:3705:24)
+    at invokeGuardedCallback (chunk-SXRIVT2P.js?v=8005245b:3739:39)
+    at beginWork$1 (chunk-SXRIVT2P.js?v=8005245b:19818:15)
+    at performUnitOfWork (chunk-SXRIVT2P.js?v=8005245b:19251:20)
+Console.js:61 [vite] TypeError: Cannot read properties of undefined (reading 'send')
+    at Object.send (client:483:10)
+    at Object.send (client:849:21)
+    at Object.send (client:326:24)
+    at Object.send (client:417:33)
+    at HMRClient.send (client:136:20)
+    at HMRContext.send (client:100:20)
+    at sendError ((index):62:7)
+    at (index):66:3
+    at Object.invokeGuardedCallbackDev (chunk-SXRIVT2P.js?v=8005245b:3705:24)
+    at invokeGuardedCallback (chunk-SXRIVT2P.js?v=8005245b:3739:39)
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [error-handler:unhandled-exception] Uncaught error
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 Error: useAuth must be used within an AuthProvider
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 Stack: Error: useAuth must be used within an AuthProvider
+    at useAuth (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/hooks/useAuth.tsx:206:11)
+    at LoginPrompt (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/LoginPrompt.tsx:24:37)
+    at renderWithHooks (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:11596:26)
+    at mountIndeterminateComponent (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:14974:21)
+    at beginWork (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:15962:22)
+    at HTMLUnknownElement.callCallback2 (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:3680:22)
+    at Object.invokeGuardedCallbackDev (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:3705:24)
+    at invokeGuardedCallback (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:3739:39)
+    at beginWork$1 (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:19818:15)
+    at performUnitOfWork (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-SXRIVT2P.js?v=8005245b:19251:20)
+Mt.forEach.n.<computed> @ Console.js:61
+useAuth.tsx:237 Uncaught Error: useAuth must be used within an AuthProvider
+    at useAuth (useAuth.tsx:237:11)
+    at LoginPrompt (LoginPrompt.tsx:8:37)
+    at renderWithHooks (chunk-SXRIVT2P.js?v=8005245b:11596:26)
+    at mountIndeterminateComponent (chunk-SXRIVT2P.js?v=8005245b:14974:21)
+    at beginWork (chunk-SXRIVT2P.js?v=8005245b:15962:22)
+    at HTMLUnknownElement.callCallback2 (chunk-SXRIVT2P.js?v=8005245b:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-SXRIVT2P.js?v=8005245b:3705:24)
+    at invokeGuardedCallback (chunk-SXRIVT2P.js?v=8005245b:3739:39)
+    at beginWork$1 (chunk-SXRIVT2P.js?v=8005245b:19818:15)
+    at performUnitOfWork (chunk-SXRIVT2P.js?v=8005245b:19251:20)
+Console.js:61 The above error occurred in the <LoginPrompt> component:
+
+    at LoginPrompt (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/LoginPrompt.tsx:24:37)
+    at div
+    at div
+    at Home (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/pages/Home.tsx:29:31)
+    at Suspense
+    at ComponentWithLoading
+    at Route (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=8005245b:323:16)
+    at Switch (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=8005245b:379:17)
+    at div
+    at div
+    at div
+    at main
+    at div
+    at Layout (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/Layout.tsx?t=1746093573006:26:34)
+    at Route (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=8005245b:323:16)
+    at Switch (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=8005245b:379:17)
+    at Router
+    at WebSocketProvider (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/WebSocketProvider.tsx:31:37)
+    at NavigationProvider (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/hooks/use-navigation.tsx:72:38)
+    at AuthProvider (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/hooks/useAuthHook.tsx:27:32)
+    at QueryClientProvider (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=8005245b:2805:3)
+    at ThemeProvider (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/ThemeProvider.tsx:50:33)
+    at ErrorBoundary (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/ui/StylesProtectedRoot.tsx:100:1)
+    at StylesProtectedRoot (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/ui/StylesProtectedRoot.tsx:21:3)
+    at App (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/App.tsx?t=1746093573006&v=9vhPsiEsLiwNIliZRDpbz:148:3)
+    at ThemeProvider (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/ThemeProvider.tsx?v=9vhPsiEsLiwNIliZRDpbz:50:33)
+    at QueryClientProvider (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=8005245b:2805:3)
+    at ErrorBoundary (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/ErrorBoundary.tsx?v=9vhPsiEsLiwNIliZRDpbz:9:5)
+
+React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 Warning: ErrorBoundary: Error boundaries should implement getDerivedStateFromError(). In that method, return a state update to display an error message or fallback UI.
+    at ErrorBoundary (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/ui/StylesProtectedRoot.tsx:100:1)
+    at StylesProtectedRoot (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/ui/StylesProtectedRoot.tsx:21:3)
+    at App (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/App.tsx?t=1746093573006&v=9vhPsiEsLiwNIliZRDpbz:148:3)
+    at ThemeProvider (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/ThemeProvider.tsx?v=9vhPsiEsLiwNIliZRDpbz:50:33)
+    at QueryClientProvider (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=8005245b:2805:3)
+    at ErrorBoundary (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/ErrorBoundary.tsx?v=9vhPsiEsLiwNIliZRDpbz:9:5)
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [vite] TypeError: Cannot read properties of undefined (reading 'send')
+    at Object.send (client:483:10)
+    at Object.send (client:849:21)
+    at Object.send (client:326:24)
+    at Object.send (client:417:33)
+    at HMRClient.send (client:136:20)
+    at HMRContext.send (client:100:20)
+    at sendError ((index):62:7)
+    at (index):66:3
+    at Object.invokeGuardedCallbackDev (chunk-SXRIVT2P.js?v=8005245b:3705:24)
+    at invokeGuardedCallback (chunk-SXRIVT2P.js?v=8005245b:3739:39)
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [websocket:connection] WebSocket connection established
+Console.js:61 [websocket:auth] Authenticating WebSocket connection
+Console.js:61 Data: Object
+
+                
+          
+          
+          
+         Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.
