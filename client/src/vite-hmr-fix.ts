@@ -1,56 +1,48 @@
 /**
- * Vite HMR WebSocket Fix
+ * MCP Integration Platform - Vite HMR WebSocket Fix
  * 
- * This script catches and handles WebSocket errors from Vite's HMR system,
- * particularly the "wss://localhost:undefined/?token=..." invalid URL error.
- * This is a common issue in Replit environments where the port might not be correctly determined.
+ * This file fixes WebSocket connection issues in the Vite HMR system
+ * by suppressing invalid WebSocket URL errors and providing a fallback.
  */
 
-// Run the fix immediately when imported
-(function fixViteHmrWebSocket() {
-  try {
-    // Add a global error handler specifically for WebSocket errors
-    window.addEventListener('error', (event) => {
-      // Check if this is a WebSocket error with the specific "localhost:undefined" pattern
-      if (
-        event.message && 
-        event.message.includes('WebSocket') && 
-        event.message.includes('localhost:undefined')
-      ) {
-        console.warn('[Vite HMR Fix] Intercepted WebSocket error:', event.message);
-        
-        // Prevent the error from propagating to the console
-        event.preventDefault();
-        
-        // Create a message for the user
-        console.info(
-          '[Vite HMR Fix] The development server Hot Module Replacement (HMR) ' +
-          'connection has an invalid URL. This is harmless and only affects ' +
-          'automatic page refreshing during development.'
-        );
-      }
-    });
-    
-    // Add unhandledrejection handler for WebSocket promise errors
-    window.addEventListener('unhandledrejection', (event) => {
-      if (
-        event.reason && 
-        event.reason.message && 
-        typeof event.reason.message === 'string' &&
-        event.reason.message.includes('WebSocket') && 
-        event.reason.message.includes('localhost:undefined')
-      ) {
-        console.warn('[Vite HMR Fix] Intercepted unhandled WebSocket promise rejection');
-        
-        // Prevent the error from propagating
-        event.preventDefault();
-      }
-    });
-    
-    console.log('[Vite HMR Fix] Installed error handlers to suppress invalid WebSocket URL errors');
-  } catch (error) {
-    console.error('[Vite HMR Fix] Failed to install error handlers:', error);
-  }
-})();
+// Log that we're installing the fix
+console.log('[Vite HMR Fix] Installed error handlers to suppress invalid WebSocket URL errors');
 
+// Fix for the 'wss://localhost:undefined/' WebSocket error
+if (typeof window !== 'undefined') {
+  const originalWebSocket = window.WebSocket;
+  
+  // Override the WebSocket constructor to catch and handle invalid URLs
+  // @ts-ignore - We're intentionally overriding the WebSocket constructor
+  window.WebSocket = function(url, protocols) {
+    // Check if this is a Vite HMR WebSocket with an invalid URL
+    if (url && typeof url === 'string' && url.includes('localhost:undefined')) {
+      // Log the suppressed invalid URL error
+      console.warn(`[Vite HMR Fix] Suppressed invalid WebSocket URL: ${url}`);
+      
+      // Use the current hostname with a fallback port
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const fallbackUrl = `${protocol}//${window.location.hostname}:3001`;
+      
+      // Create a WebSocket with the fallback URL
+      return new originalWebSocket(fallbackUrl, protocols);
+    }
+    
+    // For all other WebSocket connections, use the original WebSocket constructor
+    return new originalWebSocket(url, protocols);
+  };
+  
+  // Copy over all properties from the original WebSocket constructor
+  for (const prop in originalWebSocket) {
+    if (Object.prototype.hasOwnProperty.call(originalWebSocket, prop)) {
+      // @ts-ignore - We're copying properties
+      window.WebSocket[prop] = originalWebSocket[prop];
+    }
+  }
+  
+  // Ensure the prototype chain is maintained
+  window.WebSocket.prototype = originalWebSocket.prototype;
+}
+
+// Export a dummy object to ensure this file is treated as a module
 export {};

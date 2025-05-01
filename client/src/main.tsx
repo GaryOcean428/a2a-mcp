@@ -6,7 +6,7 @@ import { ThemeProvider } from "./components/ThemeProvider";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { VERSION } from "./version";
 import App from "./App";
-// Import the Vite HMR fix to patch WebSocket
+// Import the Vite HMR fix to patch WebSocket - this must be loaded first
 import "./vite-hmr-fix";
 // Import direct CSS injection
 import { injectCriticalCSS, initCssProtection } from "./utils/css-injector";

@@ -54,14 +54,27 @@ class McpWebSocketClient {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       const wsUrl = `${protocol}//${window.location.host}/mcp-ws`;
       
-      console.log(`[WebSocket] Connecting to ${wsUrl}...`);
-      this.socket = new WebSocket(wsUrl);
+      // Verify the URL is valid before connecting
+      if (!wsUrl || wsUrl.includes('undefined')) {
+        throw new Error(`Invalid WebSocket URL: ${wsUrl}`);
+      }
       
-      // Set up event handlers
-      this.socket.onopen = this.handleOpen.bind(this);
-      this.socket.onclose = this.handleClose.bind(this);
-      this.socket.onerror = this.handleError.bind(this);
-      this.socket.onmessage = this.handleMessage.bind(this);
+      console.log(`[WebSocket] Connecting to ${wsUrl}...`);
+      
+      // Create the WebSocket with proper error handling
+      try {
+        this.socket = new WebSocket(wsUrl);
+        
+        // Set up event handlers
+        this.socket.onopen = this.handleOpen.bind(this);
+        this.socket.onclose = this.handleClose.bind(this);
+        this.socket.onerror = this.handleError.bind(this);
+        this.socket.onmessage = this.handleMessage.bind(this);
+      } catch (socketError) {
+        // Handle WebSocket construction errors specifically
+        console.error('[WebSocket] Failed to construct WebSocket:', socketError);
+        throw socketError;
+      }
     } catch (error) {
       console.error('[WebSocket] Connection error:', error);
       this.isConnecting = false;
