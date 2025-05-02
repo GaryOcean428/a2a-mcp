@@ -1,0 +1,43 @@
+{
+  "drizzle-version": "3.0.0",
+  "drizzle-global": {
+    "state": {
+      "showCounts": false,
+      "flatSchemas": false,
+      "dataFormats": null,
+      "expandSubviews": false
+    },
+    "version": 0
+  },
+  "drizzle-db-38970509-postgresql://neondb_owner:npg_iJP8YKEznA3R@ep-little-grass-a60b7wb7.us-west-2.aws.neon.tech/neondb?sslmode=require": {
+    "state": {
+      "styleMode": "default",
+      "currentPage": "main",
+      "filterViews": {},
+      "isSidebarOpen": true,
+      "isShowSidebarContent": true,
+      "filtersVisible": false,
+      "sidebarWidth": 268,
+      "currentSchemaName": "public",
+      "currentTable": {
+        "id": "public.users",
+        "type": "table",
+        "name": "users",
+        "schema": "public",
+        "createdRecords": [],
+        "editedFields": [],
+        "filters": [],
+        "pagination": {
+          "limit": 50,
+          "offset": 0
+        },
+        "records": [],
+        "sort": null,
+        "columnSettings": {},
+        "historyId": "zrZdNOtHakiGGI50Cg8vY",
+        "executionTime": 257.2999999988824
+      }
+    },
+    "version": 1
+  }
+}

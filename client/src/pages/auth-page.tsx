@@ -5,7 +5,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'wouter';
+import { useLocation, Link } from 'wouter';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -29,7 +29,7 @@ import {
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, LockIcon, UserIcon, Info, Mail } from 'lucide-react';
+import { AlertCircle, LockIcon, UserIcon, Info, Mail, HelpCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuthHook';
 import { logger } from '@/utils/logger';
@@ -245,7 +245,7 @@ export default function AuthPage() {
                   </form>
                 </Form>
               </CardContent>
-              <CardFooter className="flex justify-center">
+              <CardFooter className="flex flex-col items-center space-y-3">
                 <p className="text-sm text-muted-foreground">
                   Don't have an account?{' '}
                   <button
@@ -255,6 +255,14 @@ export default function AuthPage() {
                     Register
                   </button>
                 </p>
+                <div className="w-full border-t pt-3 flex justify-center">
+                  <a href="/documentation" className="no-underline">
+                    <Button variant="outline" size="sm" className="text-xs">
+                      <HelpCircle className="h-3 w-3 mr-1" />
+                      View Documentation
+                    </Button>
+                  </a>
+                </div>
               </CardFooter>
             </Card>
           </TabsContent>
