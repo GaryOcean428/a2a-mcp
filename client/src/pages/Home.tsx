@@ -116,7 +116,14 @@ export default function Home() {
             </div>
             
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 leading-tight">
-              <span className="bg-gradient-to-r from-purple-600 to-indigo-600 text-transparent bg-clip-text">
+              <span 
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 text-transparent bg-clip-text"
+                style={{
+                  color: 'transparent',
+                  backgroundImage: 'linear-gradient(to right, #9333ea, #4f46e5)',
+                  WebkitBackgroundClip: 'text',
+                  backgroundClip: 'text'
+                }}>
                 MCP Integration Platform 
               </span>
               <span className="inline-block ml-2 px-3 py-1 bg-indigo-100 text-indigo-800 rounded-md text-xl shadow-sm">v2.5</span>
@@ -171,7 +178,14 @@ export default function Home() {
       {/* Features Section */}
       <div className="container mx-auto px-6 mb-16">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 text-transparent bg-clip-text inline-block mb-4">
+          <h2 
+            className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 text-transparent bg-clip-text inline-block mb-4"
+            style={{
+              color: 'transparent',
+              backgroundImage: 'linear-gradient(to right, #9333ea, #4f46e5)',
+              WebkitBackgroundClip: 'text',
+              backgroundClip: 'text'
+            }}>
             Key Features
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
@@ -180,18 +194,68 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="feature-card group relative">
+          <div 
+            className="feature-card group relative"
+            style={{
+              backgroundColor: 'white',
+              padding: '1.5rem',
+              borderRadius: '0.5rem',
+              boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+              border: '1px solid rgba(229, 231, 235)',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
+              e.currentTarget.style.borderColor = 'rgba(167, 139, 250, 0.4)';
+              e.currentTarget.style.transform = 'translateY(-5px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
+              e.currentTarget.style.borderColor = 'rgba(229, 231, 235)';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+          >
             <div className="absolute inset-0 bg-gradient-to-r from-purple-100/20 to-indigo-100/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg"></div>
-            <div className="bg-gradient-to-r from-purple-500 to-indigo-500 rounded-lg w-12 h-12 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <div 
+              className="bg-gradient-to-r from-purple-500 to-indigo-500 rounded-lg w-12 h-12 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"
+              style={{
+                backgroundImage: 'linear-gradient(to right, #a855f7, #6366f1)',
+              }}
+            >
               <Zap className="h-6 w-6 text-white" />
             </div>
             <h3 className="text-xl font-semibold mb-2 group-hover:text-purple-700 transition-colors">Standardized Protocols</h3>
             <p className="text-gray-600">Implement a consistent interface for AI interactions with external tools through the MCP protocol.</p>
           </div>
           
-          <div className="feature-card group relative">
+          <div 
+            className="feature-card group relative"
+            style={{
+              backgroundColor: 'white',
+              padding: '1.5rem',
+              borderRadius: '0.5rem',
+              boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+              border: '1px solid rgba(229, 231, 235)',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
+              e.currentTarget.style.borderColor = 'rgba(167, 139, 250, 0.4)';
+              e.currentTarget.style.transform = 'translateY(-5px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
+              e.currentTarget.style.borderColor = 'rgba(229, 231, 235)';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+          >
             <div className="absolute inset-0 bg-gradient-to-r from-indigo-100/20 to-blue-100/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg"></div>
-            <div className="bg-gradient-to-r from-indigo-500 to-blue-500 rounded-lg w-12 h-12 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <div 
+              className="bg-gradient-to-r from-indigo-500 to-blue-500 rounded-lg w-12 h-12 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"
+              style={{
+                backgroundImage: 'linear-gradient(to right, #6366f1, #3b82f6)',
+              }}
+            >
               <Layers className="h-6 w-6 text-white" />
             </div>
             <h3 className="text-xl font-semibold mb-2 group-hover:text-indigo-700 transition-colors">Multiple Providers</h3>
