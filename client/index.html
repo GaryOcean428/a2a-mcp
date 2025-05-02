@@ -162,35 +162,38 @@
         --input: 214.3 31.8% 91.4%;
         --ring: 263 70% 50%;
         --radius: 0.5rem;
+        --tw-gradient-from: undefined;
+        --tw-gradient-to: undefined;
+        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
       }
       
       /* Feature card styles */
       .feature-card {
-        background-color: white;
-        padding: 1.5rem;
-        border-radius: 0.5rem;
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-        border: 1px solid #f3f4f6;
-        transition: all 0.3s ease;
+        background-color: white !important;
+        padding: 1.5rem !important;
+        border-radius: 0.5rem !important;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+        border: 1px solid #f3f4f6 !important;
+        transition: all 0.3s ease !important;
       }
       
       .feature-card:hover {
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        border-color: rgba(167, 139, 250, 0.4);
-        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+        border-color: rgba(167, 139, 250, 0.4) !important;
+        transform: translateY(-5px) !important;
       }
       
       /* Background patterns */
       .bg-grid-gray-100 {
         background-image: 
           linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
-          linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
-        background-size: 24px 24px;
+          linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px) !important;
+        background-size: 24px 24px !important;
       }
       
       .bg-blob-gradient {
-        background-image: radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.1) 0%, transparent 75%);
-        filter: blur(50px);
+        background-image: radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.1) 0%, transparent 75%) !important;
+        filter: blur(50px) !important;
       }
       
       /* Animation keyframes */
@@ -206,57 +209,78 @@
       }
       
       .animate-fade-in-down {
-        animation: fadeInDown 0.5s ease-out;
+        animation: fadeInDown 0.5s ease-out !important;
+      }
+      
+      /* Text with background gradients */
+      .text-transparent {
+        color: transparent !important;
+      }
+      
+      .bg-clip-text {
+        -webkit-background-clip: text !important;
+        background-clip: text !important;
       }
       
       /* Gradient styles */
       .bg-gradient-to-r {
-        background-image: linear-gradient(to right, var(--tw-gradient-stops));
+        background-image: linear-gradient(to right, var(--tw-gradient-stops)) !important;
       }
       
       .from-purple-50 {
-        --tw-gradient-from: #faf5ff;
-        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(250, 245, 255, 0));
+        --tw-gradient-from: #faf5ff !important;
+        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(250, 245, 255, 0)) !important;
       }
       
       .from-purple-600 {
-        --tw-gradient-from: #9333ea;
-        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(147, 51, 234, 0));
+        --tw-gradient-from: #9333ea !important;
+        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(147, 51, 234, 0)) !important;
       }
       
       .to-indigo-600 {
-        --tw-gradient-to: #4f46e5;
+        --tw-gradient-to: #4f46e5 !important;
       }
       
       .to-white {
-        --tw-gradient-to: #ffffff;
+        --tw-gradient-to: #ffffff !important;
       }
       
       .via-indigo-50 {
-        --tw-gradient-via: #eef2ff;
-        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to);
+        --tw-gradient-via: #eef2ff !important;
+        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to) !important;
+      }
+      
+      /* Gradient heading styles - combined for reliability */
+      h1[class*="bg-gradient"], h2[class*="bg-gradient"], h3[class*="bg-gradient"], 
+      h4[class*="bg-gradient"], h5[class*="bg-gradient"], h6[class*="bg-gradient"],
+      span[class*="bg-gradient"], div[class*="bg-gradient"] {
+        color: transparent !important;
+        -webkit-background-clip: text !important;
+        background-clip: text !important;
       }
       
       /* Transition utilities */
       .transition-all {
-        transition-property: all;
-        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-        transition-duration: 150ms;
+        transition-property: all !important;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+        transition-duration: 150ms !important;
       }
       
       .duration-300 {
-        transition-duration: 300ms;
+        transition-duration: 300ms !important;
       }
       
       .ease-in-out {
-        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
       }
       
       /* Group hover effects */
       .group:hover .group-hover\:scale-110 {
-        --tw-scale-x: 1.1;
-        --tw-scale-y: 1.1;
-        transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+        transform: scale(1.1) !important;
+      }
+      
+      .group-hover\:scale-110 {
+        transition: transform 0.3s ease-out !important;
       }
     </style>
     

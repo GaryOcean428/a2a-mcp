@@ -115,22 +115,26 @@ export default function Header() {
 
   return (
     <>
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-sm backdrop-blur-sm bg-white/95">
-        <div className="container mx-auto px-4 py-4">
+      <header className="bg-white/95 border-b border-gray-200 sticky top-0 z-30 shadow-md backdrop-blur-lg">
+        <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             {/* Logo and Brand */}
             <div className="flex items-center">
               <Link href="/">
-                <div className="flex items-center space-x-2 cursor-pointer">
-                  <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-1.5 rounded-md">
+                <div className="flex items-center space-x-3 cursor-pointer group">
+                  <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-2 rounded-lg shadow-md group-hover:shadow-lg transition-all duration-300 transform group-hover:scale-105">
                     <Code className="h-6 w-6 text-white" />
                   </div>
-                  <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 text-transparent bg-clip-text hidden md:inline-block">
-                    MCP Integration Platform <span className="text-sm font-medium ml-1 px-1.5 py-0.5 bg-indigo-100 text-indigo-700 rounded-md">v2.5</span>
-                  </span>
-                  <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 text-transparent bg-clip-text md:hidden">
-                    MCP <span className="text-xs font-medium ml-1 px-1.5 py-0.5 bg-indigo-100 text-indigo-700 rounded-md">v2.5</span>
-                  </span>
+                  <div className="flex flex-col">
+                    <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 text-transparent bg-clip-text hidden md:inline-block">
+                      MCP Integration Platform
+                    </span>
+                    <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 text-transparent bg-clip-text md:hidden">
+                      MCP
+                    </span>
+                    <span className="text-xs text-gray-500 hidden md:inline-block">AI Service Integration Framework</span>
+                  </div>
+                  <span className="text-sm font-medium ml-1 px-2 py-1 bg-gradient-to-r from-purple-100 to-indigo-100 text-indigo-700 rounded-md shadow-sm">v2.5</span>
                 </div>
               </Link>
             </div>
@@ -157,7 +161,7 @@ export default function Header() {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button 
-                      className="hidden md:flex items-center bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                      className="hidden md:flex items-center bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105"
                     >
                       <PlusCircle className="h-4 w-4 mr-2" />
                       New Connection
@@ -238,7 +242,7 @@ export default function Header() {
                 // User is not logged in - show login button (with high visibility)
                 <Link href="/auth">
                   <Button 
-                    className="flex items-center bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-sm"
+                    className="flex items-center bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 px-4 py-2 rounded-lg"
                   >
                     <LogIn className="h-4 w-4 mr-2" />
                     Sign In
