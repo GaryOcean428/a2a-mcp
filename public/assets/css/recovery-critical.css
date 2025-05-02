@@ -7,7 +7,10 @@
 
 /* Background Gradients */
 .bg-gradient-to-r {
-  background-image: linear-gradient(to right, var(--tw-gradient-stops));
+  background-image: linear-gradient(to right, var(--tw-gradient-stops)) !important;
+  --tw-gradient-from: rgb(124 58 237) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), rgb(79 70 229) !important;
+  --tw-gradient-to: rgb(79 70 229) !important;
 }
 
 .from-purple-600 {
@@ -30,12 +33,20 @@
 
 /* Text Transparency */
 .text-transparent {
-  color: transparent;
+  color: transparent !important;
 }
 
 .bg-clip-text {
-  -webkit-background-clip: text;
-  background-clip: text;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+}
+
+/* Combined Text Gradient */
+.bg-gradient-to-r.text-transparent.bg-clip-text {
+  background-image: linear-gradient(to right, rgb(124 58 237), rgb(79 70 229)) !important;
+  color: transparent !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
 }
 
 /* Animation Classes */
@@ -77,12 +88,20 @@
 
 /* Card Styles */
 .feature-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background-color: white !important;
+  border-radius: 0.5rem !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
 }
 
 .feature-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  transform: translateY(-5px) !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(124, 58, 237, 0.2) !important;
 }
 
 /* Group Hover */

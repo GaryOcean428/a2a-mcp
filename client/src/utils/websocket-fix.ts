@@ -20,17 +20,15 @@ const IS_REPLIT_ENV = typeof window !== 'undefined' && (window.location.hostname
 export function initWebSocketFixes(): boolean {
   if (typeof window === 'undefined') return false;
   
-  // Create a global namespace for WebSocket fixes
-  if (!window.mcpWebSocketFixes) {
-    window.mcpWebSocketFixes = {
-      reconnectAttempts: 0,
-      maxReconnectAttempts: 5,
-      baseReconnectDelay: 1500,
-      isConnecting: false,
-      fixesApplied: false,
-      connectionHistory: []
-    };
-  }
+  // Create a global namespace for WebSocket fixes (handle type safely)
+  window.mcpWebSocketFixes = window.mcpWebSocketFixes || {
+    reconnectAttempts: 0,
+    maxReconnectAttempts: 5,
+    baseReconnectDelay: 1500,
+    isConnecting: false,
+    fixesApplied: false,
+    connectionHistory: []
+  };
   
   // Skip if already initialized
   if (window.mcpWebSocketFixes.fixesApplied) {
@@ -156,27 +154,4 @@ export function initWebSocketFixes(): boolean {
   return true;
 }
 
-// Type definition for global namespace
-declare global {
-  interface Window {
-    WEBSOCKET_DEBUG?: boolean;
-    mcpWebSocketFixes: {
-      reconnectAttempts: number;
-      maxReconnectAttempts: number;
-      baseReconnectDelay: number;
-      isConnecting: boolean;
-      fixesApplied: boolean;
-      connectionHistory: Array<{
-        url: string;
-        timestamp: number;
-        successful: boolean;
-        error?: string;
-        openedAt?: number;
-        closedAt?: number;
-        closeCode?: number;
-        closeReason?: string;
-      }>;
-    };
-    mcpWebSocketCreateEnhanced?: (url: string, protocols?: string | string[]) => WebSocket;
-  }
-}
+// Type definitions are in global.d.ts

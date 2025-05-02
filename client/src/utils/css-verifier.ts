@@ -243,12 +243,7 @@ if (typeof window !== 'undefined') {
   };
 }
 
-// Update global interface
-declare global {
-  interface Window {
-    recoverMissingStyles: () => boolean;
-  }
-}
+// The interface is defined in global.d.ts
 
 // Auto-run verification
 runVerification();
