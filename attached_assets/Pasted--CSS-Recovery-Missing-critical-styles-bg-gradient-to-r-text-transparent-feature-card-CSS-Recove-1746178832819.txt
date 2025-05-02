@@ -1,0 +1,96 @@
+[CSS Recovery] Missing critical styles: bg-gradient-to-r, text-transparent, feature-card
+[CSS Recovery] Critical styles injected ✓
+[CSS Recovery] Verifying styles...
+[CSS Recovery] Critical inline styles present: true
+[CSS Recovery] Missing critical styles: bg-gradient-to-r, text-transparent, feature-card
+[websocket:send] Sending WebSocket message
+Data: 
+Object {messageId: undefined, messageType: "ping"}
+[CSS Recovery] Critical styles injected ✓
+[websocket:message] WebSocket message received
+Data: 
+Object {id: undefined, type: undefined, success: undefined}
+[CSS Recovery] Verifying styles...
+[CSS Recovery] Critical inline styles present: true
+[CSS Recovery] Missing critical styles: bg-gradient-to-r, text-transparent, feature-card
+[CSS Recovery] Critical styles injected ✓
+[CSS Recovery] Verifying styles...
+[CSS Recovery] Critical inline styles present: true
+[CSS Recovery] Missing critical styles: bg-gradient-to-r, text-transparent, feature-card
+[CSS Recovery] Critical styles injected ✓
+MCP Integration Platform v2.5MCP v2.5
+Web Search
+Form Automation
+Vector Storage
+Data Scraping
+Settings
+Documentation
+Cline Integration
+Spinner Showcase
+Sign In
+Recent Tools
+Web Search
+Form Automation
+Vector Storage
+All Tools
+Web Search
+Form Automation
+Vector Storage
+Data Scraping
+Quick Actions
+New Vector DBNew Search ProviderRefresh Status
+MCP Integration Platform - WebSocket Testing
+ConnectionMessagingLogs
+WebSocket Connection
+Disconnected
+Current WebSocket URL:
+wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws
+WebSocket Path
+/mcp-ws
+ConnectDisconnectReconnect
+Reconnect attempts: 0
+Recent Tools
+Web Search
+Form Automation
+Vector Storage
+All Tools
+Web Search
+Form Automation
+Vector Storage
+Data Scraping
+Quick Actions
+New Vector DBNew Search ProviderRefresh Status
+Loading Indicators
+These spinners are used throughout the application to indicate loading states.
+Small
+
+Medium
+
+Large
+
+Primary
+
+Light
+
+Dark
+
+Sign in to access all features
+Create an account or sign in to access protected features
+
+Sign InRegister
+Problems logging in? Try these direct links: Login Page|Simplified Login
+MCP Integration Platformv2.5
+© 2025 MCP Integration Platform.
+Made with  for AI developers
+
+Resources
+ Documentation Cline Integration Cline GitHub
+Platform
+System Status: Online
+ Support & Feedback
+API Version: v2.5.0
+MCP Server:Running
+Transport:STDIO
+Tools:6 active
+Last request:Never
+Metrics
