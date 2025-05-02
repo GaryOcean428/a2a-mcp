@@ -10,6 +10,7 @@ import { ThemeProvider } from "./components/ThemeProvider";
 import { mcpWebSocketClient } from "./utils/mcp-websocket-client";
 import { WebSocketProvider } from "./components/WebSocketProvider";
 import { initWebSocketFixes } from "./utils/websocket-fix";
+import ErrorBoundary from "@/components/error-boundary";
 
 // Import CSS utilities
 import "./utils/css-injector";
@@ -105,7 +106,9 @@ function App() {
           <AuthProvider>
             <NavigationProvider>
               <WebSocketProvider autoConnect={true}>
-                <Router />
+                <ErrorBoundary>
+                  <Router />
+                </ErrorBoundary>
                 <Toaster />
               </WebSocketProvider>
             </NavigationProvider>
