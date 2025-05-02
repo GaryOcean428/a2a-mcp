@@ -3,9 +3,19 @@
  * 
  * This utility addresses common WebSocket connection issues in development and production
  * by providing robust reconnection logic and connection state management.
+ * 
+ * Specifically addresses Replit environment WebSocket connectivity issues by providing
+ * alternative connection methods and fallback strategies.
  */
 
+// Set to true to enable debug logging for WebSocket connections
 const WEBSOCKET_DEBUG = false;
+// Enable debug mode in Replit environments by default if DEBUG_WS is set in URL params
+if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('DEBUG_WS')) {
+  console.log('[WebSocketFix] Debug mode enabled via URL parameter');
+  (window as any).WEBSOCKET_DEBUG = true;
+}
+const IS_REPLIT_ENV = typeof window !== 'undefined' && (window.location.hostname.includes('replit') || window.location.hostname.includes('repl.co'));
 
 export function initWebSocketFixes(): boolean {
   if (typeof window === 'undefined') return false;
@@ -29,7 +39,8 @@ export function initWebSocketFixes(): boolean {
   
   // Debug logging function
   const debugLog = (message: string, data?: any) => {
-    if (!WEBSOCKET_DEBUG) return;
+    // Check both local and global debug flags
+    if (!WEBSOCKET_DEBUG && !(window as any).WEBSOCKET_DEBUG) return;
     console.debug(`[WebSocketFix] ${message}`, data || '');
   };
   
@@ -43,6 +54,20 @@ export function initWebSocketFixes(): boolean {
   // Create a proxy function for creating enhanced WebSockets
   function createEnhancedWebSocket(url: string, protocols?: string | string[]) {
     debugLog('Creating WebSocket with enhanced error handling', { url });
+    
+    // Replit-specific WebSocket URL correction
+    if (IS_REPLIT_ENV && url.includes('localhost')) {
+      // Extract original WebSocket path
+      const originalPath = new URL(url).pathname;
+      
+      // Create new URL with secure protocol and current hostname
+      const correctedUrl = `wss://${window.location.host}${originalPath}`;
+      debugLog('Replit environment detected - adjusted WebSocket URL', { 
+        original: url, 
+        corrected: correctedUrl 
+      });
+      url = correctedUrl;
+    }
     
     // Record connection attempt
     window.mcpWebSocketFixes.connectionHistory.push({
@@ -134,6 +159,7 @@ export function initWebSocketFixes(): boolean {
 // Type definition for global namespace
 declare global {
   interface Window {
+    WEBSOCKET_DEBUG?: boolean;
     mcpWebSocketFixes: {
       reconnectAttempts: number;
       maxReconnectAttempts: number;

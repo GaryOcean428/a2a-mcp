@@ -48,6 +48,65 @@ export function logLoadedStylesheets(): void {
 }
 
 /**
+ * Verify critical CSS for external usage
+ * @returns Result of CSS verification
+ */
+export function verifyCriticalCss(): { success: boolean; missing: string[] } {
+  const testElement = document.createElement('div');
+  testElement.style.position = 'absolute';
+  testElement.style.visibility = 'hidden';
+  testElement.style.pointerEvents = 'none';
+  testElement.style.top = '-9999px';
+  testElement.style.left = '-9999px';
+  document.body.appendChild(testElement);
+  
+  let allClassesVerified = true;
+  const missingClasses: string[] = [];
+  
+  try {
+    // Test each critical class
+    CRITICAL_CSS_CLASSES.forEach(className => {
+      testElement.className = className;
+      const computedStyle = window.getComputedStyle(testElement);
+      
+      let isApplied = false;
+      
+      // Different verification logic depending on class type
+      if (className === 'bg-gradient-to-r') {
+        isApplied = computedStyle.backgroundImage.includes('linear-gradient');
+      } else if (className === 'text-transparent') {
+        isApplied = computedStyle.color === 'rgba(0, 0, 0, 0)' || computedStyle.color === 'transparent';
+      } else if (className === 'bg-clip-text') {
+        isApplied = computedStyle.webkitBackgroundClip === 'text' || computedStyle.backgroundClip === 'text';
+      } else if (className === 'animate-fade-in-down') {
+        isApplied = computedStyle.animationName?.includes('fade-in-down') || computedStyle.animation?.includes('fade-in-down');
+      } else if (className === 'feature-card') {
+        isApplied = computedStyle.transition?.includes('transform') || computedStyle.transition?.includes('box-shadow');
+      } else {
+        // Generic check - compare with default styles
+        const defaultElement = document.createElement('div');
+        document.body.appendChild(defaultElement);
+        const defaultStyle = window.getComputedStyle(defaultElement);
+        isApplied = JSON.stringify(computedStyle) !== JSON.stringify(defaultStyle);
+        document.body.removeChild(defaultElement);
+      }
+      
+      if (!isApplied) {
+        allClassesVerified = false;
+        missingClasses.push(className);
+      }
+    });
+  } finally {
+    document.body.removeChild(testElement);
+  }
+  
+  return { 
+    success: allClassesVerified,
+    missing: missingClasses
+  };
+}
+
+/**
  * Verify if critical CSS classes are available
  */
 function verifyCriticalClasses(): void {
@@ -150,6 +209,44 @@ export function runVerification(): void {
         testWebSocketConnection();
       }, 1000);
     });
+  }
+}
+
+/**
+ * Add style recovery function to window
+ */
+if (typeof window !== 'undefined') {
+  window.recoverMissingStyles = () => {
+    console.log('[CSS Recovery] Attempting to recover missing styles...');
+    
+    // Inject a link to the recovery CSS if it doesn't exist
+    const recoveryLink = document.querySelector('link[href*="recovery-critical.css"]');
+    if (!recoveryLink) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = '/assets/css/recovery-critical.css';
+      document.head.appendChild(link);
+      console.log('[CSS Recovery] Injected recovery CSS stylesheet');
+    }
+    
+    // Force a reflow
+    document.body.offsetHeight;
+    
+    // Re-verify after recovery
+    setTimeout(() => {
+      const result = verifyCriticalCss();
+      console.log('[CSS Recovery] Recovery result:', result.success ? 'Success' : 'Failed', 
+                  result.missing.length > 0 ? `Missing: ${result.missing.join(', ')}` : '');
+    }, 500);
+    
+    return true;
+  };
+}
+
+// Update global interface
+declare global {
+  interface Window {
+    recoverMissingStyles: () => boolean;
   }
 }
 
