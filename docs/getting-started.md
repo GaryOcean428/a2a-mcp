@@ -109,9 +109,11 @@ You'll receive a JSON response with search results, which should look something 
 
 ## Next Steps
 
+- Follow the [First API Call Walkthrough](first-api-call.md) for a step-by-step guide to making API calls
 - Explore the [API Documentation](/api-docs.yaml) for more endpoints and features
 - Check out the [Cline Integration Guide](/cline-integration) for VS Code integration
 - Try out other features like Form Automation, Vector Storage, and Data Scraping
+- Browse the [Code Examples](examples/index.md) for implementation guides in different languages
 
 ## Troubleshooting
 

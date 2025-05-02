@@ -7,6 +7,7 @@ Welcome to the comprehensive documentation for the MCP Integration Platform. Thi
 ### Getting Started
 
 - [Getting Started Guide](getting-started.md) - Quick setup and first steps
+- [First API Call](first-api-call.md) - Step-by-step guide to making your first API call
 - [Overview](../README.md) - Platform overview and key concepts
 - [FAQ](faq.md) - Frequently asked questions
 - [Troubleshooting](troubleshooting.md) - Solutions to common issues
@@ -34,7 +35,12 @@ The complete API reference is available in OpenAPI format:
 
 ### Code Examples
 
-Code examples in various languages are available throughout the feature documentation. Here's a quick example of using the web search feature:
+Code examples in various languages are available to help you get started quickly:
+
+- [Code Examples](examples/index.md) - Sample code in multiple languages
+- [Python Client](examples/python-client.md) - Complete Python client implementation
+
+Here's a quick example of using the web search feature with JavaScript:
 
 ```javascript
 async function searchWeb(query) {
