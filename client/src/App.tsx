@@ -9,6 +9,7 @@ import { StylesProtectedRoot } from "@/components/ui/StylesProtectedRoot";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { mcpWebSocketClient } from "./utils/mcp-websocket-client";
 import { WebSocketProvider } from "./components/WebSocketProvider";
+import { initWebSocketFixes } from "./utils/websocket-fix";
 
 // Import CSS utilities
 import "./utils/css-injector";
@@ -82,6 +83,11 @@ function App() {
     if (PRODUCTION_ENV_CHECK) {
       document.documentElement.dataset.productionEnv = 'true';
       console.log('Running in production mode - applying production optimizations');
+    }
+    
+    // Initialize WebSocket fixes to handle connection issues
+    if (initWebSocketFixes()) {
+      console.log('Applied WebSocket connection fixes');
     }
   }, []);
   
