@@ -1,6 +1,54 @@
 <!DOCTYPE html>
-<html lang="en" data-mcp-version="2.5.1745893471256">
+<html lang="en" data-mcp-version="1.0.0-1746151780876">
   <head>
+    <!-- Critical styles for immediate rendering -->
+    <style id="mcp-critical-css">
+      :root {
+        --background: 0 0% 100%;
+        --foreground: 222.2 84% 4.9%;
+        --card: 0 0% 100%;
+        --card-foreground: 222.2 84% 4.9%;
+        --primary: 263 70% 50%;
+        --primary-foreground: 210 40% 98%;
+        --mcp-max-width: 1200px;
+        --mcp-content-padding: 2rem;
+        --mcp-border-radius: 0.5rem;
+        --mcp-transition-duration: 300ms;
+      }
+      
+      /* Responsive container for layout */
+      .mcp-container {
+        width: 100%;
+        max-width: var(--mcp-max-width);
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: var(--mcp-content-padding);
+        padding-right: var(--mcp-content-padding);
+      }
+      
+      /* Basic loading styles */
+      .loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        height: 100vh;
+        width: 100%;
+      }
+      
+      .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top-color: hsl(var(--primary));
+        animation: spin 1s linear infinite;
+      }
+      
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
     <meta charset="UTF-8" />
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -46,7 +94,7 @@
     </style>
     
     <!-- Preload critical resources -->
-    <link rel="preload" href="/production.css" as="style">
+    <link rel="stylesheet" href="/assets/css/recovery-1746151780876.css">
     <link rel="stylesheet" href="/production.css?v=2.5.1745966538733">
     
     <!-- WebSocket connection verification -->
