@@ -150,7 +150,23 @@ export default function Home() {
             </div>
             
             <div className="flex flex-wrap gap-4">
-              <Button size="lg" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all">
+              <Button 
+                size="lg" 
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all"
+                style={{
+                  backgroundImage: 'linear-gradient(to right, #9333ea, #4f46e5)',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.backgroundImage = 'linear-gradient(to right, #7e22ce, #4338ca)';
+                  e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.backgroundImage = 'linear-gradient(to right, #9333ea, #4f46e5)';
+                  e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
+                }}
+              >
                 <a href="/auth">
                   <span className="flex items-center">Sign In / Register <LogIn className="ml-2 h-5 w-5" /></span>
                 </a>
@@ -262,9 +278,34 @@ export default function Home() {
             <p className="text-gray-600">Configure each tool to use your preferred provider with customizable options for optimal results.</p>
           </div>
           
-          <div className="feature-card group relative">
+          <div 
+            className="feature-card group relative"
+            style={{
+              backgroundColor: 'white',
+              padding: '1.5rem',
+              borderRadius: '0.5rem',
+              boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+              border: '1px solid rgba(229, 231, 235)',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
+              e.currentTarget.style.borderColor = 'rgba(167, 139, 250, 0.4)';
+              e.currentTarget.style.transform = 'translateY(-5px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
+              e.currentTarget.style.borderColor = 'rgba(229, 231, 235)';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+          >
             <div className="absolute inset-0 bg-gradient-to-r from-violet-100/20 to-purple-100/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg"></div>
-            <div className="bg-gradient-to-r from-violet-500 to-purple-500 rounded-lg w-12 h-12 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <div 
+              className="bg-gradient-to-r from-violet-500 to-purple-500 rounded-lg w-12 h-12 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"
+              style={{
+                backgroundImage: 'linear-gradient(to right, #8b5cf6, #a855f7)',
+              }}
+            >
               <Sparkles className="h-6 w-6 text-white" />
             </div>
             <h3 className="text-xl font-semibold mb-2 group-hover:text-violet-700 transition-colors">Seamless Integration</h3>
@@ -277,7 +318,14 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           {/* Platform Status Card */}
           <Card className="shadow-md hover:shadow-lg transition-all border border-gray-200 hover:border-purple-200 overflow-hidden">
-            <div className="h-1.5 w-full bg-gradient-to-r from-purple-500 to-indigo-500"></div>
+            <div 
+              className="h-1.5 w-full bg-gradient-to-r from-purple-500 to-indigo-500"
+              style={{
+                height: '0.375rem',
+                width: '100%',
+                backgroundImage: 'linear-gradient(to right, #a855f7, #6366f1)'
+              }}
+            ></div>
             <CardHeader className="pb-3 border-b">
               <CardTitle className="flex items-center text-xl">
                 <Activity className="h-5 w-5 mr-2 text-purple-600" />
@@ -350,7 +398,14 @@ export default function Home() {
 
           {/* Quick Start Card */}
           <Card className="shadow-md hover:shadow-lg transition-all border border-gray-200 hover:border-purple-200 overflow-hidden">
-            <div className="h-1.5 w-full bg-gradient-to-r from-indigo-500 to-blue-500"></div>
+            <div 
+              className="h-1.5 w-full bg-gradient-to-r from-indigo-500 to-blue-500"
+              style={{
+                height: '0.375rem',
+                width: '100%',
+                backgroundImage: 'linear-gradient(to right, #6366f1, #3b82f6)'
+              }}
+            ></div>
             <CardHeader className="pb-3 border-b">
               <CardTitle className="flex items-center text-xl">
                 <Code className="h-5 w-5 mr-2 text-indigo-600" />
@@ -460,7 +515,14 @@ ws.onmessage = (event) => {
         {/* Tool Cards */}
         <div className="mb-16">
           <h2 className="text-2xl font-bold mb-6 flex items-center">
-            <span className="bg-gradient-to-r from-purple-600 to-indigo-600 text-transparent bg-clip-text">
+            <span 
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 text-transparent bg-clip-text"
+              style={{
+                color: 'transparent',
+                backgroundImage: 'linear-gradient(to right, #9333ea, #4f46e5)',
+                WebkitBackgroundClip: 'text',
+                backgroundClip: 'text'
+              }}>
               Available Tools
             </span>
             <div className="h-1 flex-1 bg-gradient-to-r from-purple-100 to-transparent ml-4 rounded-full"></div>
@@ -469,9 +531,36 @@ ws.onmessage = (event) => {
             {toolCards.map((card, index) => (
               <Link key={index} href={card.href}>
                 <Card className="h-full hover:shadow-md transition-all cursor-pointer overflow-hidden border-gray-200 hover:border-purple-200">
-                  <div className={`h-2 w-full bg-gradient-to-r ${card.color}`}></div>
+                  <div 
+                    className={`h-2 w-full bg-gradient-to-r ${card.color}`}
+                    style={{
+                      height: '0.5rem',
+                      width: '100%',
+                      backgroundImage: `linear-gradient(to right, ${card.color.includes('blue') ? '#3b82f6, #60a5fa' : 
+                        card.color.includes('green') ? '#10b981, #34d399' : 
+                        card.color.includes('purple') ? '#8b5cf6, #a855f7' : 
+                        card.color.includes('amber') ? '#f59e0b, #f97316' : 
+                        '#9333ea, #6366f1'})`
+                    }}
+                  ></div>
                   <CardHeader>
-                    <div className={`w-12 h-12 rounded-lg bg-gradient-to-r ${card.color} flex items-center justify-center mb-3`}>
+                    <div 
+                      className={`w-12 h-12 rounded-lg bg-gradient-to-r ${card.color} flex items-center justify-center mb-3`}
+                      style={{
+                        width: '3rem',
+                        height: '3rem',
+                        borderRadius: '0.5rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginBottom: '0.75rem',
+                        backgroundImage: `linear-gradient(to right, ${card.color.includes('blue') ? '#3b82f6, #60a5fa' : 
+                          card.color.includes('green') ? '#10b981, #34d399' : 
+                          card.color.includes('purple') ? '#8b5cf6, #a855f7' : 
+                          card.color.includes('amber') ? '#f59e0b, #f97316' : 
+                          '#9333ea, #6366f1'})`
+                      }}
+                    >
                       <div className="text-white">
                         {card.icon}
                       </div>
@@ -493,7 +582,19 @@ ws.onmessage = (event) => {
         </div>
         
         {/* CTA Section */}
-        <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-10 rounded-xl mb-12 shadow-lg relative overflow-hidden">
+        <div 
+          className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-10 rounded-xl mb-12 shadow-lg relative overflow-hidden"
+          style={{
+            backgroundImage: 'linear-gradient(to right, #9333ea, #4f46e5)',
+            color: 'white',
+            padding: '2.5rem',
+            borderRadius: '0.75rem',
+            marginBottom: '3rem',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+        >
           {/* Decorative elements */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/4 blur-2xl"></div>
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500/10 rounded-full translate-y-1/2 -translate-x-1/4 blur-3xl"></div>
