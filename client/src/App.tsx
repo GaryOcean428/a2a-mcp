@@ -48,6 +48,7 @@ import { ProtectedRoute } from "@/components/protected-route";
 import ToolSidebar from "@/components/ToolSidebar";
 import SpinnerShowcase from "@/components/spinner-showcase";
 import LoginPrompt from "@/components/LoginPrompt";
+import StyleFixer from "@/components/StyleFixer"; // Import the StyleFixer component
 
 function Router() {
   // Production authentication fix - this ensures authentication state is preserved
@@ -126,6 +127,7 @@ function App() {
                 <ErrorBoundary>
                   <Router />
                 </ErrorBoundary>
+                <StyleFixer />
                 <Toaster />
               </WebSocketProvider>
             </NavigationProvider>

@@ -94,6 +94,8 @@
     </style>
     
     <!-- Preload critical resources -->
+    <link rel="stylesheet" href="/critical-fix.css?v=1746180000000">
+    <link rel="stylesheet" href="/fix-gradients.css?v=1746180100000">
     <link rel="stylesheet" href="/assets/css/recovery-1746151780876.css">
     <link rel="stylesheet" href="/production.css?v=2.5.1745966538733">
     <link rel="stylesheet" href="/css/critical-styles.css?v=2.5.1-1746178957500">
@@ -304,5 +306,90 @@
     </noscript>
     
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Emergency CSS injection script -->
+    <script>
+      // Final emergency CSS injection to ensure critical styles are applied
+      (function() {
+        function injectCriticalStyles() {
+          // Create a style element for direct injection
+          var style = document.createElement('style');
+          style.id = 'emergency-css-fix';
+          // Critical styles for gradients and feature cards
+          style.textContent = `
+            /* Force gradient text and backgrounds */
+            .text-transparent { color: transparent !important; }
+            .bg-clip-text { -webkit-background-clip: text !important; background-clip: text !important; }
+            .bg-gradient-to-r { background-image: linear-gradient(to right, var(--tw-gradient-stops)) !important; }
+            
+            /* Force feature cards */
+            .feature-card {
+              background-color: white !important;
+              padding: 1.5rem !important;
+              border-radius: 0.5rem !important;
+              box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+              border: 1px solid rgba(229, 231, 235) !important;
+              transition: all 0.3s ease !important;
+            }
+            
+            .feature-card:hover {
+              box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+              border-color: rgba(167, 139, 250, 0.4) !important;
+              transform: translateY(-5px) !important;
+            }
+
+            /* Force gradient colors */
+            .from-purple-600 { --tw-gradient-from: #9333ea !important; }
+            .to-indigo-600 { --tw-gradient-to: #4f46e5 !important; }
+            
+            /* Direct style for gradient heading - guaranteed to work */
+            span.bg-gradient-to-r.from-purple-600.to-indigo-600.text-transparent.bg-clip-text {
+              background-image: linear-gradient(to right, #9333ea, #4f46e5) !important;
+              color: transparent !important;
+              -webkit-background-clip: text !important;
+              background-clip: text !important;
+            }
+          `;
+          document.head.appendChild(style);
+          console.log('Emergency CSS fix applied');
+          
+          // Final attempt - directly target elements with critical classes
+          setTimeout(function() {
+            // Find gradient text elements and force styles
+            var gradientTexts = document.querySelectorAll('.bg-gradient-to-r.text-transparent');
+            gradientTexts.forEach(function(element) {
+              element.style.color = 'transparent';
+              element.style.webkitBackgroundClip = 'text';
+              element.style.backgroundClip = 'text';
+              element.style.backgroundImage = 'linear-gradient(to right, #9333ea, #4f46e5)';
+              console.log('Fixed gradient text style on element:', element);
+            });
+            
+            // Find feature cards and force styles
+            var featureCards = document.querySelectorAll('.feature-card');
+            featureCards.forEach(function(card) {
+              card.style.backgroundColor = 'white';
+              card.style.padding = '1.5rem';
+              card.style.borderRadius = '0.5rem';
+              card.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
+              card.style.border = '1px solid rgba(229, 231, 235)';
+              card.style.transition = 'all 0.3s ease';
+              console.log('Fixed feature card style on element:', card);
+            });
+          }, 500); // Delay to ensure elements are rendered
+        }
+        
+        // Apply immediately
+        injectCriticalStyles();
+        
+        // And also after DOM content is loaded
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', injectCriticalStyles);
+        }
+        
+        // And after everything is loaded
+        window.addEventListener('load', injectCriticalStyles);
+      })();
+    </script>
   </body>
 </html>

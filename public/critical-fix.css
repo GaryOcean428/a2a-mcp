@@ -1,0 +1,129 @@
+/* Critical CSS fixes for MCP Integration Platform */
+
+/* Text with background gradients */
+.text-transparent {
+  color: transparent !important;
+}
+
+.bg-clip-text {
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+}
+
+/* Gradient backgrounds */
+.bg-gradient-to-r {
+  background-image: linear-gradient(to right, var(--tw-gradient-stops)) !important;
+}
+
+.bg-gradient-to-b {
+  background-image: linear-gradient(to bottom, var(--tw-gradient-stops)) !important;
+}
+
+.bg-gradient-to-br {
+  background-image: linear-gradient(to bottom right, var(--tw-gradient-stops)) !important;
+}
+
+/* Gradient colors */
+.from-purple-50 {
+  --tw-gradient-from: #faf5ff !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(250, 245, 255, 0)) !important;
+}
+
+.from-purple-600 {
+  --tw-gradient-from: #9333ea !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(147, 51, 234, 0)) !important;
+}
+
+.to-indigo-600 {
+  --tw-gradient-to: #4f46e5 !important;
+}
+
+.to-white {
+  --tw-gradient-to: #ffffff !important;
+}
+
+.via-indigo-50 {
+  --tw-gradient-via: #eef2ff !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to) !important;
+}
+
+/* Feature cards */
+.feature-card {
+  background-color: white !important;
+  padding: 1.5rem !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+  border: 1px solid rgba(229, 231, 235, 1) !important;
+  transition: all 0.3s ease !important;
+}
+
+.feature-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  border-color: rgba(167, 139, 250, 0.4) !important;
+  transform: translateY(-5px) !important;
+}
+
+/* Animation keyframes */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-down {
+  animation: fadeInDown 0.5s ease-out !important;
+}
+
+/* Group hover effects */
+.group:hover .group-hover\:scale-105 {
+  transform: scale(1.05) !important;
+}
+
+.group:hover .group-hover\:scale-110 {
+  transform: scale(1.1) !important;
+}
+
+.group-hover\:scale-105,
+.group-hover\:scale-110 {
+  transition: transform 0.3s ease-out !important;
+}
+
+/* Background patterns */
+.bg-grid-gray-100 {
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px) !important;
+  background-size: 24px 24px !important;
+}
+
+.bg-blob-gradient {
+  background-image: radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.1) 0%, transparent 75%) !important;
+  filter: blur(50px) !important;
+}
+
+/* Gradient text headings */
+h1.bg-gradient-to-r.text-transparent,
+h2.bg-gradient-to-r.text-transparent,
+h3.bg-gradient-to-r.text-transparent,
+h4.bg-gradient-to-r.text-transparent,
+h5.bg-gradient-to-r.text-transparent,
+h6.bg-gradient-to-r.text-transparent,
+span.bg-gradient-to-r.text-transparent,
+div.bg-gradient-to-r.text-transparent {
+  color: transparent !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+}
+
+/* Force specific styles for logo branding */
+.from-purple-600.to-indigo-600.text-transparent.bg-clip-text {
+  background-image: linear-gradient(to right, #9333ea, #4f46e5) !important;
+  color: transparent !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+}

@@ -1,0 +1,99 @@
+/**
+ * MCP Integration Platform - Direct CSS Fixes
+ * 
+ * This file contains critical CSS fixes for gradient backgrounds and text transparency
+ * that may be lost during build optimization or CSS purging.
+ * 
+ * These styles have !important to ensure they override any conflicting styles.
+ */
+
+/* Fix for gradient backgrounds */
+.bg-gradient-to-r {
+  background-image: linear-gradient(to right, var(--tw-gradient-stops)) !important;
+}
+
+.bg-gradient-to-t {
+  background-image: linear-gradient(to top, var(--tw-gradient-stops)) !important;
+}
+
+.bg-gradient-to-b {
+  background-image: linear-gradient(to bottom, var(--tw-gradient-stops)) !important;
+}
+
+.bg-gradient-to-tr {
+  background-image: linear-gradient(to top right, var(--tw-gradient-stops)) !important;
+}
+
+.bg-gradient-to-tl {
+  background-image: linear-gradient(to top left, var(--tw-gradient-stops)) !important;
+}
+
+.bg-gradient-to-br {
+  background-image: linear-gradient(to bottom right, var(--tw-gradient-stops)) !important;
+}
+
+.bg-gradient-to-bl {
+  background-image: linear-gradient(to bottom left, var(--tw-gradient-stops)) !important;
+}
+
+/* Fix for text transparency */
+.text-transparent {
+  color: transparent !important;
+}
+
+.bg-clip-text {
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+}
+
+/* Gradient color stops */
+.from-purple-600 {
+  --tw-gradient-from: #9333ea !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(147, 51, 234, 0)) !important;
+}
+
+.to-indigo-600 {
+  --tw-gradient-to: #4f46e5 !important;
+}
+
+.from-purple-500 {
+  --tw-gradient-from: #a855f7 !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(168, 85, 247, 0)) !important;
+}
+
+.to-indigo-500 {
+  --tw-gradient-to: #6366f1 !important;
+}
+
+.from-purple-50 {
+  --tw-gradient-from: #faf5ff !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(250, 245, 255, 0)) !important;
+}
+
+.to-white {
+  --tw-gradient-to: #ffffff !important;
+}
+
+/* Specific fixes for common gradient text patterns */
+.bg-gradient-to-r.from-purple-600.to-indigo-600.text-transparent.bg-clip-text {
+  background-image: linear-gradient(to right, #9333ea, #4f46e5) !important;
+  color: transparent !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+}
+
+/* Feature card styles */
+.feature-card {
+  background-color: white !important;
+  padding: 1.5rem !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+  border: 1px solid rgba(229, 231, 235, 1) !important;
+  transition: all 0.3s ease !important;
+}
+
+.feature-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  border-color: rgba(167, 139, 250, 0.4) !important;
+  transform: translateY(-5px) !important;
+}
