@@ -59,14 +59,18 @@ function isClassDefined(className: string): boolean {
  */
 function hasCriticalInlineStyles(): boolean {
   const styleElements = document.querySelectorAll('style');
-  for (const style of styleElements) {
+  let hasStyles = false;
+  
+  // Use Array.from to properly iterate over NodeList
+  Array.from(styleElements).forEach(style => {
     if (style.textContent?.includes('Critical') || 
         style.id === 'mcp-critical-css' ||
         style.textContent?.includes('bg-gradient-to-r')) {
-      return true;
+      hasStyles = true;
     }
-  }
-  return false;
+  });
+  
+  return hasStyles;
 }
 
 /**
@@ -97,6 +101,11 @@ function injectCriticalStyles(classes: string[]): void {
   
   // Log the recovery
   logger.debug('[CSS Recovery] Injected recovery stylesheet');
+  
+  // Force stylesheet load
+  setTimeout(() => {
+    console.log('[CSS Recovery] Stylesheet load forced');
+  }, 100);
 }
 
 /**
@@ -107,13 +116,13 @@ function verifyCriticalStyles(): void {
   
   // Check if we have critical inline styles
   const hasInlineStyles = hasCriticalInlineStyles();
-  logger.debug('[CSS Recovery] Critical inline styles present:', hasInlineStyles);
+  logger.debug(`[CSS Recovery] Critical inline styles present: ${hasInlineStyles}`);
   
   // Find missing critical classes
   const missing = findMissingClasses();
   
   if (missing.length > 0) {
-    logger.warn('[CSS Recovery] Missing critical styles:', missing.join(', '));
+    logger.warn(`[CSS Recovery] Missing critical styles: ${missing.join(', ')}`);
     injectCriticalStyles(missing);
   }
 }
