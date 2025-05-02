@@ -11,6 +11,9 @@ import App from "./App";
 // Import the Vite HMR fix to patch WebSocket - this must be loaded first
 import "./utils/vite-hmr-fix";
 
+// Import CSS recovery utilities
+import "./utils/css-recovery";
+
 // Import enhanced utilities
 import { initializeTheme } from "./utils/theme-loader";
 import { logger } from "./utils/logger";
