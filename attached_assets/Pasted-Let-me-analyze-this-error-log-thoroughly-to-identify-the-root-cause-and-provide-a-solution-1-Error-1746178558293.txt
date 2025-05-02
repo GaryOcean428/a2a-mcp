@@ -1,0 +1,61 @@
+Let me analyze this error log thoroughly to identify the root cause and provide a solution.
+1. Error Analysis
+The main error message is:
+Warning: validateDOMNesting(...): <div> cannot appear as a descendant of <p>.
+This is a React DOM nesting error. In HTML, certain elements have restrictions on what can be nested inside them. In this case, a <div> element is being rendered inside a <p> (paragraph) element, which is not allowed according to HTML specifications.
+2. Component Trace
+The error stack trace shows where this issue is occurring:
+at div
+at p
+at _c7 (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/ui/card.tsx:92:12)
+at div
+at _c3 (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/ui/card.tsx:45:12)
+at div
+at _c (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/ui/card.tsx:20:11)
+This indicates the issue is in a Card component, specifically at line 92 in card.tsx. It's part of a UI component library within a React application.
+3. Component Context
+From the trace, we can see this is part of a Radix UI tabs implementation:
+at Presence (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-LRUNEPSH.js?v=69dd1288:24:11)
+at https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tabs.js?v=69dd1288:175:13
+at _c5 (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/components/ui/tabs.tsx:72:12)
+And it's being used in a WebSocketTest component:
+at WebSocketTest (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/src/pages/WebSocketTest.tsx:44:37)
+4. Additional Context
+There are also some WebSocket-related logs at the end:
+[WebSocket Test] Connection test successful
+[WebSocket Test] Connection closed
+And missing CSS styles:
+[CSS Recovery] Verifying styles...
+[CSS Recovery] Critical inline styles present: true
+[CSS Recovery] Missing critical styles: bg-gradient-to-r, text-transparent, feature-card
+5. Root Cause Identification
+The primary issue is a DOM nesting violation in the Card component:
+
+There is a <div> being rendered inside a <p> element
+This occurs in /src/components/ui/card.tsx around line 92
+It's being used in a WebSocketTest component with Radix UI Tabs
+
+Looking at common patterns in shadcn/ui (which appears to be the UI framework), Card components often define things like CardHeader, CardTitle, CardDescription, etc. The issue is likely that one of these sub-components (probably CardDescription) is using a <p> tag, and content being passed to it contains a <div>.
+6. Solution Approach
+Based on this analysis, here are the potential solutions:
+
+Inspect and Fix Card Component Usage:
+
+Look at how the Card component is being used in WebSocketTest.tsx
+If a <div> is being passed to CardDescription or another component that uses <p> tags, replace it with <span> or reformat the content
+
+
+Modify the Card Component:
+
+Change the card.tsx component to use <div> instead of <p> for elements that might contain complex nested content
+Update CardDescription or similar component to handle div content
+
+
+Address Missing CSS Styles:
+
+Add the missing Tailwind classes (bg-gradient-to-r, text-transparent, feature-card)
+This seems to be a separate but related issue, as the CSS recovery is trying to fix styles
+
+
+
+Now I'll formulate the most precise, actionable solution.DOM Nesting Error Analysis & Resolution Strategy

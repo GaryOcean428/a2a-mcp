@@ -1,0 +1,83 @@
+DOM Nesting Error Analysis & Resolution Strategy
+Error Diagnosis
+I've analyzed the console error log, which shows a critical React DOM nesting violation:
+Warning: validateDOMNesting(...): <div> cannot appear as a descendant of <p>.
+This error occurs in your application's component hierarchy where an invalid HTML structure is being created. Specifically, a <div> element is being rendered inside a <p> element, which violates HTML nesting rules.
+Error Localization
+The problem is located in your Card component implementation, specifically:
+
+Primary location: src/components/ui/card.tsx:92:12
+Component context: Used within a Radix UI Tabs implementation inside the WebSocketTest component
+
+Root Cause Analysis
+Based on the stack trace, this is a common issue with shadcn/ui Card components when using its sub-components incorrectly. The most likely scenarios are:
+
+CardDescription component is rendered as a <p> element, but content being passed to it contains <div> elements
+Complex content with block-level elements is being nested inside paragraph-based components
+
+Resolution Strategy
+To resolve this issue, implement the following targeted changes:
+Approach 1: Fix Usage in WebSocketTest Component
+Look at src/pages/WebSocketTest.tsx around line 44 where the Card component is used:
+tsx// Find where a Card component is being used like this:
+<Card>
+  <CardHeader>
+    <CardTitle>Title</CardTitle>
+    <CardDescription>
+      {/* PROBLEM: Complex content with divs here */}
+      <div>This causes the nesting error</div>
+    </CardDescription>
+  </CardHeader>
+  {/* ... */}
+</Card>
+Replace any <div> elements inside CardDescription with <span> elements or text content only:
+tsx<CardDescription>
+  This is text content only
+  <span className="block mt-2">This uses span instead of div</span>
+</CardDescription>
+Approach 2: Modify Card Component
+If the first approach doesn't work or you need to support complex content within CardDescription, modify the Card component:
+
+Open src/components/ui/card.tsx
+Find the CardDescription implementation (around line 92)
+Change the underlying element from <p> to <div>:
+
+tsx// Before:
+const CardDescription = React.forwardRef
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLParagraphElement>
+>(({ className, ...props }, ref) => (
+  <p
+    ref={ref}
+    className={cn("text-sm text-muted-foreground", className)}
+    {...props}
+  />
+))
+
+// After:
+const CardDescription = React.forwardRef
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("text-sm text-muted-foreground", className)}
+    {...props}
+  />
+))
+Additional Issues
+The log also indicates missing CSS classes that need to be addressed:
+[CSS Recovery] Missing critical styles: bg-gradient-to-r, text-transparent, feature-card
+Ensure these Tailwind classes are properly included in your project:
+
+Check if bg-gradient-to-r and text-transparent are standard Tailwind classes that should be included
+For feature-card, add this custom class to your CSS or ensure it's defined in your Tailwind configuration
+
+Implementation Steps
+
+First check WebSocketTest.tsx to identify improper Card usage
+If found, refactor the content to avoid nesting divs inside p elements
+If not found or if changes aren't feasible, modify the Card component as described
+Address the missing CSS classes by updating your Tailwind configuration
+
+This structured approach will resolve the DOM nesting error while maintaining the component's functionality and appearance.
