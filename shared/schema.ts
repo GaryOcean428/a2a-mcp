@@ -4,7 +4,7 @@
  * This file defines the database schema and types for the application.
  */
 
-import { pgTable, serial, text, timestamp, json, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, timestamp, json, boolean, varchar } from 'drizzle-orm/pg-core';
 import { createInsertSchema } from 'drizzle-zod';
 import { z } from 'zod';
 
@@ -138,6 +138,24 @@ export const insertRequestLogSchema = createInsertSchema(requestLogs, {
 
 // Request Log insert type
 export type InsertRequestLog = z.infer<typeof insertRequestLogSchema>;
+
+/**
+ * Session Table for Express Session
+ */
+export const sessionTable = pgTable('session', {
+  sid: varchar('sid').primaryKey().notNull(),
+  sess: json('sess').notNull(),
+  expire: timestamp('expire', { precision: 6 }).notNull(),
+});
+
+// Session select type
+export type Session = typeof sessionTable.$inferSelect;
+
+// Session insert schema
+export const insertSessionSchema = createInsertSchema(sessionTable);
+
+// Session insert type
+export type InsertSession = z.infer<typeof insertSessionSchema>;
 
 /**
  * Status Types
