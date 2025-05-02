@@ -33,9 +33,7 @@ const AuthPage = createLazyComponent(() => import("@/pages/auth-page"));
 const NotFound = createLazyComponent(() => import("@/pages/not-found"));
 const LoginButton = createLazyComponent(() => import("@/pages/LoginButton"));
 const LoginRouter = createLazyComponent(() => import("@/pages/LoginRouter"));
-
-// Import WebSocket tester component directly
-import { WebSocketTester } from "@/components/WebSocketTester";
+const WebSocketTest = createLazyComponent(() => import("@/pages/WebSocketTest"));
 
 // Components
 import Layout from "@/components/Layout";
@@ -70,14 +68,7 @@ function Router() {
               <Route path="/documentation" component={Documentation} />
               <Route path="/docs" component={Documentation} />
               <Route path="/cline-integration" component={ClineIntegration} />
-              <Route path="/websocket-test">
-                {() => (
-                  <div className="container mx-auto py-8">
-                    <h1 className="text-2xl font-bold mb-6">WebSocket Connection Tester</h1>
-                    <WebSocketTester />
-                  </div>
-                )}
-              </Route>
+              <Route path="/websocket-test" component={WebSocketTest} />
               <Route component={NotFound} />
             </Switch>
             <ToolSidebar />
