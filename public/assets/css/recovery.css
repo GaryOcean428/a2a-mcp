@@ -1,0 +1,273 @@
+/**
+ * MCP Integration Platform - Core CSS Recovery File
+ * Version: 1.0.0-${Date.now()}
+ *
+ * This file contains critical CSS that must always be available
+ * to ensure proper rendering of the MCP Integration Platform UI
+ * in all environments (development and production).
+ */
+
+/* Core theme variables */
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --primary: 263 70% 50%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 96.1%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 263 70% 50%;
+  --radius: 0.5rem;
+  
+  /* MCP custom variables */
+  --mcp-max-width: 1200px;
+  --mcp-content-padding: 2rem;
+  --mcp-border-radius: 0.5rem;
+  --mcp-transition-duration: 300ms;
+}
+
+/* Layout and structure */
+.sidebar-fixed {
+  width: 100%;
+  max-width: 280px;
+  flex-shrink: 0;
+}
+
+.content-with-sidebar {
+  width: 100%;
+  max-width: calc(100% - 280px);
+  margin-left: auto;
+}
+
+@media (max-width: 768px) {
+  .sidebar-fixed {
+    max-width: 100%;
+  }
+  
+  .content-with-sidebar {
+    max-width: 100%;
+  }
+}
+
+/* Component styles */
+.feature-card, .mcp-card {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(229, 231, 235);
+  transition-property: transform, box-shadow, border-color;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.feature-card:hover, .mcp-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border-color: rgba(167, 139, 250, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Transition optimizations */
+.optimized-card-transition {
+  transition-property: transform, box-shadow, border-color;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.optimized-hover-transition {
+  transition-property: color, background-color, opacity;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mcp-optimized-transition {
+  transition-property: transform, box-shadow, border-color, color, background-color, opacity;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Backgrounds and patterns */
+.bg-grid-gray-100, .mcp-grid-pattern {
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.bg-blob-gradient, .mcp-blob-gradient {
+  background-image: radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.1) 0%, transparent 75%);
+  filter: blur(50px);
+}
+
+.mcp-hero-gradient {
+  background-image: linear-gradient(to right, #a78bfa, #818cf8);
+  background-size: 200% 200%;
+  animation: gradient-shift 15s ease infinite;
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Animations */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-down {
+  animation: fadeInDown 0.5s ease-out;
+}
+
+/* Gradient utilities */
+.bg-gradient-to-r {
+  background-image: linear-gradient(to right, var(--tw-gradient-stops));
+}
+
+.from-purple-50 {
+  --tw-gradient-from: #faf5ff;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(250, 245, 255, 0));
+}
+
+.from-purple-600 {
+  --tw-gradient-from: #9333ea;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(147, 51, 234, 0));
+}
+
+.to-indigo-600 {
+  --tw-gradient-to: #4f46e5;
+}
+
+.to-white {
+  --tw-gradient-to: #ffffff;
+}
+
+/* Responsive containers */
+.mcp-container-responsive {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .mcp-container-responsive {
+    max-width: 640px;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .mcp-container-responsive {
+    max-width: 768px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .mcp-container-responsive {
+    max-width: 1024px;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .mcp-container-responsive {
+    max-width: 1280px;
+  }
+}
+
+/* Width utilities */
+.mcp-responsive-width {
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (min-width: 640px) {
+  .mcp-responsive-width {
+    max-width: 600px;
+  }
+}
+
+@media (min-width: 768px) {
+  .mcp-responsive-width {
+    max-width: 720px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .mcp-responsive-width {
+    max-width: 980px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .mcp-responsive-width {
+    max-width: 1200px;
+  }
+}
+
+/* Basic loading styles */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: hsl(var(--primary));
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive container with proper padding */
+.mcp-container {
+  width: 100%;
+  max-width: var(--mcp-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--mcp-content-padding);
+  padding-right: var(--mcp-content-padding);
+}
+
+/* Group hover effects */
+.group:hover .group-hover\:scale-110 {
+  --tw-scale-x: 1.1;
+  --tw-scale-y: 1.1;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
