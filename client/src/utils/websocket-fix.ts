@@ -67,12 +67,14 @@ export function initWebSocketFixes(): boolean {
       url = correctedUrl;
     }
     
-    // Record connection attempt
-    window.mcpWebSocketFixes.connectionHistory.push({
-      url,
-      timestamp: Date.now(),
-      successful: false
-    });
+    // Record connection attempt if fixes are initialized
+    if (window.mcpWebSocketFixes && Array.isArray(window.mcpWebSocketFixes.connectionHistory)) {
+      window.mcpWebSocketFixes.connectionHistory.push({
+        url,
+        timestamp: Date.now(),
+        successful: false
+      });
+    }
     
     // Create WebSocket instance
     const ws = new originalCreateWebSocket(url, protocols);
@@ -86,10 +88,12 @@ export function initWebSocketFixes(): boolean {
     ws.onerror = function(event) {
       debugLog('WebSocket error occurred', event);
       
-      // Record connection failure
-      const lastConnection = window.mcpWebSocketFixes.connectionHistory[window.mcpWebSocketFixes.connectionHistory.length - 1];
-      if (lastConnection) {
-        lastConnection.error = 'Connection error';
+      // Record connection failure if fixes are initialized
+      if (window.mcpWebSocketFixes && Array.isArray(window.mcpWebSocketFixes.connectionHistory)) {
+        const lastConnection = window.mcpWebSocketFixes.connectionHistory[window.mcpWebSocketFixes.connectionHistory.length - 1];
+        if (lastConnection) {
+          lastConnection.error = 'Connection error';
+        }
       }
       
       // Call original handler if exists
@@ -106,12 +110,14 @@ export function initWebSocketFixes(): boolean {
         wasClean: event.wasClean
       });
       
-      // Record connection closure
-      const lastConnection = window.mcpWebSocketFixes.connectionHistory[window.mcpWebSocketFixes.connectionHistory.length - 1];
-      if (lastConnection) {
-        lastConnection.closedAt = Date.now();
-        lastConnection.closeCode = event.code;
-        lastConnection.closeReason = event.reason;
+      // Record connection closure if fixes are initialized
+      if (window.mcpWebSocketFixes && Array.isArray(window.mcpWebSocketFixes.connectionHistory)) {
+        const lastConnection = window.mcpWebSocketFixes.connectionHistory[window.mcpWebSocketFixes.connectionHistory.length - 1];
+        if (lastConnection) {
+          lastConnection.closedAt = Date.now();
+          lastConnection.closeCode = event.code;
+          lastConnection.closeReason = event.reason;
+        }
       }
       
       // Call original handler if exists
@@ -124,15 +130,17 @@ export function initWebSocketFixes(): boolean {
     ws.onopen = function(event) {
       debugLog('WebSocket connection established');
       
-      // Record successful connection
-      const lastConnection = window.mcpWebSocketFixes.connectionHistory[window.mcpWebSocketFixes.connectionHistory.length - 1];
-      if (lastConnection) {
-        lastConnection.successful = true;
-        lastConnection.openedAt = Date.now();
-      }
+      // Record successful connection if fixes are initialized
+      if (window.mcpWebSocketFixes && Array.isArray(window.mcpWebSocketFixes.connectionHistory)) {
+        const lastConnection = window.mcpWebSocketFixes.connectionHistory[window.mcpWebSocketFixes.connectionHistory.length - 1];
+        if (lastConnection) {
+          lastConnection.successful = true;
+          lastConnection.openedAt = Date.now();
+        }
       
-      // Reset reconnect counter on successful connection
-      window.mcpWebSocketFixes.reconnectAttempts = 0;
+        // Reset reconnect counter on successful connection
+        window.mcpWebSocketFixes.reconnectAttempts = 0;
+      }
       
       // Call original handler if exists
       if (originalOnOpen) {

@@ -45,7 +45,7 @@ export function useEnhancedWebSocket(options: UseWebSocketOptions): UseWebSocket
   const {
     url,
     autoConnect = true,
-    reconnect = true,
+    reconnect: shouldReconnect = true,
     maxReconnectAttempts = 5,
     onMessage,
     onConnect,
@@ -69,7 +69,7 @@ export function useEnhancedWebSocket(options: UseWebSocketOptions): UseWebSocket
   // Initialize client reference if not already set
   if (!clientRef.current) {
     clientRef.current = getWebSocketClient({
-      reconnect,
+      reconnect: shouldReconnect,
       maxReconnectAttempts,
       debug,
     });

@@ -5,11 +5,15 @@
  * error handling, and adapters for both standard and Replit environments.
  */
 
-import { IS_PRODUCTION } from './environment-helpers';
+// Environment detection helpers
+const IS_PRODUCTION = process.env.NODE_ENV === 'production' || import.meta.env.PROD;
+const IS_REPLIT_ENV = typeof window !== 'undefined' && (
+  window.location.hostname.includes('replit') ||
+  window.location.hostname.includes('repl.co')
+);
 
 // Debug flags
 const WEBSOCKET_DEBUG = process.env.NODE_ENV === 'development';
-const IS_REPLIT_ENV = typeof window !== 'undefined' && window.location.hostname.includes('replit');
 
 // Default configuration
 const DEFAULT_CONFIG = {
