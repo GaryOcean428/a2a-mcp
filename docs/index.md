@@ -61,7 +61,9 @@ async function searchWeb(query) {
 
 ## Contributing
 
-We welcome contributions to improve this documentation. If you find errors, unclear explanations, or have suggestions for improvement, please contact the maintainers of this project.
+We welcome contributions to improve this documentation and the platform itself. For details on how to contribute, please refer to our [Contribution Guidelines](contributing.md).
+
+If you find errors, unclear explanations, or have suggestions for improvement, please contact the maintainers of this project or submit a pull request following the guidelines.
 
 ## Support
 

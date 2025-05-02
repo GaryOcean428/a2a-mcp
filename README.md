@@ -140,6 +140,10 @@ For detailed documentation, please refer to the following resources:
 - [FAQ](docs/faq.md) - Frequently asked questions
 - [Troubleshooting](docs/troubleshooting.md) - Solutions to common issues
 
+## Contributing
+
+We welcome contributions to the MCP Integration Platform! Please refer to our [Contribution Guidelines](docs/contributing.md) for more information on how to get involved.
+
 ## Contact
 
 For additional support or feature requests, please contact the maintainers of this project.
