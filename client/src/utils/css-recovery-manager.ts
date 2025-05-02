@@ -106,7 +106,7 @@ export class CssRecoveryManager {
       this.injectRecoveryCss(true);
     } else if (!hasCriticalInlineStyles && !this.recoveryStylesInjected) {
       // If no inline styles and recovery not yet injected
-      logger.info('%c[CSS Recovery] Injecting critical styles', 'color: blue');
+      logger.info('[CSS Recovery] Injecting critical styles');
       this.injectRecoveryCss();
     }
   }
