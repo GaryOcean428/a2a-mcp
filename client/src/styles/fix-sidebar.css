@@ -1,129 +1,124 @@
 /**
- * MCP Integration Platform - UI Layout Fixes
- *
- * This file contains critical fixes for the UI layout to ensure proper rendering
- * in both development and production environments.
+ * Sidebar and Critical UI Fixes
+ * This file contains critical CSS fixes that need to be directly imported
+ * and not processed through the normal CSS pipeline to ensure they're
+ * always available regardless of build process.
  */
 
-/* Global fixes */
-body {
-  margin: 0;
-  padding: 0;
-  font-family: var(--font-sans);
-  background-color: var(--color-background);
-  color: var(--color-text);
-}
-
-/* Layout structure fixes */
-.min-h-screen {
-  min-height: 100vh;
-}
-
-.flex {
-  display: flex;
-}
-
-.flex-col {
-  flex-direction: column;
-}
-
-.flex-1 {
-  flex: 1 1 0%;
-}
-
-.relative {
-  position: relative;
-}
-
-/* Header height reference for other components */
-.header-height {
-  height: 64px;
-}
-
-/* Main layout container */
-.content-container {
-  overflow-x: hidden;
+/* Fix for sidebars with fixed width */
+.sidebar-fixed {
   width: 100%;
+  max-width: 280px;
+  flex-shrink: 0;
 }
 
-/* Sidebar fixes */
-.sidebar-container {
-  width: 256px;
-  min-width: 256px;
+/* Fix for content area to respect sidebar */
+.content-with-sidebar {
+  width: 100%;
+  max-width: calc(100% - 280px);
+  margin-left: auto;
+}
+
+/* Responsive fixes for mobile */
+@media (max-width: 768px) {
+  .sidebar-fixed {
+    max-width: 100%;
+  }
+  
+  .content-with-sidebar {
+    max-width: 100%;
+  }
+}
+
+/* Critical component styles that must not be purged */
+.mcp-card {
   background-color: white;
-  border-right: 1px solid #e5e7eb;
-  z-index: 10;
-  height: calc(100vh - 64px);
-  overflow-y: auto;
-}
-
-/* Main content area */
-.main-content {
-  padding: 1.5rem;
-  flex: 1;
-  min-width: 0;
-}
-
-/* Purple sidebar theme */
-.purple-sidebar {
-  background-color: #7c3aed;
-  color: white;
-}
-
-/* Fix for fixed position elements */
-.fixed {
-  position: fixed;
-}
-
-.absolute {
-  position: absolute;
-}
-
-/* Ensure primary color is always available */
-:root {
-  --color-primary: #7c3aed;
-  --color-primary-foreground: white;
-}
-
-/* Ensure scrolling works properly */
-.overflow-auto {
-  overflow: auto;
-}
-
-.overflow-hidden {
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   overflow: hidden;
+  position: relative;
+  transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
+  border: 1px solid transparent;
 }
 
-/* Grid layout fixes */
-.grid {
-  display: grid;
+.mcp-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px);
+  border-color: rgba(124, 58, 237, 0.1);
 }
 
-/* Force proper z-indexing for UI layers */
-.z-10 { z-index: 10; }
-.z-20 { z-index: 20; }
-.z-30 { z-index: 30; }
-.z-40 { z-index: 40; }
-.z-50 { z-index: 50; }
-
-/* Spacing utilities that might be missing */
-.p-4 { padding: 1rem; }
-.py-4 { padding-top: 1rem; padding-bottom: 1rem; }
-.px-4 { padding-left: 1rem; padding-right: 1rem; }
-.mt-4 { margin-top: 1rem; }
-
-/* Fix for any animation classes not loading */
-.animate-fade-in-down {
-  animation: fadeInDown 0.3s ease-out forwards;
+/* Fix for transitions using transition-all */
+.mcp-optimized-transition {
+  transition-property: transform, box-shadow, border-color, color, background-color, opacity;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
+/* Fix for fixed width containers */
+.mcp-container-responsive {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .mcp-container-responsive {
+    max-width: 640px;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+}
+
+@media (min-width: 768px) {
+  .mcp-container-responsive {
+    max-width: 768px;
   }
+}
+
+@media (min-width: 1024px) {
+  .mcp-container-responsive {
+    max-width: 1024px;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .mcp-container-responsive {
+    max-width: 1280px;
+  }
+}
+
+/* Gradient background that won't be purged */
+.mcp-hero-gradient {
+  background-image: linear-gradient(to right, #a78bfa, #818cf8);
+  background-size: 200% 200%;
+  animation: gradient-shift 15s ease infinite;
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Grid patterns and blob backgrounds */
+.mcp-grid-pattern {
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.mcp-blob-gradient {
+  background-image: radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.1) 0%, transparent 75%);
+  filter: blur(50px);
 }

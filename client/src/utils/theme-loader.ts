@@ -5,7 +5,14 @@
  * It ensures proper CSS rendering and fixes common styling issues.
  */
 
+// Import version info
 import { version } from '../version';
+
+// Create a utility to apply theme from theme.json to DOM
+export function applyThemeToDom() {
+  // Add a class to the html element based on the theme
+  document.documentElement.setAttribute('data-theme', 'MCP');
+}
 
 /**
  * Initialize the theme and apply critical CSS

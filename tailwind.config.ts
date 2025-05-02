@@ -14,8 +14,19 @@ export default {
     "animate-spin",
     "animate-pulse",
     
-    // Component classes
+    // MCP custom components
     "feature-card",
+    "mcp-card",
+    "mcp-responsive-width",
+    "mcp-container-responsive",
+    "mcp-optimized-transition",
+    "mcp-grid-pattern",
+    "mcp-blob-gradient",
+    "mcp-hero-gradient",
+    "optimized-card-transition",
+    "optimized-hover-transition",
+    "sidebar-fixed",
+    "content-with-sidebar",
     
     // Hover effects
     "group-hover:scale-110",
