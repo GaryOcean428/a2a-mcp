@@ -13,18 +13,19 @@ const path = require('path');
  * Update the version timestamp for cache busting
  */
 function updateVersion() {
-  const versionContent = `/**
+  const timestamp = Date.now();
+const versionContent = `/**
  * MCP Integration Platform Version
  * Used for cache busting and debugging
  */
 
 // Current version with timestamp for cache busting
-export const version = "1.0.0-${Date.now()}";
+export const version = "1.0.0-${timestamp}";
 
 // Export a helper for cache busting URLs
 export function addVersionToUrl(url) {
   const separator = url.includes('?') ? '&' : '?';
-  return `${url}${separator}v=${version}`;
+  return \`\${url}\${separator}v=\${version}\`;
 }
 `;
 

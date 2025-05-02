@@ -6,6 +6,9 @@
  * This is a common issue in Replit environments where the port might not be correctly determined.
  */
 
+// Store reference to original WebSocket
+export const OriginalWebSocket = window.WebSocket;
+
 // Run the fix immediately when imported
 (function fixViteHmrWebSocket() {
   try {
@@ -51,4 +54,5 @@
   }
 })();
 
-export {};
+// Export empty object to make this a module
+export const WebSocketFixed = true;
