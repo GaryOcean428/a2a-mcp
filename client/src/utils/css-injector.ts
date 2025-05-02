@@ -117,6 +117,61 @@ const CRITICAL_CSS: CSSRule[] = [
     styles: '--tw-gradient-to: #ffffff;',
     category: 'gradient',
     priority: 5
+  },
+  // New critical CSS classes
+  {
+    selector: '.group-hover\\:scale-110',
+    styles: 'transition: transform 0.3s ease-out;',
+    category: 'utility',
+    priority: 5
+  },
+  {
+    selector: '.group:hover .group-hover\\:scale-110',
+    styles: 'transform: scale(1.1);',
+    category: 'utility',
+    priority: 5
+  },
+  {
+    selector: '.from-purple-600',
+    styles: '--tw-gradient-from: #9333ea; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);',
+    category: 'gradient',
+    priority: 5
+  },
+  {
+    selector: '.to-indigo-600',
+    styles: '--tw-gradient-to: #4f46e5;',
+    category: 'gradient',
+    priority: 5
+  },
+  {
+    selector: '.animate-in',
+    styles: 'animation-duration: 150ms; animation-timing-function: cubic-bezier(0.1, 0.99, 0.1, 0.99); animation-fill-mode: both;',
+    category: 'animation',
+    priority: 5
+  },
+  {
+    selector: '.fade-in',
+    styles: 'animation-name: fadeIn;',
+    category: 'animation',
+    priority: 5
+  },
+  {
+    selector: '@keyframes fadeIn',
+    styles: 'from { opacity: 0; } to { opacity: 1; }',
+    category: 'animation',
+    priority: 5
+  },
+  {
+    selector: '.duration-300',
+    styles: 'transition-duration: 300ms;',
+    category: 'utility',
+    priority: 5
+  },
+  {
+    selector: '.ease-in-out',
+    styles: 'transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);',
+    category: 'utility',
+    priority: 5
   }
 ];
 

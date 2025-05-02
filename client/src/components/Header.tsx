@@ -78,6 +78,11 @@ const navLinks: NavItem[] = [
     href: '/cline-integration',
     label: 'Cline Integration',
     icon: <Code className="h-5 w-5" />
+  },
+  {
+    href: '/spinner-showcase',
+    label: 'Spinner Showcase',
+    icon: <Loader className="h-5 w-5" />
   }
 ];
 

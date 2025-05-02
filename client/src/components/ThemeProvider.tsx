@@ -12,7 +12,7 @@ import { UI_CONFIG } from '../config/app-config';
 import { initializeTheme, applyThemeToDom } from '../utils/theme-loader';
 
 // Theme types
-export type ThemeMode = 'light' | 'dark' | 'system';
+export type ThemeMode = 'light' | 'dark' | 'system' | 'high-contrast';
 
 interface ThemeContextType {
   theme: ThemeMode;
@@ -39,7 +39,7 @@ function getSystemTheme(): 'light' | 'dark' {
 function getStoredTheme(): ThemeMode {
   try {
     const storedTheme = localStorage.getItem(STORAGE_KEYS.THEME);
-    if (storedTheme && ['light', 'dark', 'system'].includes(storedTheme)) {
+    if (storedTheme && ['light', 'dark', 'system', 'high-contrast'].includes(storedTheme)) {
       return storedTheme as ThemeMode;
     }
   } catch (e) {

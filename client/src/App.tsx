@@ -36,6 +36,9 @@ const LoginRouter = createLazyComponent(() => import("@/pages/LoginRouter"));
 // Components
 import Layout from "@/components/Layout";
 import { ProtectedRoute } from "@/components/protected-route";
+import ToolSidebar from "@/components/ToolSidebar";
+import SpinnerShowcase from "@/components/spinner-showcase";
+import LoginPrompt from "@/components/LoginPrompt";
 
 function Router() {
   // Production authentication fix - this ensures authentication state is preserved
@@ -65,6 +68,9 @@ function Router() {
               <Route path="/cline-integration" component={ClineIntegration} />
               <Route component={NotFound} />
             </Switch>
+            <ToolSidebar />
+            <SpinnerShowcase />
+            <LoginPrompt />
           </Layout>
         )}
       </Route>

@@ -69,6 +69,9 @@ window.addEventListener('unhandledrejection', (event) => {
   });
 });
 
+// Import and call verifyCriticalCss during application initialization
+import { verifyCriticalCss } from "./utils/css-verifier";
+
 // -------------------------------------------------------------
 // START CONTROLLED MOUNTING PROCESS
 // -------------------------------------------------------------
@@ -163,6 +166,17 @@ function mountApp() {
     const rootElement = document.getElementById("root");
     if (!rootElement) {
       throw new Error("Root element not found");
+    }
+    
+    // Verify critical CSS classes
+    const cssVerificationResult = verifyCriticalCss();
+    if (!cssVerificationResult.success) {
+      logger.warn('Critical CSS verification failed', {
+        tags: ['css', 'verification'],
+        data: { missing: cssVerificationResult.missing }
+      });
+      // Attempt to recover missing styles
+      window.recoverMissingStyles();
     }
     
     // Create and render React root with providers

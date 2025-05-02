@@ -13,7 +13,9 @@ const CRITICAL_CLASSES = [
   "to-indigo-600",
   "bg-gradient-to-r",
   "group-hover:scale-110",
-  "animate-in"
+  "animate-in",
+  "duration-300",
+  "ease-in-out"
 ];
 
 // Critical styles that will be injected if missing
@@ -100,6 +102,15 @@ const CRITICAL_STYLES = `
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
+/* Additional critical styles */
+.duration-300 {
+  transition-duration: 300ms;
+}
+
+.ease-in-out {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
 `;
 
 /**
@@ -169,6 +180,12 @@ export function CssVerification() {
         case 'animate-in':
           isStyled = style.animationDuration !== 'none' && 
                     style.animationDuration === '150ms';
+          break;
+        case 'duration-300':
+          isStyled = style.transitionDuration === '300ms';
+          break;
+        case 'ease-in-out':
+          isStyled = style.transitionTimingFunction.includes('cubic-bezier');
           break;
         default:
           // Generic check for any styling effect

@@ -78,3 +78,8 @@ export function lazyImport<
     [name]: lazyLoad(() => factory().then((module) => ({ default: module[name] })))
   } as unknown as I;
 }
+
+// Lazy load ToolSidebar, SpinnerShowcase, and LoginPrompt components
+export const ToolSidebar = createLazyComponent(() => import('@/components/ToolSidebar'));
+export const SpinnerShowcase = createLazyComponent(() => import('@/components/spinner-showcase'));
+export const LoginPrompt = createLazyComponent(() => import('@/components/LoginPrompt'));

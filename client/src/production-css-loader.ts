@@ -46,6 +46,45 @@ if (import.meta.env.PROD) {
       transform: translateY(0);
     }
   }
+
+  /* New critical CSS classes */
+  .group-hover\:scale-110 {
+    transition: transform 0.3s ease-out;
+  }
+  .group:hover .group-hover\:scale-110 {
+    transform: scale(1.1);
+  }
+
+  .from-purple-600 {
+    --tw-gradient-from: #9333ea;
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+  }
+  .to-indigo-600 {
+    --tw-gradient-to: #4f46e5;
+  }
+
+  .animate-in {
+    animation-duration: 150ms;
+    animation-timing-function: cubic-bezier(0.1, 0.99, 0.1, 0.99);
+    animation-fill-mode: both;
+  }
+
+  .fade-in {
+    animation-name: fadeIn;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .duration-300 {
+    transition-duration: 300ms;
+  }
+
+  .ease-in-out {
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
   `;
   document.head.appendChild(style);
   

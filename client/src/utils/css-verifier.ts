@@ -16,6 +16,13 @@ const CRITICAL_CSS_CLASSES = [
   'from-purple-50',
   'to-white',
   'bg-gradient-to-r',
+  'group-hover:scale-110',
+  'from-purple-600',
+  'to-indigo-600',
+  'animate-in',
+  'fade-in',
+  'duration-300',
+  'ease-in-out'
 ];
 
 /**
