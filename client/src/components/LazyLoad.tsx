@@ -8,11 +8,49 @@
 import { lazy, Suspense, ComponentType } from 'react';
 import { Loader2 } from 'lucide-react';
 
-// Loading spinner component
-export function LoadingSpinner() {
+// Loading spinner component props
+export interface LoadingSpinnerProps {
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  variant?: 'primary' | 'secondary' | 'light' | 'dark';
+  className?: string;
+  fullWidth?: boolean;
+}
+
+// Loading spinner component with size and variant support
+export function LoadingSpinner({
+  size = 'md',
+  variant = 'primary',
+  className = '',
+  fullWidth = true
+}: LoadingSpinnerProps) {
+  // Size mappings
+  const sizeClasses = {
+    xs: 'w-4 h-4',
+    sm: 'w-6 h-6',
+    md: 'w-8 h-8',
+    lg: 'w-10 h-10',
+    xl: 'w-12 h-12'
+  };
+  
+  // Variant mappings
+  const variantClasses = {
+    primary: 'text-primary',
+    secondary: 'text-secondary',
+    light: 'text-white',
+    dark: 'text-gray-800'
+  };
+  
+  // Combine classes
+  const spinnerClasses = `
+    ${sizeClasses[size]} 
+    ${variantClasses[variant]} 
+    animate-spin 
+    ${className}
+  `;
+  
   return (
-    <div className="flex justify-center items-center min-h-20 w-full py-4">
-      <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+    <div className={`flex justify-center items-center py-2 ${fullWidth ? 'w-full' : ''}`}>
+      <Loader2 className={spinnerClasses} />
     </div>
   );
 }

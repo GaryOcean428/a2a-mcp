@@ -15,6 +15,7 @@ import ErrorBoundary from "@/components/error-boundary";
 // Import CSS utilities
 import "./utils/css-injector";
 import "./utils/css-recovery-manager";
+import "./utils/css-verifier"; // Add CSS verification
 
 // Import LazyLoad utility for code splitting
 import { createLazyComponent, LoadingSpinner } from "./components/LazyLoad";

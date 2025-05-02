@@ -4,6 +4,9 @@ export default {
   darkMode: ["class"],
   content: ["./client/index.html", "./client/src/**/*.{js,jsx,ts,tsx}"],
   safelist: [
+    // Text classes that might be purged
+    "text-transparent",
+    "bg-clip-text",
     // Animation classes
     "animate-in",
     "animate-out",
