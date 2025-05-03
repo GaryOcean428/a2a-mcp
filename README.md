@@ -137,6 +137,8 @@ For detailed documentation, please refer to the following resources:
 - [Documentation Home](docs/index.md) - Main documentation portal
 - [Getting Started Guide](docs/getting-started.md) - Quick setup and first steps
 - [Feature Documentation](docs/features/index.md) - Detailed feature guides
+- [CSS & WebSocket Fixes](docs/css-websocket-fixes.md) - Comprehensive solution for UI rendering and connection stability
+- [CSS Implementation Guide](docs/css-fixes.md) - Technical details on CSS fixes and failsafe mechanisms
 - [FAQ](docs/faq.md) - Frequently asked questions
 - [Troubleshooting](docs/troubleshooting.md) - Solutions to common issues
 
