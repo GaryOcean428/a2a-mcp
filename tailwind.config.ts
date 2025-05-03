@@ -22,6 +22,16 @@ export default {
     "to-purple-500",
     "hover:from-purple-700",
     "hover:to-indigo-700",
+    // Failsafe classes
+    "gradient-text",
+    "Layout",
+    "main-content",
+    "sidebar",
+    "sidebar-backdrop",
+    "page-container",
+    "overlay",
+    "modal-container",
+    "modal",
 
     // Animation classes
     "animate-in",

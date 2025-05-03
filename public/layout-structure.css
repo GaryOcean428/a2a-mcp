@@ -1,0 +1,157 @@
+/**
+ * MCP Integration Platform - Layout Structure Fixes
+ * 
+ * This file contains critical layout and positioning styles
+ * to ensure proper rendering of the UI layout components.
+ */
+
+/* Basic Layout Component */
+.Layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+}
+
+/* Main Content Area */
+.main-content {
+  flex: 1;
+  width: 100%;
+  transition: margin-left 0.3s ease;
+}
+
+/* Mobile Layout (default) */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 250px;
+  background-color: white;
+  z-index: 50;
+  overflow-y: auto;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.05);
+  border-right: 1px solid rgba(229, 231, 235);
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+/* Sidebar Backdrop (Mobile) */
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 40;
+  cursor: pointer;
+}
+
+.sidebar-backdrop.open {
+  display: block;
+}
+
+/* Desktop Layout (>= 768px) */
+@media (min-width: 768px) {
+  .Layout {
+    flex-direction: row;
+  }
+  
+  .sidebar {
+    position: sticky;
+    top: 0;
+    transform: translateX(0);
+    height: 100vh;
+    flex-shrink: 0;
+  }
+  
+  .main-content {
+    margin-left: 0;
+    padding-left: 250px;
+  }
+  
+  .sidebar-backdrop.open {
+    display: none;
+  }
+}
+
+/* Container for Page Content */
+.page-container {
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Z-index management */
+.z-10 { z-index: 10; }
+.z-20 { z-index: 20; }
+.z-30 { z-index: 30; }
+.z-40 { z-index: 40; }
+.z-50 { z-index: 50; }
+
+/* Critical positioning utilities */
+.relative { position: relative; }
+.absolute { position: absolute; }
+.fixed { position: fixed; }
+.sticky { position: sticky; }
+.top-0 { top: 0; }
+.left-0 { left: 0; }
+.right-0 { right: 0; }
+.bottom-0 { bottom: 0; }
+
+/* Flex utilities for layout */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.flex-row { flex-direction: row; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.justify-center { justify-content: center; }
+.justify-end { justify-content: flex-end; }
+.flex-1 { flex: 1 1 0%; }
+.flex-auto { flex: 1 1 auto; }
+.flex-grow { flex-grow: 1; }
+.flex-shrink-0 { flex-shrink: 0; }
+.flex-wrap { flex-wrap: wrap; }
+
+/* Overlay utilities */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 40;
+}
+
+/* Modal container positioning */
+.modal-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+/* Common modal styles */
+.modal {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
