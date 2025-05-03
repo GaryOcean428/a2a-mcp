@@ -1,238 +1,218 @@
 /**
  * MCP Integration Platform - Unified Critical CSS
  * 
- * This file contains all critical CSS classes required for proper UI rendering
- * across both development and production environments.
- * 
- * Version: 1.0.0
+ * This stylesheet contains all critical styles needed for proper rendering
+ * of the application interface. These styles are prioritized to ensure
+ * correct visual appearance even before the main stylesheets load.
  */
 
-/* ======= Background Gradients ======= */
-.bg-gradient-to-r {
-  background-image: linear-gradient(to right, var(--tw-gradient-stops)) !important;
+/* Core theme variables */
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --primary: 263 70% 50%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 96.1%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 263 70% 50%;
+  --radius: 0.5rem;
+  --mcp-max-width: 1200px;
+  --mcp-content-padding: 2rem;
+  --mcp-border-radius: 0.5rem;
+  --mcp-transition-duration: 300ms;
 }
 
-.bg-gradient-to-l {
-  background-image: linear-gradient(to left, var(--tw-gradient-stops)) !important;
+/* Basic body styling */
+body {
+  font-family: system-ui, sans-serif;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  margin: 0;
+  padding: 0;
 }
 
-.bg-gradient-to-t {
-  background-image: linear-gradient(to top, var(--tw-gradient-stops)) !important;
-}
-
-.bg-gradient-to-b {
-  background-image: linear-gradient(to bottom, var(--tw-gradient-stops)) !important;
-}
-
-/* ======= Gradient Colors ======= */
-.from-purple-600 {
-  --tw-gradient-from: rgb(147 51 234) !important;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgb(147 51 234 / 0)) !important;
-}
-
-.to-indigo-600 {
-  --tw-gradient-to: rgb(79 70 229) !important;
-}
-
-.from-purple-50 {
-  --tw-gradient-from: rgb(250 245 255) !important;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgb(250 245 255 / 0)) !important;
-}
-
-.to-white {
-  --tw-gradient-to: rgb(255 255 255) !important;
-}
-
-/* ======= Text Effects ======= */
-.text-transparent {
-  color: transparent !important;
-}
-
-.bg-clip-text {
-  -webkit-background-clip: text !important;
-  background-clip: text !important;
-}
-
-/* Shortcut for gradient text */
-.gradient-text {
-  color: transparent !important;
-  background-image: linear-gradient(to right, rgb(147 51 234), rgb(79 70 229)) !important;
-  -webkit-background-clip: text !important;
-  background-clip: text !important;
-}
-
-/* ======= Animation Classes ======= */
-.animate-fade-in-down {
-  animation: fade-in-down 0.5s ease-in-out forwards;
-}
-
-@keyframes fade-in-down {
-  0% {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-in {
-  animation-duration: 150ms;
-  animation-timing-function: cubic-bezier(0.1, 0.99, 0.1, 0.99);
-  animation-fill-mode: both;
-}
-
-.fade-in {
-  animation-name: fadeIn;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-/* ======= Transitions ======= */
-.duration-100 {
-  transition-duration: 100ms !important;
-}
-
-.duration-200 {
-  transition-duration: 200ms !important;
-}
-
-.duration-300 {
-  transition-duration: 300ms !important;
-}
-
-.ease-in-out {
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-/* ======= Feature Card ======= */
-.feature-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
-  display: flex !important;
-  flex-direction: column !important;
-  background-color: white !important;
-  border-radius: 0.5rem !important;
-  overflow: hidden !important;
-  border: 1px solid rgba(0, 0, 0, 0.05) !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
-}
-
-.feature-card:hover {
-  transform: translateY(-5px) !important;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
-  border-color: rgba(124, 58, 237, 0.2) !important;
-}
-
-/* ======= Group Hover ======= */
-.group:hover .group-hover\:scale-110 {
-  transform: scale(1.1) !important;
-}
-
-.group:hover .group-hover\:opacity-100 {
-  opacity: 1 !important;
-}
-
-/* ======= Background Patterns ======= */
-.bg-grid-gray-100 {
-  background-image: linear-gradient(to right, rgb(243 244 246 / 0.1) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(243 244 246 / 0.1) 1px, transparent 1px) !important;
-  background-size: 24px 24px !important;
-}
-
-.bg-blob-gradient {
-  background-image: radial-gradient(circle at 50% 50%, rgba(124, 58, 237, 0.05) 0%, rgba(124, 58, 237, 0) 70%) !important;
-}
-
-/* ======= Shadcn UI Essential Classes ======= */
-.bg-primary {
-  background-color: hsl(var(--primary)) !important;
-}
-
-.text-primary {
-  color: hsl(var(--primary)) !important;
-}
-
-.border-primary {
-  border-color: hsl(var(--primary)) !important;
-}
-
-.bg-secondary {
-  background-color: hsl(var(--secondary)) !important;
-}
-
-.text-secondary {
-  color: hsl(var(--secondary)) !important;
-}
-
-.bg-accent {
-  background-color: hsl(var(--accent)) !important;
-}
-
-.text-accent {
-  color: hsl(var(--accent)) !important;
-}
-
-.bg-background {
-  background-color: hsl(var(--background)) !important;
-}
-
-.text-foreground {
-  color: hsl(var(--foreground)) !important;
-}
-
-/* ======= Responsive Layout Classes ======= */
-.mcp-responsive-width {
+/* Responsive container for layout */
+.mcp-container {
   width: 100%;
-  max-width: 1200px;
+  max-width: var(--mcp-max-width);
   margin-left: auto;
   margin-right: auto;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  padding-left: var(--mcp-content-padding);
+  padding-right: var(--mcp-content-padding);
 }
 
-@media (min-width: 640px) {
-  .mcp-responsive-width {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
+/* Loading states */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
 }
 
-@media (min-width: 1024px) {
-  .mcp-responsive-width {
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
-}
-
-/* ======= Loading Spinner ======= */
 .loading-spinner {
-  display: inline-block;
-  width: 24px;
-  height: 24px;
-  border: 3px solid rgba(0, 0, 0, 0.1);
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(0, 0, 0, 0.1);
   border-radius: 50%;
   border-top-color: hsl(var(--primary));
-  animation: spin 1s ease-in-out infinite;
+  animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-.loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+/* Base Gradient Classes */
+.bg-gradient-to-r {
+  background-image: linear-gradient(to right, var(--tw-gradient-stops));
+}
+
+.bg-gradient-to-l {
+  background-image: linear-gradient(to left, var(--tw-gradient-stops));
+}
+
+.bg-gradient-to-t {
+  background-image: linear-gradient(to top, var(--tw-gradient-stops));
+}
+
+.bg-gradient-to-b {
+  background-image: linear-gradient(to bottom, var(--tw-gradient-stops));
+}
+
+/* Text Transparency and Background Clip */
+.text-transparent {
+  color: transparent;
+}
+
+.bg-clip-text {
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* From-To Gradient Colors */
+.from-purple-50 {
+  --tw-gradient-from: #faf5ff;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(250, 245, 255, 0));
+}
+
+.from-purple-600 {
+  --tw-gradient-from: #9333ea;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(147, 51, 234, 0));
+}
+
+.to-indigo-600 {
+  --tw-gradient-to: #4f46e5;
+}
+
+.to-white {
+  --tw-gradient-to: #ffffff;
+}
+
+.via-indigo-50 {
+  --tw-gradient-via: #eef2ff;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to);
+}
+
+/* Feature Card Critical Styles */
+.feature-card {
+  position: relative;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(255, 255, 255, 0.9);
-  z-index: 9999;
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(229, 231, 235);
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border-color: rgba(167, 139, 250, 0.4);
+  transform: translateY(-5px);
+}
+
+/* Background patterns */
+.bg-grid-gray-100 {
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.bg-blob-gradient {
+  background-image: radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.1) 0%, transparent 75%);
+  filter: blur(50px);
+}
+
+/* Animation keyframes */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-down {
+  animation: fadeInDown 0.5s ease-out;
+}
+
+/* Transition utilities */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.duration-300 {
+  transition-duration: 300ms;
+}
+
+.ease-in-out {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Group hover effects */
+.group:hover .group-hover\:scale-110 {
+  transform: scale(1.1);
+}
+
+.group-hover\:scale-110 {
+  transition: transform 0.3s ease-out;
+}
+
+/* Gradient heading styles - combined for reliability */
+h1[class*="bg-gradient"], h2[class*="bg-gradient"], h3[class*="bg-gradient"], 
+h4[class*="bg-gradient"], h5[class*="bg-gradient"], h6[class*="bg-gradient"],
+span[class*="bg-gradient"], div[class*="bg-gradient"] {
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* Emergency Direct Style for gradient heading - guaranteed to work */
+span.bg-gradient-to-r.from-purple-600.to-indigo-600.text-transparent.bg-clip-text {
+  background-image: linear-gradient(to right, #9333ea, #4f46e5);
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
 }

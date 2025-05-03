@@ -1,167 +1,209 @@
 /**
  * MCP Integration Platform - CSS Recovery System
  * 
- * This system ensures that critical CSS classes are available even when TailwindCSS
- * purges them in production builds. It detects missing styles and applies fixes automatically.
+ * This system ensures that critical CSS classes are applied correctly
+ * even when the main stylesheets fail to load or are incorrectly purged.
+ * It provides runtime verification and automatic recovery.
  * 
  * Version: 1.0.0
  */
 
 (function() {
   // Configuration
-  const VERSION = '1.0.0';
-  const RECOVERY_CSS_PATH = '/css/unified-critical.css';
-  const VERIFICATION_INTERVAL = 5000; // 5 seconds
-  
-  // Critical CSS classes that must be present
   const CRITICAL_CLASSES = [
     'bg-gradient-to-r',
     'text-transparent',
     'bg-clip-text',
-    'animate-fade-in-down',
     'feature-card',
-    'from-purple-50',
-    'to-white',
-    'bg-grid-gray-100',
-    'bg-blob-gradient',
-    'animate-in',
-    'duration-300'
+    'animate-fade-in-down'
   ];
   
-  // Initialize the recovery system
-  function initialize() {
-    console.log(`[CSS Recovery] Initializing (v${VERSION})`);
-    
-    // Check if critical styles are present inline (best case)
-    const hasCriticalInlineStyles = checkInlineStyles();
-    console.log(`[CSS Recovery] Critical inline styles present: ${hasCriticalInlineStyles}`);
-    
-    // Verify critical classes are available
-    verifyAndFixStyles();
-    
-    // Setup periodic verification
-    setInterval(() => {
-      verifyAndFixStyles();
-    }, VERIFICATION_INTERVAL);
-  }
-  
-  // Check if inline critical styles are present in document head
-  function checkInlineStyles() {
-    const styleElements = document.head.querySelectorAll('style');
-    
-    for (const style of Array.from(styleElements)) {
-      // Check for critical style markers
-      if (style.textContent.includes('/* === Critical CSS === */') ||
-          style.textContent.includes('bg-gradient-to-r') ||
-          style.textContent.includes('feature-card')) {
-        return true;
-      }
+  // Emergency CSS to inject if styles are missing
+  const EMERGENCY_CSS = `
+    /* Emergency styles for critical classes */
+    .bg-gradient-to-r {
+      background-image: linear-gradient(to right, var(--tw-gradient-stops)) !important;
     }
     
-    return false;
+    .text-transparent {
+      color: transparent !important;
+    }
+    
+    .bg-clip-text {
+      -webkit-background-clip: text !important;
+      background-clip: text !important;
+    }
+    
+    .feature-card {
+      display: flex !important;
+      flex-direction: column !important;
+      background-color: white !important;
+      padding: 1.5rem !important;
+      border-radius: 0.5rem !important;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+      border: 1px solid rgba(229, 231, 235) !important;
+      transition: all 0.3s ease !important;
+    }
+    
+    .feature-card:hover {
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+      border-color: rgba(167, 139, 250, 0.4) !important;
+      transform: translateY(-5px) !important;
+    }
+    
+    .animate-fade-in-down {
+      animation: fadeInDownRecovery 0.5s ease-out !important;
+    }
+    
+    @keyframes fadeInDownRecovery {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Gradient text styles */
+    span.bg-gradient-to-r.text-transparent.bg-clip-text,
+    h1.bg-gradient-to-r.text-transparent.bg-clip-text,
+    h2.bg-gradient-to-r.text-transparent.bg-clip-text,
+    h3.bg-gradient-to-r.text-transparent.bg-clip-text {
+      background-image: linear-gradient(to right, #9333ea, #4f46e5) !important;
+      color: transparent !important;
+      -webkit-background-clip: text !important;
+      background-clip: text !important;
+    }
+    
+    /* From-To Colors */
+    .from-purple-600 {
+      --tw-gradient-from: #9333ea !important;
+      --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(147, 51, 234, 0)) !important;
+    }
+    
+    .to-indigo-600 {
+      --tw-gradient-to: #4f46e5 !important;
+    }
+  `;
+  
+  // State tracking
+  let recoveryApplied = false;
+  let inlineStylesVerified = false;
+  
+  /**
+   * Initialize the recovery system
+   */
+  function initialize() {
+    // Start checking for styles
+    console.log('%c[CSS Recovery] Initializing CSS recovery system', 'color: green');
+    
+    // Check and verify styles
+    checkAndVerify();
+    
+    // Set up periodic checks
+    setInterval(checkAndVerify, 5000);
+    
+    // Also check when DOM changes
+    observeDomChanges();
   }
   
-  // Verify all critical CSS classes and fix any issues
-  function verifyAndFixStyles() {
-    console.log('[CSS Recovery] Verifying styles...');
+  /**
+   * Check critical CSS and verify styles
+   */
+  function checkAndVerify() {
+    // First check if inline styles are present
+    inlineStylesVerified = checkInlineStyles();
+    console.debug('[CSS Recovery] Verifying styles...');
+    console.debug('[CSS Recovery] Critical inline styles present:', inlineStylesVerified);
     
-    // Create a test element to verify styles
+    // Then verify all critical classes
+    verifyAndFixStyles();
+  }
+  
+  /**
+   * Check if critical inline styles are present in the document
+   */
+  function checkInlineStyles() {
+    const criticalStyleTags = document.querySelectorAll('style#mcp-critical-css, style#critical-css, style#emergency-critical-css');
+    return criticalStyleTags.length > 0;
+  }
+  
+  /**
+   * Verify critical CSS classes and fix if needed
+   */
+  function verifyAndFixStyles() {
+    // Create test element to check styles
     const testEl = document.createElement('div');
     testEl.style.position = 'absolute';
     testEl.style.visibility = 'hidden';
-    testEl.style.pointerEvents = 'none';
     document.body.appendChild(testEl);
     
     // Check each critical class
     const missingClasses = [];
     
-    for (const className of CRITICAL_CLASSES) {
+    CRITICAL_CLASSES.forEach(className => {
       testEl.className = className;
+      const styles = window.getComputedStyle(testEl);
       
-      // Get computed styles
-      const computedStyle = window.getComputedStyle(testEl);
-      
-      // Check if the class is properly applied by testing specific properties
-      // This is a simple heuristic - may need to be improved for specific classes
+      // Simple heuristic to check if class is applied
       let isApplied = false;
       
-      if (className.startsWith('bg-gradient')) {
-        isApplied = computedStyle.backgroundImage.includes('linear-gradient') || 
-                   computedStyle.backgroundImage.includes('radial-gradient');
-      } else if (className === 'text-transparent') {
-        isApplied = computedStyle.color === 'rgba(0, 0, 0, 0)' || 
-                   computedStyle.color === 'transparent';
-      } else if (className === 'bg-clip-text') {
-        isApplied = computedStyle.webkitBackgroundClip === 'text' || 
-                   computedStyle.backgroundClip === 'text';
+      if (className === 'bg-gradient-to-r') {
+        isApplied = styles.backgroundImage.includes('gradient');
       } else if (className === 'feature-card') {
-        isApplied = computedStyle.display === 'flex' && 
-                   computedStyle.flexDirection === 'column';
-      } else if (className.startsWith('animate-')) {
-        isApplied = computedStyle.animationName !== 'none' && 
-                   computedStyle.animationName !== '';
-      } else if (className.startsWith('duration-')) {
-        isApplied = computedStyle.transitionDuration !== '0s' && 
-                   computedStyle.transitionDuration !== '';
-      } else {
-        // For other classes, assume they're applied if any non-default style is set
-        isApplied = (computedStyle.color !== '' && computedStyle.color !== 'rgb(0, 0, 0)') || 
-                   (computedStyle.backgroundColor !== '' && computedStyle.backgroundColor !== 'rgba(0, 0, 0, 0)') || 
-                   (computedStyle.borderWidth !== '' && computedStyle.borderWidth !== '0px');
+        isApplied = styles.display === 'flex';
+      } else if (className === 'text-transparent') {
+        isApplied = styles.color === 'transparent' || styles.color === 'rgba(0, 0, 0, 0)';
+      } else if (className === 'bg-clip-text') {
+        isApplied = styles.backgroundClip === 'text' || styles.webkitBackgroundClip === 'text';
+      } else if (className === 'animate-fade-in-down') {
+        isApplied = styles.animationName !== 'none';
       }
       
       if (!isApplied) {
         missingClasses.push(className);
       }
-    }
+    });
     
     // Clean up test element
     document.body.removeChild(testEl);
     
-    // If there are missing classes, load the recovery CSS
+    // If there are missing classes, apply the recovery
     if (missingClasses.length > 0) {
-      console.warn(`[CSS Recovery] Missing critical styles: ${missingClasses.join(', ')}`);
+      console.warn('[CSS Recovery] Missing critical styles:', missingClasses.join(', '));
       injectRecoveryCss();
+      applyDirectStyleFixes();
+      console.info('[CSS Recovery] Critical styles injected ✓');
     }
   }
   
-  // Inject the recovery CSS if needed
+  /**
+   * Inject recovery CSS directly into the document
+   */
   function injectRecoveryCss() {
-    // Check if the recovery CSS is already loaded
-    const existingLink = document.querySelector(`link[href*="${RECOVERY_CSS_PATH}"]`);
-    if (existingLink) {
-      // Already loaded, no need to add it again
-      console.info('[CSS Recovery] Critical styles injected ✓');
+    // Don't inject multiple times
+    if (recoveryApplied && document.getElementById('mcp-recovery-css')) {
       return;
     }
     
-    try {
-      // Add the recovery CSS
-      const recoveryLink = document.createElement('link');
-      recoveryLink.rel = 'stylesheet';
-      recoveryLink.href = `${RECOVERY_CSS_PATH}?v=${VERSION}-${Date.now()}`;
-      recoveryLink.setAttribute('data-recovery', 'true');
-      document.head.appendChild(recoveryLink);
-      
-      console.info('[CSS Recovery] Critical styles injected ✓');
-      
-      // Apply direct CSS fixes for immediate effect
-      applyDirectStyleFixes();
-    } catch (err) {
-      console.error('[CSS Recovery] Failed to load recovery styles', err);
-      
-      // As a fallback, inject inline styles
-      injectInlineRecoveryStyles();
-    }
+    // Create style element
+    const style = document.createElement('style');
+    style.id = 'mcp-recovery-css';
+    style.textContent = EMERGENCY_CSS;
+    
+    // Add to head
+    document.head.appendChild(style);
+    recoveryApplied = true;
+    
+    console.debug('%c[CSS Recovery] Injecting critical styles', 'color: blue');
   }
   
-  // Apply direct style fixes to elements for immediate effect
+  /**
+   * Apply direct style fixes to elements
+   */
   function applyDirectStyleFixes() {
+    console.log('[StyleFixer] DOM changed, reapplying CSS fixes...');
     console.log('[StyleFixer] Applying direct CSS fixes...');
     
     // Fix gradient text elements
-    const gradientTextElements = document.querySelectorAll('.bg-gradient-to-r.text-transparent.bg-clip-text');
-    gradientTextElements.forEach(el => {
+    const gradientTexts = document.querySelectorAll('.bg-gradient-to-r.text-transparent.bg-clip-text');
+    gradientTexts.forEach(el => {
       el.style.backgroundImage = 'linear-gradient(to right, rgb(124 58 237), rgb(79 70 229))';
       el.style.color = 'transparent';
       el.style.webkitBackgroundClip = 'text';
@@ -171,86 +213,56 @@
     // Fix feature cards
     const featureCards = document.querySelectorAll('.feature-card');
     featureCards.forEach(el => {
-      el.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease';
       el.style.display = 'flex';
       el.style.flexDirection = 'column';
       el.style.backgroundColor = 'white';
       el.style.borderRadius = '0.5rem';
-      el.style.overflow = 'hidden';
-      el.style.border = '1px solid rgba(0, 0, 0, 0.05)';
-      el.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
+      el.style.padding = '1.5rem';
+      el.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
+      el.style.border = '1px solid rgba(229, 231, 235)';
+      el.style.transition = 'all 0.3s ease';
     });
     
     console.log('[StyleFixer] Finished applying direct CSS fixes.');
   }
   
-  // Inject critical styles inline as a last resort
-  function injectInlineRecoveryStyles() {
-    const style = document.createElement('style');
-    style.setAttribute('id', 'critical-inline-recovery');
-    style.setAttribute('data-recovery', 'inline');
+  /**
+   * Observe DOM changes to apply styles to new elements
+   */
+  function observeDomChanges() {
+    // Create an observer to watch for DOM changes
+    const observer = new MutationObserver(mutations => {
+      // Only apply fixes if we needed recovery
+      if (recoveryApplied) {
+        applyDirectStyleFixes();
+      }
+    });
     
-    // Minimal set of critical styles
-    style.textContent = `
-    /* === Critical CSS === */
-    .bg-gradient-to-r {
-      background-image: linear-gradient(to right, var(--tw-gradient-stops));
-    }
-    .text-transparent {
-      color: transparent;
-    }
-    .bg-clip-text {
-      -webkit-background-clip: text;
-      background-clip: text;
-    }
-    .feature-card {
-      display: flex;
-      flex-direction: column;
-      background-color: white;
-      border-radius: 0.5rem;
-      overflow: hidden;
-      border: 1px solid rgba(0, 0, 0, 0.05);
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .feature-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    }
-    .animate-fade-in-down {
-      animation: fadeInDown 0.5s ease-in-out forwards;
-    }
-    @keyframes fadeInDown {
-      0% { opacity: 0; transform: translateY(-10px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
-    .animate-in {
-      animation-duration: 150ms;
-      animation-timing-function: cubic-bezier(0.1, 0.99, 0.1, 0.99);
-      animation-fill-mode: both;
-    }
-    .duration-300 {
-      transition-duration: 300ms;
-    }
-    `;
-    
-    document.head.appendChild(style);
-    console.info('[CSS Recovery] Injected inline critical CSS as fallback');
+    // Start observing the document for changes
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
   }
   
-  // Expose the recovery system to the global scope
-  window.cssRecoverySystem = {
-    VERSION,
-    verifyAndFixStyles,
-    injectRecoveryCss,
-    applyDirectStyleFixes
-  };
-  
-  // Initialize on DOM content loaded
+  // Initialize on load
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initialize);
   } else {
     // Already loaded
     initialize();
   }
+  
+  // Also initialize on window load to catch late styles
+  window.addEventListener('load', () => {
+    // Second check after everything is loaded
+    setTimeout(checkAndVerify, 500);
+  });
+  
+  // Expose API for direct use
+  window.mcpCssRecovery = {
+    checkAndVerify,
+    injectRecoveryCss,
+    applyDirectStyleFixes
+  };
 })();
