@@ -4,9 +4,25 @@ export default {
   darkMode: ["class"],
   content: ["./client/index.html", "./client/src/**/*.{js,jsx,ts,tsx}"],
   safelist: [
-    // Text classes that might be purged
+    // Core critical classes that must not be purged
     "text-transparent",
     "bg-clip-text",
+    "bg-gradient-to-r",
+    "bg-gradient-to-l",
+    "bg-gradient-to-t",
+    "bg-gradient-to-b",
+    "feature-card",
+    "from-purple-600",
+    "to-indigo-600",
+    "from-indigo-500",
+    "to-blue-500",
+    "from-purple-500",
+    "to-indigo-500",
+    "from-violet-500",
+    "to-purple-500",
+    "hover:from-purple-700",
+    "hover:to-indigo-700",
+
     // Animation classes
     "animate-in",
     "animate-out",
@@ -16,6 +32,15 @@ export default {
     "fade-in",
     "animate-spin",
     "animate-pulse",
+    
+    // Layout and navigation classes
+    "sidebar",
+    "sidebar.open",
+    "main-content",
+    "btn",
+    "btn-primary",
+    "btn-secondary",
+    "Layout",
     
     // MCP custom components
     "feature-card",
