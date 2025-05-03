@@ -1,0 +1,299 @@
+New chat with Agent
+Agent can make changes, review its work, and debug itself automatically.
+
+Message Agent…
+Extensions
+Make your workspace more powerful with new tools, commands, and integrations.
+Search by title or keyword
+Find a creator
+
+
+Verified
+
+All
+
+Random
+Featured Extensions
+Our top picks to get you started
+
+Perplexity
+
+ArnavBansal
+ArnavBansal
+Search perplexity.ai directly from the editor
+3832
+Verified Extensions
+Extensions that have been reviewed by Replit
+
+Magit
+
+ryantmreplit
+ryantmreplit
+Magit, A Git Porcelain inside Emacs
+361
+
+ReplDB Export and Import
+
+Zavexeon
+Zavexeon
+ReplDB exporter and importer.
+2036
+
+Sanity Studio Toolkit
+
+theflowingsky
+theflowingsky
+Authenticate Sanity CLI, query datasets, and more
+339
+
+Perplexity
+
+ArnavBansal
+ArnavBansal
+Search perplexity.ai directly from the editor
+3832
+
+Run in Shell
+
+ArnavBansal
+ArnavBansal
+Run .sh files directly from the filetree
+442
+
+GPT-Replit - ChatGPT in your Repl.
+
+Raadsel
+Raadsel
+A little ChatGPT in your Replit editor that can view your files (if you want).
+14159
+
+portkiller
+
+ArnavBansal
+ArnavBansal
+Kills processes on ports
+1605
+
+JSON Editor
+
+ArnavBansal
+ArnavBansal
+A viewer/editor for JSON files, providing code folding and structured editing
+3879
+
+Hex Editor
+
+ArnavBansal
+ArnavBansal
+Hex editor is a tool for editing binary files one byte at a time
+1809
+
+manim
+
+ArnavBansal
+ArnavBansal
+A viewer for manim generated videos, meant for rapid development
+301
+
+Docx Viewer
+
+7heMech
+7heMech
+A simple docx viewer.
+455
+
+AI Playground
+
+ReplitIronclad
+ReplitIronclad
+Chat, experiment, and compare thirteen different AI models.
+16799
+
+UI Sketcher
+
+yleflour
+yleflour
+Draw your projects to life
+2781
+
+repl.tv
+
+repltv
+repltv
+Stream editing your repl to everyone and anyone.
+2429
+
+SnippetVault - Store Snippets
+
+Raadsel
+Raadsel
+Store code snippets in your Repl, easily and without taking up space in your repl!
+1442
+
+Secrets Generator
+
+RayAtReplit
+RayAtReplit
+Set the value of your Secrets to a random generated value.
+832
+
+Prettier - Code Formatter
+
+ErikoXDev
+ErikoXDev
+Format your code using the #1 Code Formatter from VSCode and more: Prettier!
+20719
+
+tldraw
+
+ArnavBansal
+ArnavBansal
+A tiny little drawing app
+1700
+/
+
+Enable "Accessible Terminal" in Workspace Settings to use a screen reader with the shell.
+16m
+ • 
+16 minutes ago
+Port :5000 opened on
+Search
+Time
+Deployment
+Source
+Log
+2025-05-02 09:27:44.09
+bc8f0205
+User
+This file is being treated as an ES module because it has a '.js' file extension and '/home/runner/workspace/package.json' contains "type": "module". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.
+2025-05-02 09:27:44.09
+bc8f0205
+User
+at file:///home/runner/workspace/start.js:7:19
+2025-05-02 09:27:44.09
+bc8f0205
+User
+at ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+2025-05-02 09:27:44.09
+bc8f0205
+User
+at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+2025-05-02 09:27:44.09
+bc8f0205
+User
+at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:122:5)
+2025-05-02 09:27:44.09
+bc8f0205
+User
+2025-05-02 09:27:44.09
+bc8f0205
+User
+Node.js v20.18.1
+2025-05-02 09:27:44.09
+bc8f0205
+System
+command finished with error [sh -c USE_COMMONJS=true node start.js]: exit status 1
+2025-05-02 09:27:44.17
+bc8f0205
+User
+file:///home/runner/workspace/start.js:7
+2025-05-02 09:27:44.17
+bc8f0205
+User
+const { spawn } = require('child_process');
+2025-05-02 09:27:44.17
+bc8f0205
+User
+^
+2025-05-02 09:27:44.17
+bc8f0205
+User
+2025-05-02 09:27:44.17
+bc8f0205
+User
+ReferenceError: require is not defined in ES module scope, you can use import instead
+2025-05-02 09:27:44.17
+bc8f0205
+User
+This file is being treated as an ES module because it has a '.js' file extension and '/home/runner/workspace/package.json' contains "type": "module". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.
+2025-05-02 09:27:44.17
+bc8f0205
+User
+at file:///home/runner/workspace/start.js:7:19
+2025-05-02 09:27:44.17
+bc8f0205
+User
+at ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+2025-05-02 09:27:44.17
+bc8f0205
+User
+at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+2025-05-02 09:27:44.17
+bc8f0205
+User
+at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:122:5)
+2025-05-02 09:27:44.17
+bc8f0205
+User
+2025-05-02 09:27:44.17
+bc8f0205
+User
+Node.js v20.18.1
+2025-05-02 09:27:44.17
+bc8f0205
+System
+command finished with error [sh -c USE_COMMONJS=true node start.js]: exit status 1
+2025-05-02 09:27:44.39
+bc8f0205
+User
+file:///home/runner/workspace/start.js:7
+2025-05-02 09:27:44.39
+bc8f0205
+User
+const { spawn } = require('child_process');
+2025-05-02 09:27:44.39
+bc8f0205
+User
+^
+2025-05-02 09:27:44.39
+bc8f0205
+User
+2025-05-02 09:27:44.39
+bc8f0205
+User
+ReferenceError: require is not defined in ES module scope, you can use import instead
+2025-05-02 09:27:44.39
+bc8f0205
+User
+This file is being treated as an ES module because it has a '.js' file extension and '/home/runner/workspace/package.json' contains "type": "module". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.
+2025-05-02 09:27:44.39
+bc8f0205
+User
+at file:///home/runner/workspace/start.js:7:19
+2025-05-02 09:27:44.39
+bc8f0205
+User
+at ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+2025-05-02 09:27:44.39
+bc8f0205
+User
+at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+2025-05-02 09:27:44.39
+bc8f0205
+User
+at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:122:5)
+2025-05-02 09:27:44.39
+bc8f0205
+User
+2025-05-02 09:27:44.39
+bc8f0205
+User
+Node.js v20.18.1
+2025-05-02 09:27:44.39
+bc8f0205
+System
+command finished with error [sh -c USE_COMMONJS=true node start.js]: exit status 1
+2025-05-02 09:27:45.06
+bc8f0205
+User
+file:///home/runner/workspace/start.js:7
