@@ -4,9 +4,14 @@
  * This script launches the correct production server based on the environment.
  */
 
-const { spawn } = require('child_process');
-const path = require('path');
-const fs = require('fs');
+import { spawn } from 'child_process';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+// Get the directory name in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Determine which production server file to use
 function findProductionServer() {
