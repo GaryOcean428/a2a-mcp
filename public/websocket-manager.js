@@ -58,13 +58,19 @@
       }, WS_CONNECTION_TIMEOUT);
 
       // Create new WebSocket
-      socket = new WebSocket(wsUrl);
+      // Using try-catch to handle any WebSocket creation exceptions
+      try {
+        socket = new WebSocket(wsUrl);
 
-      // Event handlers
-      socket.onopen = handleOpen;
-      socket.onclose = handleClose;
-      socket.onerror = handleError;
-      socket.onmessage = handleMessage;
+        // Event handlers
+        socket.onopen = handleOpen;
+        socket.onclose = handleClose;
+        socket.onerror = handleError;
+        socket.onmessage = handleMessage;
+      } catch (createError) {
+        console.error('[WebSocketManager] Error creating WebSocket:', createError);
+        handleConnectionFailure();
+      }
 
     } catch (error) {
       console.error('[WebSocketManager] Error creating WebSocket:', error);
@@ -212,21 +218,95 @@
     const fallbackIndicator = document.createElement('div');
     fallbackIndicator.id = 'ws-fallback-active';
     fallbackIndicator.style.display = 'none';
+    fallbackIndicator.setAttribute('data-fallback-active', 'true');
     document.body.appendChild(fallbackIndicator);
+    
+    // Show notification to user about using fallback method
+    const notification = document.createElement('div');
+    notification.className = 'ws-fallback-notification';
+    notification.style.position = 'fixed';
+    notification.style.bottom = '10px';
+    notification.style.right = '10px';
+    notification.style.padding = '10px 15px';
+    notification.style.backgroundColor = 'rgba(253, 224, 71, 0.9)';
+    notification.style.color = '#111827';
+    notification.style.borderRadius = '4px';
+    notification.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+    notification.style.zIndex = '9999';
+    notification.style.fontSize = '14px';
+    notification.style.fontWeight = '500';
+    notification.style.maxWidth = '300px';
+    notification.style.transition = 'opacity 0.3s ease';
+    notification.textContent = 'Using offline mode. Real-time updates disabled.';
+    document.body.appendChild(notification);
+    
+    // Fade out notification after 5 seconds
+    setTimeout(() => {
+      notification.style.opacity = '0';
+      setTimeout(() => notification.remove(), 300);
+    }, 5000);
     
     // Set up a polling mechanism as a fallback
     // This would periodically check for updates using HTTP requests
-    setInterval(() => {
+    let pollInterval = 10000; // Start with 10 seconds
+    const maxInterval = 30000; // Max interval of 30 seconds
+    let failedAttempts = 0;
+    
+    const pollId = setInterval(() => {
       fetch('/api/status')
         .then(response => response.json())
         .then(data => {
           console.debug('[WebSocketManager] Fallback polling received:', data);
           dispatchEvent('websocket:fallback-update', data);
+          failedAttempts = 0; // Reset failed attempts counter on success
         })
         .catch(error => {
           console.warn('[WebSocketManager] Fallback polling error:', error);
+          failedAttempts++;
+          
+          // Increase polling interval after failed attempts to avoid overwhelming server
+          if (failedAttempts > 3 && pollInterval < maxInterval) {
+            clearInterval(pollId);
+            pollInterval = Math.min(pollInterval * 1.5, maxInterval);
+            setInterval(() => {
+              fetch('/api/status')
+                .then(response => response.json())
+                .then(data => {
+                  console.debug('[WebSocketManager] Fallback polling received:', data);
+                  dispatchEvent('websocket:fallback-update', data);
+                  failedAttempts = 0;
+                })
+                .catch(error => {
+                  console.warn('[WebSocketManager] Fallback polling error:', error);
+                  failedAttempts++;
+                });
+            }, pollInterval);
+          }
         });
-    }, 10000); // Poll every 10 seconds
+    }, pollInterval);
+    
+    // Attempt reconnect to WebSocket server periodically to restore real-time updates
+    const reconnectId = setInterval(() => {
+      // Reset connection attempts counter to allow reconnection
+      connectionAttempts = 0;
+      
+      // Try to connect again
+      console.info('[WebSocketManager] Attempting to restore WebSocket connection...');
+      connectWebSocket();
+      
+      // Check if successful
+      setTimeout(() => {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          console.info('[WebSocketManager] WebSocket connection restored!');
+          // Remove fallback indicator
+          if (fallbackIndicator && fallbackIndicator.parentNode) {
+            fallbackIndicator.parentNode.removeChild(fallbackIndicator);
+          }
+          // Clear reconnect interval
+          clearInterval(reconnectId);
+        }
+      }, 2000);
+    }, 60000); // Try to reconnect every minute
   }
 
   // Dispatch custom event
