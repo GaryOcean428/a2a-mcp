@@ -12,13 +12,8 @@ import { WebSocketProvider } from "./components/WebSocketProvider";
 import { initWebSocketFixes } from "./utils/websocket-fix";
 import ErrorBoundary from "@/components/error-boundary";
 
-// Import CSS utilities - order matters for proper CSS recovery
-import "./utils/css-injector";
-import "./utils/css-recovery-manager";
-import "./utils/css-verifier"; // Add CSS verification
-import "./utils/css-recovery-enhanced"; // Enhanced CSS recovery system
-import "./utils/improved-css-recovery"; // Improved CSS recovery system
-import "./utils/css-direct-fix"; // Direct CSS fixes applied to DOM
+// Import unified CSS recovery system
+import "./utils/unified-css-recovery"; // Consolidated CSS recovery system
 
 // Import global styles
 import "./styles/global.css";
