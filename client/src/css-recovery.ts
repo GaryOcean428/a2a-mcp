@@ -4,7 +4,7 @@
  * DEPRECATED: This module has been replaced by the unified css-system.ts.
  * This file remains only for backwards compatibility and will be removed in a future update.
  */
-import { VERSION } from './version';
+import { version } from './version';
 import { initializeCssSystem } from './utils/css-system';
 
 /**
@@ -12,7 +12,7 @@ import { initializeCssSystem } from './utils/css-system';
  * (Now redirects to the unified system)
  */
 export function injectCriticalCss() {
-  console.log(`[CSS Recovery Legacy] Initializing for MCP version ${VERSION}`);
+  console.log(`[CSS Recovery Legacy] Initializing for MCP version ${version}`);
   console.log('[CSS Recovery Legacy] Using unified css-system.ts instead');
   initializeCssSystem();
 }

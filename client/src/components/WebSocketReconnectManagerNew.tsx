@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useWebSocketContext } from './WebSocketProviderNew';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/utils/logger';
 
 // Simple inline spinner component
 const Spinner: React.FC<{ className?: string }> = ({ className = '' }) => (
@@ -27,6 +29,12 @@ interface WebSocketReconnectManagerProps {
    * @default 10
    */
   warningThreshold?: number;
+  
+  /**
+   * Maximum number of automatic reconnection attempts
+   * @default 5
+   */
+  maxReconnectAttempts?: number;
 }
 
 /**
@@ -38,7 +46,8 @@ interface WebSocketReconnectManagerProps {
  */
 export const WebSocketReconnectManagerNew: React.FC<WebSocketReconnectManagerProps> = ({
   silent = false,
-  warningThreshold = 10
+  warningThreshold = 10,
+  maxReconnectAttempts = 5
 }) => {
   // Access WebSocket context
   const { isConnected, status, error, reconnect } = useWebSocketContext();
@@ -46,7 +55,10 @@ export const WebSocketReconnectManagerNew: React.FC<WebSocketReconnectManagerPro
   // Local state
   const [showAlert, setShowAlert] = useState(false);
   const [isReconnecting, setIsReconnecting] = useState(false);
+  const [reconnectAttempts, setReconnectAttempts] = useState(0);
   const [disconnectedTime, setDisconnectedTime] = useState<number | null>(null);
+  
+  const { toast } = useToast();
   
   // Monitor connection state
   useEffect(() => {
@@ -63,6 +75,15 @@ export const WebSocketReconnectManagerNew: React.FC<WebSocketReconnectManagerPro
           
           if (disconnectedSeconds >= warningThreshold) {
             setShowAlert(true);
+            
+            // Only show toast once
+            if (!showAlert) {
+              toast({
+                title: 'Connection issue detected',
+                description: 'The WebSocket connection was lost. Attempting to reconnect...',
+                variant: 'destructive',
+              });
+            }
           }
         }
       }, 1000);
@@ -72,13 +93,29 @@ export const WebSocketReconnectManagerNew: React.FC<WebSocketReconnectManagerPro
       // Reset state when connected
       setShowAlert(false);
       setIsReconnecting(false);
+      setReconnectAttempts(0);
       setDisconnectedTime(null);
     }
-  }, [isConnected, status, disconnectedTime, showAlert, silent, warningThreshold]);
+  }, [isConnected, status, disconnectedTime, showAlert, silent, warningThreshold, toast]);
   
   // Handle reconnection
   const handleReconnect = () => {
+    if (reconnectAttempts >= maxReconnectAttempts) {
+      logger.warn(`[WebSocketReconnect] Maximum reconnect attempts (${reconnectAttempts}) reached`);
+      
+      toast({
+        title: 'Reconnection failed',
+        description: 'Maximum reconnection attempts reached. Please refresh the page.',
+        variant: 'destructive',
+      });
+      
+      return;
+    }
+    
     setIsReconnecting(true);
+    setReconnectAttempts(prev => prev + 1);
+    
+    logger.info(`[WebSocketReconnect] Attempting to reconnect (${reconnectAttempts + 1}/${maxReconnectAttempts})`);
     
     // Attempt reconnection
     reconnect();
@@ -142,7 +179,7 @@ export const WebSocketReconnectManagerNew: React.FC<WebSocketReconnectManagerPro
                 Reconnecting...
               </>
             ) : (
-              'Reconnect Now'
+              `Reconnect Now${reconnectAttempts > 0 ? ` (${reconnectAttempts}/${maxReconnectAttempts})` : ''}`
             )}
           </Button>
         </div>
