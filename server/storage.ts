@@ -226,23 +226,20 @@ export class DatabaseStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     try {
-      // Hash the password before storing
-      const hashedPassword = await hashPassword(insertUser.password);
-      
+      storageLogger.info(`Creating user: ${insertUser.username}`);
       const [user] = await db.insert(users)
         .values({
           ...insertUser,
-          password: hashedPassword,
-          apiKey: this.createApiKeyString(),
           role: 'user',
           active: true,
-          createdAt: new Date()
+          createdAt: new Date(),
+          updatedAt: new Date()
         })
         .returning();
       
       return user;
     } catch (error) {
-      console.error('Error creating user:', error);
+      storageLogger.error('Error creating user:', error);
       throw new Error('Failed to create user');
     }
   }
@@ -258,43 +255,10 @@ export class DatabaseStorage implements IStorage {
     }
   }
   
-  async validateUserCredentials(usernameOrEmail: string, password: string): Promise<User | undefined> {
-    try {
-      // Check if the input is an email (contains @)
-      const isEmail = usernameOrEmail.includes('@');
-      
-      // Find the user by username or email
-      let user: User | undefined;
-      
-      if (isEmail) {
-        storageLogger.debug('Authenticating with email', { email: usernameOrEmail });
-        user = await this.getUserByEmail(usernameOrEmail);
-      } else {
-        storageLogger.debug('Authenticating with username', { username: usernameOrEmail });
-        user = await this.getUserByUsername(usernameOrEmail);
-      }
-      
-      if (!user || !user.active) {
-        storageLogger.warn('Authentication failed: user not found or inactive', { 
-          providedIdentifier: usernameOrEmail,
-          active: user?.active
-        });
-        return undefined;
-      }
-      
-      const isPasswordValid = await comparePasswords(password, user.password);
-      
-      if (!isPasswordValid) {
-        storageLogger.warn('Authentication failed: invalid password', { username: user.username });
-        return undefined;
-      }
-      
-      storageLogger.info('Authentication successful', { username: user.username, id: user.id });
-      return user;
-    } catch (error) {
-      storageLogger.error('Error validating user credentials:', error);
-      return undefined;
-    }
+  // This method is for legacy authentication - no longer used with Replit Auth
+async validateUserCredentials(usernameOrEmail: string, password: string): Promise<User | undefined> {
+    storageLogger.warn('Legacy authentication attempt - using Replit Auth instead');
+    return undefined;
   }
   
   async generateApiKey(userId: number): Promise<string> {
