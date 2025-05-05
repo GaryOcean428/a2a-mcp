@@ -5,9 +5,9 @@
  * It changes user ID columns from serial to varchar in the relevant tables.
  */
 
-const { Pool } = require('pg');
-const fs = require('fs');
-const path = require('path');
+import { Pool } from 'pg';
+import fs from 'fs';
+import path from 'path';
 
 async function main() {
   console.log('Starting Replit Auth migration script...');
@@ -51,9 +51,21 @@ async function main() {
         );
       `);
       
-      await client.query(`
-        CREATE INDEX "IDX_session_expire" ON sessions (expire);
+      // Check if index exists before creating it
+      const indexExists = await client.query(`
+        SELECT EXISTS (
+          SELECT FROM pg_indexes
+          WHERE indexname = 'IDX_session_expire'
+        );
       `);
+      
+      if (!indexExists.rows[0].exists) {
+        await client.query(`
+          CREATE INDEX "IDX_session_expire" ON sessions (expire);
+        `);
+      } else {
+        console.log('Index IDX_session_expire already exists');
+      }
       
       console.log('Sessions table created successfully');
     } else {
@@ -121,43 +133,28 @@ async function main() {
     `);
     
     if (toolConfigsExists.rows[0].exists) {
-      console.log('Updating tool_configs table...');
+      console.log('Recreating tool_configs table to avoid foreign key issues...');
       
-      // Check if the user_id column is already varchar
-      const toolConfigsUserIdType = await client.query(`
-        SELECT data_type 
-        FROM information_schema.columns 
-        WHERE table_name = 'tool_configs' 
-        AND column_name = 'user_id';
+      // Backup the table
+      await client.query('CREATE TABLE tool_configs_backup AS SELECT * FROM tool_configs;');
+      
+      // Drop the table with cascading to remove constraints
+      await client.query('DROP TABLE tool_configs CASCADE;');
+      
+      // Create new table with varchar user_id
+      await client.query(`
+        CREATE TABLE tool_configs (
+          id SERIAL PRIMARY KEY,
+          user_id VARCHAR(255) REFERENCES users(id),
+          tool_type TEXT NOT NULL,
+          config JSONB NOT NULL,
+          active BOOLEAN DEFAULT true,
+          created_at TIMESTAMP DEFAULT NOW(),
+          updated_at TIMESTAMP DEFAULT NOW()
+        );
       `);
       
-      if (toolConfigsUserIdType.rows.length > 0 && toolConfigsUserIdType.rows[0].data_type !== 'character varying') {
-        // Backup the table
-        await client.query('CREATE TABLE tool_configs_backup AS SELECT * FROM tool_configs;');
-        
-        // Drop the foreign key constraint
-        await client.query(`
-          ALTER TABLE tool_configs 
-          DROP CONSTRAINT IF EXISTS tool_configs_user_id_fkey;
-        `);
-        
-        // Alter the data type
-        await client.query(`
-          ALTER TABLE tool_configs 
-          ALTER COLUMN user_id TYPE VARCHAR(255);
-        `);
-        
-        // Add the foreign key constraint back
-        await client.query(`
-          ALTER TABLE tool_configs 
-          ADD CONSTRAINT tool_configs_user_id_fkey 
-          FOREIGN KEY (user_id) REFERENCES users(id);
-        `);
-        
-        console.log('tool_configs table updated successfully');
-      } else {
-        console.log('tool_configs table already has correct schema');
-      }
+      console.log('tool_configs table recreated successfully');
     }
     
     // Check if requestLogs table exists
@@ -170,43 +167,29 @@ async function main() {
     `);
     
     if (requestLogsExists.rows[0].exists) {
-      console.log('Updating request_logs table...');
+      console.log('Recreating request_logs table to avoid foreign key issues...');
       
-      // Check if the user_id column is already varchar
-      const requestLogsUserIdType = await client.query(`
-        SELECT data_type 
-        FROM information_schema.columns 
-        WHERE table_name = 'request_logs' 
-        AND column_name = 'user_id';
+      // Backup the table
+      await client.query('CREATE TABLE request_logs_backup AS SELECT * FROM request_logs;');
+      
+      // Drop the table with cascading to remove constraints
+      await client.query('DROP TABLE request_logs CASCADE;');
+      
+      // Create new table with varchar user_id
+      await client.query(`
+        CREATE TABLE request_logs (
+          id SERIAL PRIMARY KEY,
+          user_id VARCHAR(255) REFERENCES users(id),
+          tool_type TEXT NOT NULL,
+          request_data JSONB NOT NULL,
+          response_data JSONB,
+          status_code INTEGER,
+          execution_time_ms INTEGER,
+          timestamp TIMESTAMP DEFAULT NOW()
+        );
       `);
       
-      if (requestLogsUserIdType.rows.length > 0 && requestLogsUserIdType.rows[0].data_type !== 'character varying') {
-        // Backup the table
-        await client.query('CREATE TABLE request_logs_backup AS SELECT * FROM request_logs;');
-        
-        // Drop the foreign key constraint
-        await client.query(`
-          ALTER TABLE request_logs 
-          DROP CONSTRAINT IF EXISTS request_logs_user_id_fkey;
-        `);
-        
-        // Alter the data type
-        await client.query(`
-          ALTER TABLE request_logs 
-          ALTER COLUMN user_id TYPE VARCHAR(255);
-        `);
-        
-        // Add the foreign key constraint back
-        await client.query(`
-          ALTER TABLE request_logs 
-          ADD CONSTRAINT request_logs_user_id_fkey 
-          FOREIGN KEY (user_id) REFERENCES users(id);
-        `);
-        
-        console.log('request_logs table updated successfully');
-      } else {
-        console.log('request_logs table already has correct schema');
-      }
+      console.log('request_logs table recreated successfully');
     }
     
     // Check if apiKeys table exists and drop it (no longer needed with Replit Auth)
