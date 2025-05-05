@@ -1,12 +1,14 @@
 /**
  * MCP Integration Platform - WebSocket Reconnect Manager
  * 
- * This component monitors WebSocket connections and provides automatic recovery
- * mechanisms with visual feedback to the user.
+ * DEPRECATED: This component has been replaced by WebSocketReconnectManagerNew.
+ * This file remains only for backwards compatibility and will be removed in a future update.
+ * 
+ * Use WebSocketReconnectManagerNew directly instead.
  */
 
 import { useEffect, useState } from 'react';
-import { useWebSocketContext } from './WebSocketProvider';
+import { useWebSocketContext } from './WebSocketProviderNew'; // Updated to use the new context
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -53,7 +55,9 @@ export function WebSocketReconnectManager({
   warningThreshold = 10,
   maxReconnectAttempts = 5,
 }: WebSocketReconnectManagerProps) {
-  // Access WebSocket context
+  logger.warn('Using deprecated WebSocketReconnectManager - please update to WebSocketReconnectManagerNew');
+
+  // Access WebSocket context from the new provider
   const { isConnected, status, error, reconnect } = useWebSocketContext();
   
   // Local state
