@@ -200,6 +200,25 @@ export interface WebSearchParams {
   numResults?: number;
   includeLinks?: boolean;
   searchType?: 'web' | 'news' | 'images';
+  provider?: 'openai' | 'tavily' | 'perplexity';
+  // Provider-specific parameters
+  tavilyOptions?: {
+    searchDepth?: 'basic' | 'advanced';
+    includeRawContent?: boolean;
+    includeImages?: boolean;
+    includeAnswer?: boolean;
+    topic?: string;
+  };
+  perplexityOptions?: {
+    model?: string;
+    temperature?: number;
+    maxTokens?: number;
+  };
+  openaiOptions?: {
+    model?: string;
+    temperature?: number;
+    systemPrompt?: string;
+  };
 }
 
 // Form Automation Parameters
@@ -227,6 +246,22 @@ export interface DataScraperParams {
   selectors: string[];
   waitForSelector?: string;
   transform?: 'table' | 'list' | 'json';
+  javascript?: string; // Optional JavaScript to execute on the page
+  pagination?: {
+    enabled: boolean;
+    nextSelector?: string; // CSS selector for the next page button
+    maxPages?: number; // Maximum number of pages to scrape
+    delay?: number; // Delay between page navigations in ms
+  };
+  cookies?: Array<{
+    name: string;
+    value: string;
+    domain?: string;
+    path?: string;
+  }>;
+  headers?: Record<string, string>;
+  proxy?: string;
+  timeout?: number;
 }
 
 // Status Parameters
@@ -286,6 +321,85 @@ export const MCPToolSchemas = {
           enum: ['web', 'news', 'images'],
           description: 'Type of search to perform',
           default: 'web'
+        },
+        provider: {
+          type: 'string',
+          enum: ['openai', 'tavily', 'perplexity'],
+          description: 'Search provider to use'
+        },
+        tavilyOptions: {
+          type: 'object',
+          description: 'Tavily-specific options',
+          properties: {
+            searchDepth: {
+              type: 'string',
+              enum: ['basic', 'advanced'],
+              description: 'Depth of search to perform',
+              default: 'basic'
+            },
+            includeRawContent: {
+              type: 'boolean',
+              description: 'Whether to include raw content in results',
+              default: false
+            },
+            includeImages: {
+              type: 'boolean',
+              description: 'Whether to include images in search results',
+              default: false
+            },
+            includeAnswer: {
+              type: 'boolean',
+              description: 'Whether to include an AI-generated answer',
+              default: false
+            },
+            topic: {
+              type: 'string',
+              description: 'Topic category to focus search on',
+              default: 'general'
+            }
+          }
+        },
+        perplexityOptions: {
+          type: 'object',
+          description: 'Perplexity-specific options',
+          properties: {
+            model: {
+              type: 'string',
+              description: 'Perplexity model to use',
+              default: 'llama-3-sonar-large-32k-online'
+            },
+            temperature: {
+              type: 'number',
+              description: 'Temperature for generation',
+              default: 0.2
+            },
+            maxTokens: {
+              type: 'number',
+              description: 'Maximum tokens to generate',
+              default: 1024
+            }
+          }
+        },
+        openaiOptions: {
+          type: 'object',
+          description: 'OpenAI-specific options',
+          properties: {
+            model: {
+              type: 'string',
+              description: 'OpenAI model to use',
+              default: 'gpt-4o'
+            },
+            temperature: {
+              type: 'number',
+              description: 'Temperature for generation',
+              default: 0.7
+            },
+            systemPrompt: {
+              type: 'string',
+              description: 'System prompt to use for search',
+              default: 'You are a helpful search assistant.'
+            }
+          }
         }
       },
       required: ['query']
@@ -390,6 +504,76 @@ export const MCPToolSchemas = {
           enum: ['table', 'list', 'json'],
           description: 'Transform the scraped data into this format',
           default: 'json'
+        },
+        javascript: {
+          type: 'string',
+          description: 'Optional JavaScript to execute on the page before scraping'
+        },
+        pagination: {
+          type: 'object',
+          description: 'Configuration for paginated scraping',
+          properties: {
+            enabled: {
+              type: 'boolean',
+              description: 'Whether to enable pagination',
+              default: false
+            },
+            nextSelector: {
+              type: 'string',
+              description: 'CSS selector for the next page button/link'
+            },
+            maxPages: {
+              type: 'number',
+              description: 'Maximum number of pages to scrape',
+              default: 5
+            },
+            delay: {
+              type: 'number',
+              description: 'Delay between page navigations in milliseconds',
+              default: 1000
+            }
+          },
+          required: ['enabled']
+        },
+        cookies: {
+          type: 'array',
+          description: 'Cookies to set before scraping',
+          items: {
+            type: 'object',
+            properties: {
+              name: {
+                type: 'string',
+                description: 'Cookie name'
+              },
+              value: {
+                type: 'string',
+                description: 'Cookie value'
+              },
+              domain: {
+                type: 'string',
+                description: 'Cookie domain'
+              },
+              path: {
+                type: 'string',
+                description: 'Cookie path',
+                default: '/'
+              }
+            },
+            required: ['name', 'value']
+          }
+        },
+        headers: {
+          type: 'object',
+          description: 'HTTP headers to send with the request'
+        },
+        proxy: {
+          type: 'string',
+          description: 'Proxy server to use for the request'
+        },
+        timeout: {
+          type: 'number',
+          description: 'Timeout in milliseconds for the scraping operation',
+          default: 30000
         }
       },
       required: ['url', 'selectors']
