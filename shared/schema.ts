@@ -30,7 +30,7 @@ export const users = pgTable('users', {
  */
 export const apiKeys = pgTable('api_keys', {
   id: serial('id').primaryKey(),
-  userId: serial('user_id').notNull().references(() => users.id),
+  userId: varchar('user_id').notNull().references(() => users.id),
   key: text('key').notNull().unique(),
   name: text('name'),
   expiresAt: timestamp('expires_at'),
@@ -72,7 +72,7 @@ export type InsertApiKey = z.infer<typeof insertApiKeySchema>;
  */
 export const toolConfigs = pgTable('tool_configs', {
   id: serial('id').primaryKey(),
-  userId: serial('user_id').notNull().references(() => users.id),
+  userId: varchar('user_id').notNull().references(() => users.id),
   toolType: text('tool_type').notNull(),
   providerType: text('provider_type').notNull(),
   name: text('name'),
@@ -102,7 +102,7 @@ export type InsertToolConfig = z.infer<typeof insertToolConfigSchema>;
  */
 export const requestLogs = pgTable('request_logs', {
   id: serial('id').primaryKey(),
-  userId: serial('user_id').references(() => users.id),
+  userId: varchar('user_id').references(() => users.id),
   toolType: text('tool_type').notNull(),
   providerType: text('provider_type'),
   endpoint: text('endpoint'),

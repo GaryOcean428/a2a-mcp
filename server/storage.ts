@@ -16,27 +16,27 @@ import {
 // modify the interface with any CRUD methods
 // you might need
 export interface IStorage {
-  // User operations
+  // User operations (Replit Auth)
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   upsertUser(user: UpsertUser): Promise<User>;
-  validateUserCredentials(username: string, password: string): Promise<User | undefined>;
+  validateUserCredentials(username: string, password: string): Promise<User | undefined>; // Legacy method - not used
   updateUserRole(userId: string, role: string): Promise<void>;
   updateUserActiveStatus(userId: string, active: boolean): Promise<void>;
   
   // Tool configuration operations
   getToolConfig(id: number): Promise<ToolConfig | undefined>;
-  getToolConfigByUserAndType(userId: number, toolType: string): Promise<ToolConfig | undefined>;
-  getAllToolConfigs(userId: number): Promise<ToolConfig[]>;
+  getToolConfigByUserAndType(userId: string, toolType: string): Promise<ToolConfig | undefined>;
+  getAllToolConfigs(userId: string): Promise<ToolConfig[]>;
   createToolConfig(config: InsertToolConfig): Promise<ToolConfig>;
   updateToolConfig(id: number, config: Partial<ToolConfig>): Promise<ToolConfig | undefined>;
   
   // Request logging operations
   createRequestLog(log: InsertRequestLog): Promise<RequestLog>;
-  getRequestLogs(userId: number, limit?: number): Promise<RequestLog[]>;
-  getRequestLogsByToolType(userId: number, toolType: string, limit?: number): Promise<RequestLog[]>;
+  getRequestLogs(userId: string, limit?: number): Promise<RequestLog[]>;
+  getRequestLogsByToolType(userId: string, toolType: string, limit?: number): Promise<RequestLog[]>;
   
   // Status operations
   getSystemStatus(): Promise<SystemStatus>;
@@ -214,15 +214,7 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  // Creates a random API key string
-  private createApiKeyString(): string {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = 'mcp_';
-    for (let i = 0; i < 32; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
-  }
+  // This method is removed as we no longer use API keys with Replit Auth
 
   async createUser(insertUser: InsertUser): Promise<User> {
     try {
@@ -244,56 +236,10 @@ export class DatabaseStorage implements IStorage {
     }
   }
   
-  async updateUserApiKey(userId: number, apiKey: string | null): Promise<void> {
-    try {
-      await db.update(users)
-        .set({ apiKey })
-        .where(eq(users.id, userId));
-    } catch (error) {
-      console.error('Error updating user API key:', error);
-      throw new Error('Failed to update API key');
-    }
-  }
-  
   // This method is for legacy authentication - no longer used with Replit Auth
 async validateUserCredentials(usernameOrEmail: string, password: string): Promise<User | undefined> {
     storageLogger.warn('Legacy authentication attempt - using Replit Auth instead');
     return undefined;
-  }
-  
-  async generateApiKey(userId: number): Promise<string> {
-    try {
-      const user = await this.getUser(userId);
-      if (!user) {
-        throw new Error('User not found');
-      }
-      
-      const apiKey = this.createApiKeyString();
-      await this.updateUserApiKey(userId, apiKey);
-      return apiKey;
-    } catch (error) {
-      console.error('Error generating API key:', error);
-      throw new Error('Failed to generate API key');
-    }
-  }
-  
-  async revokeApiKey(userId: number): Promise<void> {
-    try {
-      await this.updateUserApiKey(userId, null);
-    } catch (error) {
-      console.error('Error revoking API key:', error);
-      throw new Error('Failed to revoke API key');
-    }
-  }
-  
-  async updateUserLastLogin(userId: number): Promise<void> {
-    try {
-      await db.update(users)
-        .set({ lastLogin: new Date() })
-        .where(eq(users.id, userId));
-    } catch (error) {
-      console.error('Error updating user last login:', error);
-    }
   }
   
   async updateUserRole(userId: string, role: string): Promise<void> {
@@ -329,7 +275,7 @@ async validateUserCredentials(usernameOrEmail: string, password: string): Promis
     }
   }
   
-  async getToolConfigByUserAndType(userId: number, toolType: string): Promise<ToolConfig | undefined> {
+  async getToolConfigByUserAndType(userId: string, toolType: string): Promise<ToolConfig | undefined> {
     try {
       const [config] = await db.select()
         .from(toolConfigs)
@@ -347,7 +293,7 @@ async validateUserCredentials(usernameOrEmail: string, password: string): Promis
     }
   }
   
-  async getAllToolConfigs(userId: number): Promise<ToolConfig[]> {
+  async getAllToolConfigs(userId: string): Promise<ToolConfig[]> {
     try {
       return await db.select()
         .from(toolConfigs)
@@ -416,7 +362,7 @@ async validateUserCredentials(usernameOrEmail: string, password: string): Promis
     }
   }
   
-  async getRequestLogs(userId: number, limit = 100): Promise<RequestLog[]> {
+  async getRequestLogs(userId: string, limit = 100): Promise<RequestLog[]> {
     try {
       return await db.select()
         .from(requestLogs)
@@ -429,7 +375,7 @@ async validateUserCredentials(usernameOrEmail: string, password: string): Promis
     }
   }
   
-  async getRequestLogsByToolType(userId: number, toolType: string, limit = 100): Promise<RequestLog[]> {
+  async getRequestLogsByToolType(userId: string, toolType: string, limit = 100): Promise<RequestLog[]> {
     try {
       return await db.select()
         .from(requestLogs)
