@@ -7,13 +7,13 @@ import { AuthProvider } from "@/hooks/useAuthHook";
 import { NavigationProvider } from "@/hooks/use-navigation";
 import { StylesProtectedRoot } from "@/components/ui/StylesProtectedRoot";
 import { ThemeProvider } from "./components/ThemeProvider";
-import { mcpWebSocketClient } from "./utils/mcp-websocket-client";
-import { WebSocketProvider } from "./components/WebSocketProvider";
-import { initWebSocketFixes } from "./utils/websocket-fix";
 import ErrorBoundary from "@/components/error-boundary";
 
-// Import unified CSS recovery system
-import "./utils/unified-css-recovery"; // Consolidated CSS recovery system
+// Import our new unified WebSocket system
+import { WebSocketUtils } from "./lib/websocket-system";
+
+// Initialize CSS recovery system
+import { initializeCssSystem } from "./utils/css-system";
 
 // Import global styles
 import "./styles/global.css";
@@ -42,8 +42,9 @@ import Layout from "@/components/Layout";
 import { ProtectedRoute } from "@/components/protected-route";
 import ToolSidebar from "@/components/ToolSidebar";
 import LoginPrompt from "@/components/LoginPrompt";
-import StyleFixer from "@/components/StyleFixer"; // Import the StyleFixer component
-import WebSocketReconnectManager from "@/components/WebSocketReconnectManager"; // Import WebSocket reconnect manager
+import StyleFixer from "@/components/StyleFixerNew"; // Import the new StyleFixer component
+import WebSocketReconnectManager from "@/components/WebSocketReconnectManagerNew"; // Import new WebSocket reconnect manager
+import WebSocketProviderNew from "@/components/WebSocketProviderNew"; // Import new WebSocket provider
 
 function Router() {
   // Production authentication fix - this ensures authentication state is preserved
@@ -99,9 +100,12 @@ function App() {
     }
     
     // Initialize WebSocket fixes to handle connection issues
-    if (initWebSocketFixes()) {
-      console.log('Applied WebSocket connection fixes');
-    }
+    WebSocketUtils.applyConnectionFixes();
+    console.log('Applied WebSocket connection fixes');
+    
+    // Initialize CSS recovery system
+    initializeCssSystem();
+    console.log('Initialized unified CSS recovery system');
   }, []);
   
   return (
@@ -117,14 +121,14 @@ function App() {
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
             <NavigationProvider>
-              <WebSocketProvider autoConnect={true}>
+              <WebSocketProviderNew autoConnect={true}>
                 <ErrorBoundary>
                   <Router />
                 </ErrorBoundary>
                 <StyleFixer />
                 <WebSocketReconnectManager />
                 <Toaster />
-              </WebSocketProvider>
+              </WebSocketProviderNew>
             </NavigationProvider>
           </AuthProvider>
         </QueryClientProvider>
