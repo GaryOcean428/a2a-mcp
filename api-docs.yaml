@@ -4,88 +4,110 @@ info:
   description: |
     API for the Model Context Protocol (MCP) Integration Platform, providing standardized interfaces for AI tools
     including web search, form automation, vector storage, data scraping, and secure sandbox environments.
-  version: 0.1.0-alpha
+  version: 0.1.0-alpha # TODO: Update version based on changes
   contact:
     name: MCP Integration Team
-    email: support@mcp-platform.example.com
+    email: support@mcp-platform.example.com # TODO: Confirm email
 
 servers:
-  - url: https://api.mcp-platform.example.com
-    description: Production server
+  # TODO: Update server URLs if necessary, especially for production
+  - url: / # Use relative path for local/dynamic deployment
+    description: Current Server
   - url: http://localhost:5000
-    description: Development server
+    description: Development server (local)
 
 security:
-  - BearerAuth: []
   - ApiKeyAuth: []
-  - SessionAuth: []
+  - SessionAuth: [] # Keep SessionAuth for potential UI-driven interactions
 
 components:
   securitySchemes:
-    BearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
     ApiKeyAuth:
       type: apiKey
       in: header
       name: X-API-Key
+      description: API key for programmatic access.
     SessionAuth:
       type: apiKey
       in: cookie
-      name: connect.sid
+      name: connect.sid # Default name for express-session cookie
+      description: Session cookie for browser-based UI authentication.
 
   schemas:
-    # User and Authentication
+    # --- Error Schema ---
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: "General error message"
+          example: "Resource not found"
+        details:
+          type: [string, array, object]
+          description: "Additional error details (e.g., validation errors)"
+          example: "Invalid ID provided"
+        code:
+          type: string
+          description: "Optional error code"
+          example: "NOT_FOUND"
+
+    # --- User & Auth Schemas (Aligned with schema.ts) ---
     User:
       type: object
       properties:
         id:
           type: integer
-          example: 1
+          readOnly: true
         username:
           type: string
-          example: "johnsmith"
         email:
           type: string
           format: email
-          example: "john@example.com"
+        name:
+          type: string
+          nullable: true
         role:
           type: string
-          enum: ["user", "admin"]
-          example: "user"
+          enum: ["user", "admin"] # Assuming these roles
+          default: "user"
         apiKey:
           type: string
           nullable: true
-          example: "mcp_XYZ123abc456def789ghi"
+          readOnly: true # API key itself shouldn't be returned directly usually
         active:
           type: boolean
-          example: true
+          default: true
         lastLogin:
           type: string
           format: date-time
           nullable: true
+          readOnly: true
         createdAt:
           type: string
           format: date-time
+          readOnly: true
+        updatedAt:
+          type: string
+          format: date-time
+          readOnly: true
 
     UserResponse:
+      description: "Public representation of a user"
       type: object
       properties:
         id:
           type: integer
-          example: 1
         username:
           type: string
-          example: "johnsmith"
         email:
           type: string
           format: email
-          example: "john@example.com"
+        name:
+          type: string
+          nullable: true
         role:
           type: string
           enum: ["user", "admin"]
-          example: "user"
 
     LoginRequest:
       type: object
@@ -95,12 +117,13 @@ components:
       properties:
         username:
           type: string
-          description: "Username or email"
-          example: "johnsmith"
+          minLength: 3
+          maxLength: 30
+          description: "Username (case-sensitive)"
         password:
           type: string
           format: password
-          example: "securepassword123"
+          minLength: 6
 
     RegisterRequest:
       type: object
@@ -111,17 +134,28 @@ components:
       properties:
         username:
           type: string
-          example: "johnsmith"
+          minLength: 3
+          maxLength: 30
         email:
           type: string
           format: email
-          example: "john@example.com"
         password:
           type: string
           format: password
-          example: "securepassword123"
+          minLength: 6
+          maxLength: 100
+        name:
+          type: string
+          nullable: true
 
-    # MCP Schemas
+    ApiKeyResponse:
+      type: object
+      properties:
+        apiKey:
+          type: string
+          description: "The generated API key"
+
+    # --- MCP Schemas (Aligned with schema.ts) ---
     WebSearchParams:
       type: object
       required:
@@ -130,65 +164,50 @@ components:
         query:
           type: string
           description: "The search query to execute"
-          example: "latest advancements in artificial intelligence"
-        provider:
-          type: string
-          enum: ["openai", "tavily", "perplexity"]
-          default: "openai"
-          description: "Search provider to use"
-        resultCount:
+        numResults:
           type: integer
           minimum: 1
-          maximum: 50
+          maximum: 50 # Assuming a reasonable max
           default: 5
           description: "Number of results to return"
-        openaiOptions:
-          type: object
-          properties:
-            model:
-              type: string
-              enum: ["gpt-4.1", "chatgpt-4.1", "gpt-4.1-mini", "o1", "o1-mini", "o1-pro", "o3", "o3-mini-2025-01-31", "o4-mini"]
-              default: "gpt-4.1"
-              description: "OpenAI model to use"
-            searchContextSize:
-              type: string
-              enum: ["low", "medium", "high"]
-              default: "medium"
-              description: "Amount of search context to retrieve"
+        includeLinks:
+          type: boolean
+          default: true
+          description: "Whether to include source links in results"
+        searchType:
+          type: string
+          enum: ["web", "news", "images"] # Example types
+          default: "web"
+          description: "Type of search to perform"
+        # provider-specific options can be added here if needed
 
     FormAutomationParams:
       type: object
       required:
         - url
-        - formData
+        - fields
       properties:
         url:
           type: string
           format: uri
           description: "URL of the form to automate"
-          example: "https://example.com/contact"
-        formData:
+        fields:
           type: object
-          additionalProperties: true
-          description: "Key-value pairs of form fields and values"
+          additionalProperties:
+            type: string
+          description: "Key-value pairs of form field names/selectors and values"
           example:
-            name: "John Smith"
-            email: "john@example.com"
-            message: "Hello, I'm interested in your services."
-        submitForm:
-          type: boolean
-          default: true
-          description: "Whether to submit the form after filling"
+            "#nameInput": "John Doe"
+            "input[name='email']": "john.doe@example.com"
+        submitSelector:
+          type: string
+          description: "CSS selector for the submit button/element"
+          default: "button[type='submit']"
         waitForNavigation:
           type: boolean
           default: true
           description: "Whether to wait for page navigation after submission"
-        timeout:
-          type: integer
-          minimum: 1000
-          maximum: 30000
-          default: 5000
-          description: "Maximum time to wait for operation completion (ms)"
+        # timeout could be added if needed
 
     VectorStorageParams:
       type: object
@@ -196,90 +215,76 @@ components:
         - operation
         - collection
       properties:
-        provider:
-          type: string
-          enum: ["pinecone", "weaviate"]
-          default: "pinecone"
-          description: "Vector database provider to use"
         operation:
           type: string
-          enum: ["search", "retrieve", "store", "delete"]
+          enum: ["store", "retrieve", "delete", "list"]
           description: "Operation to perform"
         collection:
           type: string
-          description: "Vector collection/class to operate on"
-          example: "product-data"
+          description: "Vector collection/class name"
+        ids:
+          type: array
+          items:
+            type: string
+          description: "Vector IDs (for store, retrieve, delete)"
+        embeddings:
+          type: array
+          items:
+            type: array
+            items:
+              type: number
+          description: "Vector embeddings (for store)"
+        metadata:
+          type: array
+          items:
+            type: object
+          description: "Metadata associated with vectors (for store)"
         query:
-          type: string
-          description: "Query text for semantic search"
-          example: "comfortable ergonomic office chair"
-        embedding:
           type: array
           items:
             type: number
-          description: "Pre-computed embedding vector (optional)"
-        filters:
-          type: object
-          additionalProperties: true
-          description: "Metadata filters for search"
-          example:
-            category: "furniture"
-            price_range: "mid"
-        limit:
+          description: "Query vector (for retrieve)"
+        topK:
           type: integer
           minimum: 1
-          maximum: 100
+          maximum: 100 # Assuming a reasonable max
           default: 10
-          description: "Maximum number of results"
+          description: "Number of nearest neighbors to retrieve"
+        # provider and filters could be added if needed
 
     DataScraperParams:
       type: object
       required:
         - url
+        - selectors # Making selectors required based on schema.ts
       properties:
         url:
           type: string
           format: uri
           description: "URL to scrape"
-          example: "https://example.com/products"
         selectors:
-          type: object
-          additionalProperties:
+          type: array # Changed from object to array based on schema.ts
+          items:
             type: string
-          description: "Named CSS selectors to extract data"
-          example:
-            title: ".product-title"
-            price: ".product-price"
-            description: ".product-description"
-        format:
+          description: "CSS selectors for elements to extract"
+          example: [".product-title", ".price"]
+        waitForSelector:
           type: string
-          enum: ["json", "csv", "text"]
+          description: "CSS selector to wait for before starting scraping"
+        transform:
+          type: string
+          enum: ["table", "list", "json"] # Example formats
           default: "json"
-          description: "Output format"
-        pagination:
-          type: object
-          properties:
-            enabled:
-              type: boolean
-              default: false
-            nextSelector:
-              type: string
-              example: ".pagination .next"
-            maxPages:
-              type: integer
-              default: 1
-        javascript:
-          type: boolean
-          default: true
-          description: "Whether to execute JavaScript on the page"
+          description: "Output format for scraped data"
+        # javascript and pagination could be added if needed
 
     StatusParams:
       type: object
       properties:
         toolName:
           type: string
-          description: "Name of the tool to check status for (optional)"
-          example: "web_search"
+          description: "Optional: Name of a specific tool to get status for"
+          enum: ["web_search", "form_automation", "vector_storage", "data_scraper", "sandbox"] # Example tools
 
     SandboxParams:
       type: object
@@ -289,26 +294,36 @@ components:
         operation:
           type: string
           enum: ["create", "execute", "upload", "download", "install", "close", "list"]
-          description: "Operation to perform on the sandbox"
-        template:
-          type: string
-          enum: ["base", "data-science", "development", "web"]
-          default: "base"
-          description: "Sandbox template to use"
         sandboxId:
           type: string
-          description: "ID of an existing sandbox"
+          description: "ID of an existing sandbox (required for most operations except create/list)"
+        template:
+          type: string
+          enum: ["base", "data-science", "development", "web"] # Example templates
+          default: "base"
+          description: "Template to use when creating a sandbox"
         code:
           type: string
-          description: "Code to execute"
-          example: "console.log('Hello world');"
+          description: "Code to execute in the sandbox"
         language:
           type: string
-          enum: ["javascript", "typescript", "python"]
-          default: "javascript"
-          description: "Programming language of the code"
+          enum: ["javascript", "typescript", "python"] # Example languages
+          description: "Language of the code (for execute)"
+        localFilePath:
+          type: string
+          description: "Path to local file to upload"
+        sandboxFilePath:
+          type: string
+          description: "Path within the sandbox for upload/download"
+        packageName:
+          type: string
+          description: "Package name to install"
+        packageManager:
+          type: string
+          enum: ["npm", "pip"]
+          description: "Package manager to use for installation"
 
-    # Response schemas
+    # --- MCP Request/Response Schemas ---
     MCPRequest:
       type: object
       required:
@@ -318,13 +333,13 @@ components:
       properties:
         id:
           type: string
-          description: "Unique request identifier"
-          example: "req_1234567890"
+          description: "Unique request identifier (client-generated or server-generated)"
         name:
           type: string
           description: "Name of the tool/operation to execute"
           enum: ["web_search", "form_automation", "vector_storage", "data_scraper", "status", "sandbox"]
         parameters:
+          description: "Parameters specific to the tool being called"
           oneOf:
             - $ref: '#/components/schemas/WebSearchParams'
             - $ref: '#/components/schemas/FormAutomationParams'
@@ -340,96 +355,84 @@ components:
       properties:
         id:
           type: string
-          description: "Request identifier that this response corresponds to"
-          example: "req_1234567890"
+          description: "Corresponds to the MCPRequest id"
         results:
-          type: object
-          description: "Tool-specific results data"
+          type: object # Tool-specific structure
+          description: "Results from the tool execution"
+          nullable: true
         error:
           type: object
+          nullable: true
           properties:
             message:
               type: string
-              description: "Error message"
-              example: "Unable to connect to search provider"
             code:
-              type: string
-              description: "Error code"
-              example: "PROVIDER_CONNECTION_ERROR"
+              type: string # e.g., TOOL_ERROR, VALIDATION_ERROR, PROVIDER_ERROR
+            details:
+              type: [string, object]
+              description: "Optional additional details"
 
+    # --- Status Schemas (Aligned with schema.ts) ---
     ToolStatus:
       type: object
       properties:
         name:
           type: string
-          description: "Tool name"
-          example: "web_search"
         available:
           type: boolean
-          description: "Whether the tool is currently available"
-          example: true
         latency:
           type: number
-          description: "Average latency in milliseconds"
-          example: 234.5
-        error:
-          type: string
-          description: "Error message if the tool is unavailable"
-          example: "API quota exceeded"
+          format: float
+          description: "Average latency in ms"
+          nullable: true
         lastUsed:
           type: string
           format: date-time
-          description: "When the tool was last used"
+          nullable: true
+        error:
+          type: string
+          nullable: true
 
     SystemStatus:
       type: object
       properties:
         version:
           type: string
-          description: "API version"
-          example: "0.1.0-alpha"
         uptime:
           type: number
           description: "System uptime in seconds"
-          example: 86400
         transport:
           type: string
-          enum: ["STDIO", "SSE"]
-          description: "Transport protocol being used"
-          example: "STDIO"
+          enum: ["HTTP", "WebSocket", "STDIO"] # Reflecting actual transports
+        lastRequest:
+          type: string
+          format: date-time
+          nullable: true
         activeTools:
           type: array
           items:
             $ref: "#/components/schemas/ToolStatus"
-        lastRequest:
-          type: string
-          format: date-time
-          description: "When the last request was processed"
 
-    ErrorResponse:
+    # --- Cline Schemas ---
+    ClineConfig:
       type: object
       properties:
-        error:
-          type: string
-          description: "Error message"
-          example: "Not authenticated"
-        code:
-          type: string
-          description: "Error code"
-          example: "AUTHENTICATION_REQUIRED"
-        status:
-          type: integer
-          description: "HTTP status code"
-          example: 401
+        server:
+          type: object
+          properties:
+            url:
+              type: string
+              format: uri
+              description: "The dynamically generated URL for the MCP API endpoint"
+            # Other Cline config properties if known
 
 paths:
-  # Authentication
+  # --- Authentication ---
   /api/register:
     post:
       summary: Register a new user
-      tags:
-        - Authentication
-      security: []
+      tags: [Authentication]
+      security: [] # Open endpoint
       requestBody:
         required: true
         content:
@@ -444,7 +447,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/UserResponse'
         '400':
-          description: Invalid request or username already exists
+          description: Invalid input or user already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
           content:
             application/json:
               schema:
@@ -453,9 +462,8 @@ paths:
   /api/login:
     post:
       summary: Authenticate user and create session
-      tags:
-        - Authentication
-      security: []
+      tags: [Authentication]
+      security: [] # Open endpoint
       requestBody:
         required: true
         content:
@@ -464,13 +472,25 @@ paths:
               $ref: '#/components/schemas/LoginRequest'
       responses:
         '200':
-          description: Login successful
+          description: Login successful, session cookie set
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
-          description: Authentication failed
+          description: Authentication failed (invalid credentials)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
           content:
             application/json:
               schema:
@@ -479,8 +499,7 @@ paths:
   /api/logout:
     post:
       summary: Invalidate current user session
-      tags:
-        - Authentication
+      tags: [Authentication]
       security:
         - SessionAuth: []
       responses:
@@ -492,39 +511,187 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
-  /api/user:
-    get:
-      summary: Get current user information
-      tags:
-        - Authentication
-      security:
-        - SessionAuth: []
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: User information
+        '500':
+          description: Server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserResponse'
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/user/profile: # Corrected path based on routes.ts
+    get:
+      summary: Get current user profile (via API Key)
+      tags: [User]
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: User profile information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User' # Return full user schema minus password
+        '401':
+          description: Invalid or missing API Key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found for the given API Key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # --- API Key Management (Added based on routes.ts) ---
+  /api/keys/generate:
+    post:
+      summary: Generate a new API key for a user
+      tags: [API Keys]
+      security:
+        - SessionAuth: [] # Assuming only logged-in users can generate keys
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId]
+              properties:
+                userId:
+                  type: integer
+                  description: "ID of the user to generate the key for (must match session or be admin)"
+      responses:
+        '200':
+          description: API key generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKeyResponse'
+        '400':
+          description: User ID is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Not authenticated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  
-  # MCP Tools
-  /api/mcp:
+        '403':
+          description: Forbidden (e.g., trying to generate key for another user without admin rights)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/keys/revoke:
     post:
-      summary: Execute an MCP tool
-      description: General endpoint for executing any MCP tool based on the request name and parameters
-      tags:
-        - MCP
+      summary: Revoke the API key for a user
+      tags: [API Keys]
       security:
         - SessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId]
+              properties:
+                userId:
+                  type: integer
+                  description: "ID of the user whose key to revoke (must match session or be admin)"
+      responses:
+        '200':
+          description: API key revoked successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "API key revoked successfully"
+        '400':
+          description: User ID is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # --- MCP Tools ---
+  /api/mcp:
+    post:
+      summary: Execute an MCP tool via HTTP
+      description: General endpoint for executing any MCP tool. Requires API Key authentication.
+      tags: [MCP]
+      security:
         - ApiKeyAuth: []
+      parameters:
+        - name: X-RateLimit-Limit
+          in: header
+          required: false
+          schema:
+            type: integer
+          description: Rate limit total requests allowed.
+        - name: X-RateLimit-Remaining
+          in: header
+          required: false
+          schema:
+            type: integer
+          description: Rate limit remaining requests.
+        - name: X-RateLimit-Reset
+          in: header
+          required: false
+          schema:
+            type: integer
+          description: Rate limit reset time (Unix epoch seconds).
       requestBody:
         required: true
         content:
@@ -545,13 +712,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '401':
-          description: Not authenticated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Insufficient permissions
+          description: Invalid or missing API Key
           content:
             application/json:
               schema:
@@ -562,15 +723,75 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  
-  # Status
+        '500':
+          description: Internal server error during tool execution
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # --- Schema Endpoints (Added based on routes.ts) ---
+  /api/schema:
+    get:
+      summary: Get schemas for all available MCP tools
+      tags: [Schema]
+      security: [] # Typically open
+      responses:
+        '200':
+          description: List of tool schemas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object # Define structure based on MCPToolSchemas
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/schema/{toolName}:
+    get:
+      summary: Get schema for a specific MCP tool
+      tags: [Schema]
+      security: [] # Typically open
+      parameters:
+        - name: toolName
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: ["web_search", "form_automation", "vector_storage", "data_scraper", "status", "sandbox"]
+          description: Name of the tool
+      responses:
+        '200':
+          description: Schema for the specified tool
+          content:
+            application/json:
+              schema:
+                type: object # Define structure based on MCPToolSchemas
+        '404':
+          description: Tool schema not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # --- Status & Health (Updated based on routes.ts) ---
   /api/status:
     get:
-      summary: Get system status
-      description: Returns the current status of the MCP platform and its tools
-      tags:
-        - Status
-      security: []
+      summary: Get overall system status
+      description: Returns the current status of the MCP platform and its tools.
+      tags: [Status]
+      security: [] # Typically open
       responses:
         '200':
           description: System status
@@ -578,11 +799,223 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SystemStatus'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/status/{toolName}:
+    get:
+      summary: Get status for a specific tool
+      tags: [Status]
+      security: [] # Typically open
+      parameters:
+        - name: toolName
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: ["web_search", "form_automation", "vector_storage", "data_scraper", "sandbox"]
+          description: Name of the tool
+      responses:
+        '200':
+          description: Status for the specified tool
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolStatus'
+        '404':
+          description: Tool status not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/health: # Added based on routes.ts
+    get:
+      summary: Get system health metrics
+      description: Provides health check information (e.g., DB connection, dependencies).
+      tags: [Status]
+      security: [] # Typically open
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: ["ok", "error"]
+                  timestamp:
+                    type: string
+                    format: date-time
+                  checks:
+                    type: object # Details about individual health checks
+        '500':
+          description: System is unhealthy or server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # --- Sandbox Endpoint (Added based on routes.ts) ---
+  /api/sandbox:
+    post:
+      summary: Perform operations on a secure sandbox environment
+      tags: [Sandbox]
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SandboxParams'
+      responses:
+        '200':
+          description: Sandbox operation successful
+          content:
+            application/json:
+              schema:
+                type: object # Structure depends on the operation
+                properties:
+                  sandboxId:
+                    type: string
+                  status:
+                    type: string
+                  output:
+                    type: string
+                  # Other potential fields: fileList, downloadUrl etc.
+        '400':
+          description: Invalid parameters or operation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid or missing API Key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Sandbox not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error during sandbox operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # --- Documentation & Config Endpoints (Added based on routes.ts) ---
+  /api/documentation:
+    get:
+      summary: Get main project documentation (README.md)
+      tags: [Documentation]
+      security: [] # Typically open
+      responses:
+        '200':
+          description: Documentation content in Markdown format
+          content:
+            text/markdown:
+              schema:
+                type: string
+        '500':
+          description: Error loading documentation
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/cline-integration:
+    get:
+      summary: Get Cline integration guide (CLINE_INTEGRATION.md)
+      tags: [Documentation, Cline]
+      security: [] # Typically open
+      responses:
+        '200':
+          description: Cline integration guide in Markdown format (with dynamic URL)
+          content:
+            text/markdown:
+              schema:
+                type: string
+        '404':
+          description: Cline integration guide not found
+          content:
+            text/markdown:
+              schema:
+                type: string
+        '500':
+          description: Error loading guide
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/cline-config:
+    get:
+      summary: Get Cline server configuration JSON
+      tags: [Configuration, Cline]
+      security: [] # Typically open
+      responses:
+        '200':
+          description: Cline configuration with dynamic server URL
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClineConfig'
+        '404':
+          description: Cline configuration file not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error reading configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 tags:
   - name: Authentication
-    description: User authentication and session management
+    description: User registration, login, logout
+  - name: User
+    description: User profile management
+  - name: API Keys
+    description: Management of API keys for programmatic access
   - name: MCP
-    description: Model Context Protocol tool execution
+    description: Model Context Protocol tool execution via HTTP
+  - name: Schema
+    description: Retrieval of MCP tool schemas
   - name: Status
-    description: System status and health checks
+    description: System and tool status and health checks
+  - name: Sandbox
+    description: Secure code execution environments
+  - name: Documentation
+    description: Access to project documentation
+  - name: Configuration
+    description: Retrieval of configuration files
+  - name: Cline
+    description: Endpoints specifically for Cline integration
+
