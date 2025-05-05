@@ -23,4 +23,4 @@ export { default as LoginPrompt } from '../LoginPrompt';
 export { default as ErrorBoundary } from '../ErrorBoundary';
 
 // Load Management
-export { LazyLoad } from '../LazyLoad';
+export { createLazyComponent, LoadingSpinner, lazyLoad, LazyRoute } from '../LazyLoad';

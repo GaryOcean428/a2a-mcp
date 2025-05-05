@@ -1,120 +1,248 @@
 # MCP Integration Platform - Architecture
 
-## Overview
+This document outlines the architectural design of the MCP Integration Platform, a standardized, modular interface for connecting diverse AI service capabilities with enhanced security and deployment infrastructure.
 
-The MCP Integration Platform is a comprehensive framework for standardizing and coordinating interactions between AI service capabilities. This document outlines the architecture of the platform after the cleanup and optimization process.
+## System Overview
 
-## Core Components
+The MCP Integration Platform is designed as a full-stack JavaScript application that provides a standardized interface for AI services, including:
 
-### Client-Side
+- Web Search
+- Form Automation
+- Vector Storage
+- Data Scraping
 
-#### CSS System
+The platform implements the Model Context Protocol (MCP) to standardize interactions with various AI models and tools.
 
-The CSS system (`client/src/utils/css-system.ts`) provides a unified approach to CSS recovery and style fixing. It includes:
-
-- **CssRecoveryManager**: A singleton class that verifies and injects critical CSS styles when needed
-- **StyleFixer**: A singleton class that applies direct CSS fixes to elements with custom styling needs
-- **Auto-initialization**: The system automatically initializes when the DOM is ready
-
-#### WebSocket System
-
-The WebSocket system (`client/src/lib/websocket-system.ts`) provides a robust WebSocket client implementation:
-
-- **EnhancedWebSocketClient**: A client with automatic reconnection, error handling, and event management
-- **WebSocketUtils**: Utility functions for creating WebSocket URLs and applying connection fixes
-- **Cross-environment support**: Works in both development and production environments
-
-#### React Components
-
-The React components are organized into cohesive groups:
-
-- **StyleFixerNew**: Initializes the CSS recovery and style fixing system
-- **WebSocketProviderNew**: Provides WebSocket context to the application
-- **WebSocketReconnectManagerNew**: Monitors connection state and provides UI feedback
-
-### Server-Side
-
-#### Deployment Tools
-
-The deployment tools (`scripts/deployment-tools.cjs`) provide a unified approach to deployment:
-
-- **Version management**: Updates version timestamps for cache busting
-- **Module compatibility**: Ensures proper module format compatibility between ESM and CommonJS
-- **CSS recovery**: Sets up critical CSS recovery files
-- **WebSocket configuration**: Applies WebSocket connection fixes
-- **HTML updates**: Injects critical CSS into HTML files
-- **Build process**: Manages the application build process
-- **Cleanup utility**: Removes redundant files from the codebase
-
-## File Organization
-
-### Client-Side
+## Architecture Diagram
 
 ```
-client/
-  ├── src/
-  │   ├── components/       # React components
-  │   │   ├── core/         # Core component exports
-  │   │   ├── ui/           # UI components (shadcn)
-  │   │   ├── StyleFixerNew.tsx
-  │   │   ├── WebSocketProviderNew.tsx
-  │   │   └── WebSocketReconnectManagerNew.tsx
-  │   ├── hooks/            # React hooks
-  │   ├── lib/              # Core libraries
-  │   │   └── websocket-system.ts
-  │   ├── pages/            # Application pages
-  │   ├── utils/            # Utility functions
-  │   │   └── css-system.ts
-  │   └── config/           # Configuration files
-  └── public/
-      └── assets/
-          └── css/
-              └── recovery-critical.css
+┌─────────────────────────────────────────────────────────────────┐
+│                        Client Application                        │
+│                                                                 │
+│  ┌─────────────┐   ┌─────────────┐   ┌─────────────────────┐    │
+│  │    React     │   │  TanStack   │   │  WebSocket Client   │    │
+│  │    Router    │   │    Query    │   │  Connection Manager │    │
+│  └─────────────┘   └─────────────┘   └─────────────────────┘    │
+│         │                │                      │                │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │                   UI Component Layer                     │    │
+│  │                                                          │    │
+│  │  ┌──────────┐   ┌────────────┐   ┌────────────────────┐ │    │
+│  │  │ Tool UI  │   │ Auth UI    │   │ Settings &         │ │    │
+│  │  │ Components│   │ Components │   │ Configuration UI   │ │    │
+│  │  └──────────┘   └────────────┘   └────────────────────┘ │    │
+│  └─────────────────────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────────────────────┘
+                               │
+                               ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                             Server                              │
+│                                                                 │
+│  ┌─────────────┐   ┌─────────────┐   ┌─────────────────────┐    │
+│  │    Express  │   │ WebSocket   │   │ Authentication &     │    │
+│  │    Router   │   │   Server    │   │ Session Management   │    │
+│  └─────────────┘   └─────────────┘   └─────────────────────┘    │
+│         │                │                       │               │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │                  Integration Layer                       │    │
+│  │                                                          │    │
+│  │  ┌──────────┐   ┌────────────┐   ┌────────────────────┐ │    │
+│  │  │ Web      │   │ Form       │   │ Vector Storage &    │ │    │
+│  │  │ Search   │   │ Automation │   │ Data Scraping       │ │    │
+│  │  └──────────┘   └────────────┘   └────────────────────┘ │    │
+│  └─────────────────────────────────────────────────────────┘    │
+│         │                │                       │               │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │                External Service Adapters                 │    │
+│  │                                                          │    │
+│  │  ┌──────────┐   ┌────────────┐   ┌────────────────────┐ │    │
+│  │  │ OpenAI   │   │ Pinecone   │   │ Weaviate & Other    │ │    │
+│  │  │ API      │   │ API        │   │ Service Providers   │ │    │
+│  │  └──────────┘   └────────────┘   └────────────────────┘ │    │
+│  └─────────────────────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────────────────────┘
+                               │
+                               ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     External AI Services                         │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-### Server-Side
+## Key Components
+
+### Client-Side Architecture
+
+1. **React Frontend**
+   - Uses React with TypeScript for type safety
+   - Implements wouter for lightweight routing
+   - TanStack Query for data fetching and caching
+   - ShadCN UI components with Tailwind CSS for styling
+
+2. **WebSocket Communication**
+   - Real-time updates and notifications
+   - Automatic reconnection handling
+   - Message serialization and deserialization
+
+3. **CSS Management**
+   - Critical CSS injection for fast rendering
+   - Style verification and recovery system
+   - Production-optimized CSS handling
+
+### Server-Side Architecture
+
+1. **Express Backend**
+   - RESTful API endpoints for each service
+   - Authentication and authorization middleware
+   - Input validation with Zod schemas
+
+2. **WebSocket Server**
+   - Bidirectional communication channel
+   - Real-time event broadcasting
+   - Connection management and monitoring
+
+3. **Integration Services**
+   - Web Search integration
+   - Form Automation services
+   - Vector Storage with Pinecone and Weaviate
+   - Data Scraping utilities
+
+### Cross-Cutting Concerns
+
+1. **Authentication & Security**
+   - Session-based authentication
+   - PostgreSQL session storage
+   - API secret management
+   - CSRF protection
+
+2. **Error Handling & Logging**
+   - Centralized error tracking
+   - Structured logging
+   - Client-side error boundaries
+   - Server-side error middleware
+
+3. **Deployment Infrastructure**
+   - Automated build and deployment process
+   - Environment-specific configurations
+   - Cache management and optimization
+   - Health monitoring
+
+## Data Flow
+
+1. **Authentication Flow**
+   - User login initiates authentication request
+   - Server validates credentials and creates session
+   - Client stores session token and includes it in subsequent requests
+   - Protected routes verify authentication state before rendering
+
+2. **Tool Execution Flow**
+   - User selects a tool and provides parameters
+   - Client validates input and sends request to server
+   - Server processes the request through appropriate service adapter
+   - External service executes the operation and returns results
+   - Server formats response and sends it back to client
+   - Client renders the results in the UI
+
+3. **Real-time Updates Flow**
+   - Client establishes WebSocket connection
+   - Server authenticates the connection
+   - Long-running operations send progress updates via WebSocket
+   - Client receives updates and updates UI accordingly
+
+## Module Organization
 
 ```
-server/
-  ├── routes.ts             # API routes
-  ├── storage.ts            # Storage interface
-  ├── prod-server.js        # Production server (ESM)
-  └── prod-server.cjs       # Production server (CommonJS)
+├── client/              # Frontend application
+│   ├── src/             # Source code
+│   │   ├── components/  # React components
+│   │   │   ├── core/    # Core components
+│   │   │   └── ui/      # UI components
+│   │   ├── lib/         # Libraries
+│   │   ├── utils/       # Utilities
+│   │   ├── pages/       # Page components
+│   │   └── App.tsx      # Main application
+│
+├── server/              # Backend application
+│   ├── routes.ts        # API routes
+│   ├── storage.ts       # Storage interface
+│   ├── websocket.ts     # WebSocket server
+│   └── services/        # Service implementations
+│
+├── shared/              # Shared code
+│   ├── schema.ts        # Data schemas
+│   └── types.ts         # TypeScript types
+│
+├── scripts/             # Build and deployment scripts
+│
+└── docs/                # Documentation
 ```
 
-### Scripts
+## Technologies Used
 
-```
-scripts/
-  ├── deployment-tools.cjs  # Unified deployment tools
-  ├── deploy.js             # Deployment script
-  └── cleanup.js            # Codebase cleanup script
-```
+### Frontend
+- React
+- TypeScript
+- Tailwind CSS
+- ShadCN UI
+- TanStack Query
+- Wouter (routing)
 
-## Consolidation Benefits
+### Backend
+- Node.js
+- Express
+- WebSocket
+- PostgreSQL
+- Drizzle ORM
 
-The cleanup and organization effort has yielded several benefits:
+### External Integrations
+- OpenAI API
+- Pinecone Database
+- Weaviate Vector Database
+- Anthropic Claude API
 
-1. **Reduced file count**: Eliminated 40+ redundant files across CSS recovery, WebSocket implementation, and deployment scripts
+## Security Considerations
 
-2. **Improved maintainability**: Consolidated related functionality into cohesive modules
+1. **API Security**
+   - All API keys are stored securely and never exposed to clients
+   - Rate limiting on API endpoints to prevent abuse
+   - Input validation on all API requests
 
-3. **Enhanced reliability**: Unified error handling and recovery mechanisms
+2. **Authentication**
+   - Secure session management
+   - CSRF protection for form submissions
+   - HTTP-only cookies for session tokens
 
-4. **Better organization**: Clear separation of concerns and logical file organization
+3. **Data Protection**
+   - Sensitive data is never logged
+   - Proper error handling to prevent information leakage
+   - Secure communication via HTTPS
 
-5. **Simplified deployment**: Streamlined deployment process with a single consolidated script
+## Performance Optimizations
 
-## Future Improvements
+1. **Frontend**
+   - Code splitting for optimal loading
+   - Critical CSS injection for fast initial rendering
+   - React Query for efficient data fetching and caching
+   - Lazy loading of components
 
-Potential areas for further improvement:
+2. **Backend**
+   - Connection pooling for database access
+   - Efficient WebSocket message handling
+   - Response caching where appropriate
+   - Streaming responses for large data sets
 
-1. **Testing**: Add comprehensive unit and integration tests
+## Future Enhancements
 
-2. **Documentation**: Enhance inline documentation and create API reference
+1. **Additional Integrations**
+   - Support for more AI service providers
+   - Enhanced vector database capabilities
+   - Additional form automation features
 
-3. **Performance optimization**: Further optimize loading and rendering performance
+2. **Scalability Improvements**
+   - Microservice architecture for high-load scenarios
+   - Horizontal scaling capabilities
+   - Enhanced caching strategies
 
-4. **Feature modules**: Implement a modular plugin system for extending platform capabilities
-
-5. **Analytics**: Add performance and usage analytics
+3. **Developer Experience**
+   - Improved documentation
+   - Development tooling enhancements
+   - Component library expansion

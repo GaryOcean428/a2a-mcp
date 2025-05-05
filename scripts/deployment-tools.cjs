@@ -1,498 +1,741 @@
 /**
  * MCP Integration Platform - Unified Deployment Tools
  * 
- * This script provides all necessary deployment tools and utilities in a single file,
- * replacing multiple scattered deployment-related scripts.
+ * This module contains consolidated deployment tools to replace the numerous
+ * separate deployment scripts that were previously scattered throughout the codebase.
  */
 
 const fs = require('fs');
 const path = require('path');
-const crypto = require('crypto');
-const { spawn, execSync } = require('child_process');
-
-// Paths
-const ROOT_DIR = path.resolve(__dirname, '..');
-const CLIENT_DIR = path.join(ROOT_DIR, 'client');
-const SERVER_DIR = path.join(ROOT_DIR, 'server');
-const PUBLIC_DIR = path.join(ROOT_DIR, 'public');
-const DIST_DIR = path.join(ROOT_DIR, 'dist');
-
-/**
- * Ensure a directory exists, creating it if needed
- */
-function ensureDirectoryExists(dirPath) {
-  if (!fs.existsSync(dirPath)) {
-    fs.mkdirSync(dirPath, { recursive: true });
-  }
-}
+const { execSync } = require('child_process');
 
 /**
  * Update version timestamp for cache busting
+ * @returns {string} The current timestamp
  */
 function updateVersionTimestamp() {
-  console.log('Updating version timestamp for cache busting...');
-  
-  const versionDir = path.join(CLIENT_DIR, 'src/config');
-  const versionFile = path.join(versionDir, 'version.ts');
-  
-  ensureDirectoryExists(versionDir);
-  
   const timestamp = Date.now();
-  const content = `/**
- * MCP Integration Platform Version
- * Auto-generated timestamp for cache busting
- */
-
-export const VERSION = '${timestamp}';
+  const versionData = `export const VERSION = '${timestamp}';
 `;
+  const versionPath = path.join(process.cwd(), 'client', 'src', 'utils', 'version.ts');
   
-  fs.writeFileSync(versionFile, content, 'utf8');
-  console.log(`Updated version timestamp: ${timestamp}`);
-  return timestamp;
+  try {
+    fs.writeFileSync(versionPath, versionData);
+    console.log(`✅ Updated version timestamp to ${timestamp}`);
+    return timestamp;
+  } catch (error) {
+    console.error('❌ Failed to update version timestamp:', error.message);
+    return null;
+  }
 }
 
 /**
- * Fix module compatibility issues
- * Creates CommonJS versions of ESM files where needed
+ * Fix module compatibility issues between ESM and CommonJS
  */
 function fixModuleCompatibility() {
-  console.log('Fixing module format compatibility issues...');
+  // Ensure scripts have the correct extension
+  const scriptsDir = path.join(process.cwd(), 'scripts');
+  const files = fs.readdirSync(scriptsDir);
   
-  // Check if start.cjs exists and create it if not
-  const startJsPath = path.join(ROOT_DIR, 'start.js');
-  const startCjsPath = path.join(ROOT_DIR, 'start.cjs');
+  let fixed = 0;
   
-  if (!fs.existsSync(startCjsPath) && fs.existsSync(startJsPath)) {
-    console.log('Creating CommonJS version of start.js...');
-    
-    // Read the ESM version
-    const esmContent = fs.readFileSync(startJsPath, 'utf8');
-    
-    // Transform to CommonJS
-    const cjsContent = esmContent
-      .replace(/import\s+\{\s*([^}]+)\s*\}\s+from\s+['"](.*)['"];?/g, 'const { $1 } = require("$2");')
-      .replace(/import\s+([^\s]+)\s+from\s+['"](.*)['"];?/g, 'const $1 = require("$2");')
-      .replace(/const\s+__filename\s+=\s+fileURLToPath\(import\.meta\.url\);/g, '// CommonJS already has __filename')
-      .replace(/const\s+__dirname\s+=\s+path\.dirname\(__filename\);/g, '// CommonJS already has __dirname')
-      .replace(/export\s+\{\s*([^}]+)\s*\};?/g, 'module.exports = { $1 };')
-      .replace(/export\s+default\s+([^;\s]+);?/g, 'module.exports = $1;');
+  // Find JS files that should be CommonJS and rename them
+  files.forEach(file => {
+    if (file.endsWith('.js') && !file.endsWith('.cjs')) {
+      const filePath = path.join(scriptsDir, file);
+      const content = fs.readFileSync(filePath, 'utf-8');
       
-    // Write the CommonJS version
-    fs.writeFileSync(startCjsPath, cjsContent, 'utf8');
-    console.log('Created start.cjs - CommonJS version of start script');
-  }
+      // Check if this is a CommonJS module
+      if (content.includes('require(') && !content.includes('import ')) {
+        const newPath = path.join(scriptsDir, file.replace('.js', '.cjs'));
+        fs.renameSync(filePath, newPath);
+        fixed++;
+      }
+    }
+  });
   
-  // Ensure server files are accessible in both module formats
-  const jsServerPath = path.join(SERVER_DIR, 'prod-server.js');
-  const cjsServerPath = path.join(SERVER_DIR, 'prod-server.cjs');
-  
-  if (fs.existsSync(jsServerPath) && !fs.existsSync(cjsServerPath)) {
-    console.log('Creating CommonJS version of server production file...');
-    
-    // Copy the file for now - a more sophisticated approach would be to convert it
-    fs.copyFileSync(jsServerPath, cjsServerPath);
-    console.log('Created server/prod-server.cjs');
-  }
-  
-  // Create proper .replit.deployConfig.js
-  const deployConfigPath = path.join(ROOT_DIR, '.replit.deployConfig.js');
-  if (!fs.existsSync(deployConfigPath)) {
-    console.log('Creating Replit deployment configuration...');
-    
-    const deployConfig = `/**
- * MCP Integration Platform - Replit Deployment Configuration
- */
-
-module.exports = {
-  // Specify the deployment target (usually autoscale for production apps)
-  deploymentTarget: "autoscale",
-  
-  // Build command to prepare the application for deployment
-  build: ["sh", "-c", "npm run build"],
-  
-  // Run command for production - use the CommonJS version of the start script
-  run: ["sh", "-c", "node start.cjs"],
-  
-  // Environment variables for production deployment
-  env: {
-    NODE_ENV: "production"
-  }
-};
-`;
-    
-    fs.writeFileSync(deployConfigPath, deployConfig, 'utf8');
-    console.log('Created .replit.deployConfig.js');
-  }
+  console.log(`✅ Fixed module compatibility issues (${fixed} files updated)`);
 }
 
 /**
- * Fix CSS recovery
- * Ensures critical CSS files and recovery mechanisms are in place
+ * Fix CSS recovery mechanisms
  */
 function fixCssRecovery() {
-  console.log('Enhancing CSS recovery system...');
+  // Ensure the public directory exists
+  const publicDir = path.join(process.cwd(), 'public');
+  if (!fs.existsSync(publicDir)) {
+    fs.mkdirSync(publicDir, { recursive: true });
+  }
   
-  // Ensure the recovery-critical.css file exists
-  const cssDir = path.join(PUBLIC_DIR, 'assets/css');
-  const cssPath = path.join(cssDir, 'recovery-critical.css');
+  // Ensure the assets/css directory exists
+  const cssDir = path.join(publicDir, 'assets', 'css');
+  if (!fs.existsSync(cssDir)) {
+    fs.mkdirSync(cssDir, { recursive: true });
+  }
   
-  ensureDirectoryExists(cssDir);
-  
-  if (!fs.existsSync(cssPath)) {
-    console.log('Creating critical CSS recovery file...');
-    
-    const criticalCss = `/* MCP Integration Platform Critical CSS Recovery */
-
-/* Ensure gradients work */
+  // Create critical CSS file
+  const criticalCssPath = path.join(cssDir, 'recovery-critical.css');
+  const criticalCss = `
+/* Critical CSS for MCP Integration Platform */
 .bg-gradient-to-r {
   background-image: linear-gradient(to right, var(--tw-gradient-stops));
 }
 
-/* Feature card styles */
 .feature-card {
   border-radius: 0.5rem;
-  border: 1px solid rgba(var(--card-border-rgb), 0.25);
-  padding: 1.5rem;
-  transition: all 0.2s ease;
+  background-color: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
 .feature-card:hover {
-  border-color: rgba(var(--card-border-rgb), 0.5);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.loading-spinner {
+  border: 3px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top: 3px solid #3498db;
+  width: 30px;
+  height: 30px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.8);
+  z-index: 9999;
 }
 `;
+  
+  try {
+    fs.writeFileSync(criticalCssPath, criticalCss);
+    console.log('✅ Created critical CSS recovery file');
+  } catch (error) {
+    console.error('❌ Failed to create critical CSS recovery file:', error.message);
+  }
+  
+  // Create CSS verification script
+  const verificationScriptPath = path.join(publicDir, 'css-verification.js');
+  const verificationScript = `
+/**
+ * MCP Integration Platform - CSS Verification and Recovery System
+ * 
+ * This unified script ensures proper CSS rendering in both development and production environments.
+ * It detects missing styles and automatically applies fixes when needed, making the UI resilient
+ * against CSS issues.
+ * 
+ * Version: 1.0.0-${Date.now()}
+ */
+(function() {
+  // Initialize immediately
+  document.addEventListener('DOMContentLoaded', initializeVerification);
+  if (document.readyState === 'interactive' || document.readyState === 'complete') {
+    initializeVerification();
+  }
+
+  /**
+   * Initialize verification process
+   */
+  function initializeVerification() {
+    console.debug('[CSS Recovery] Verifying styles...');
+    // Check if critical inline styles are present
+    const hasInlineStyles = checkInlineStyles();
+    console.debug('[CSS Recovery] Critical inline styles present:', hasInlineStyles);
+
+    // Run verification
+    runVerification();
+
+    // Set up a MutationObserver to run verification when the DOM changes
+    const observer = new MutationObserver(function() {
+      runVerification();
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['class']
+    });
+
+    // Test WebSocket connection
+    testWebSocketConnection();
+  }
+
+  /**
+   * Run the CSS verification process
+   */
+  function runVerification() {
+    // Verify critical classes
+    const missingClasses = verifyCriticalClasses();
+    if (missingClasses.length > 0) {
+      console.warn('[CSS Recovery] Missing critical styles:', missingClasses.join(', '));
+      applyRecoveryStyles(true);
+    } else {
+      applyRecoveryStyles(false);
+    }
+
+    // Inject critical styles if not already present
+    if (!checkInlineStyles()) {
+      const criticalCss = '@import "/assets/css/recovery-critical.css";';
+      const style = document.createElement('style');
+      style.textContent = criticalCss;
+      style.id = 'mcp-critical-css';
+      document.head.appendChild(style);
+    } else {
+      console.info('[CSS Recovery] Critical styles injected ✓');
+    }
+  }
+
+  /**
+   * Verify if critical CSS classes are properly applied
+   * @returns {string[]} Array of missing class names
+   */
+  function verifyCriticalClasses() {
+    const criticalClasses = ['bg-gradient-to-r', 'feature-card'];
+    const missing = [];
+
+    // For this check, we'll only validate that the styles would apply if these classes were used
+    // by checking if they exist in any stylesheet
+    let foundClasses = [];
+
+    // Check all stylesheets
+    for (let i = 0; i < document.styleSheets.length; i++) {
+      try {
+        const styleSheet = document.styleSheets[i];
+        for (let j = 0; j < styleSheet.cssRules.length; j++) {
+          const rule = styleSheet.cssRules[j];
+          if (rule.selectorText) {
+            criticalClasses.forEach(cls => {
+              if (rule.selectorText.includes('.' + cls)) {
+                foundClasses.push(cls);
+              }
+            });
+          }
+        }
+      } catch (e) {
+        // CORS issues with external stylesheets, ignore
+      }
+    }
+
+    // Find missing classes
+    return criticalClasses.filter(cls => !foundClasses.includes(cls));
+  }
+
+  /**
+   * Check if critical inline styles are present
+   * @returns {boolean}
+   */
+  function checkInlineStyles() {
+    // Check for inline style tag with critical CSS
+    return !!document.getElementById('mcp-critical-css') ||
+           !!document.querySelector('style[data-critical="true"]');
+  }
+
+  /**
+   * Apply recovery CSS styles
+   * @param {boolean} force - Force reapplication even if already present
+   */
+  function applyRecoveryStyles(force = false) {
+    // Check if recovery styles already exist
+    const existingLink = document.getElementById('mcp-recovery-css');
     
-    fs.writeFileSync(cssPath, criticalCss, 'utf8');
-    console.log('Created critical CSS recovery file');
+    if (existingLink && !force) {
+      return; // Already applied and no force reload
+    }
+
+    if (existingLink) {
+      existingLink.remove(); // Remove existing if forcing reload
+    }
+
+    // Create link element for recovery CSS
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = '/assets/css/recovery-critical.css?v=' + Date.now(); // Cache busting
+    link.id = 'mcp-recovery-css';
+
+    // Add to document head
+    document.head.appendChild(link);
+  }
+
+  /**
+   * Test WebSocket connection to ensure real-time functionality works
+   */
+  function testWebSocketConnection() {
+    try {
+      // Determine correct protocol and build WebSocket URL
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${protocol}//${window.location.host}/mcp-ws`;
+      
+      // Create a test WebSocket connection
+      const testSocket = new WebSocket(wsUrl);
+      
+      // Set up event handlers
+      testSocket.onopen = function() {
+        logMessage('WebSocket connection successful', 'success');
+        testSocket.send(JSON.stringify({ type: 'ping' }));
+        setTimeout(() => testSocket.close(), 2000);
+      };
+      
+      testSocket.onerror = function() {
+        logMessage('WebSocket connection failed, using fallback mechanisms', 'warn');
+      };
+    } catch (error) {
+      logMessage('Error setting up WebSocket test: ' + error.message, 'error');
+    }
+  }
+
+  /**
+   * Log a message with consistent formatting
+   * @param {string} message - The message to log
+   * @param {string} level - Log level (info, warn, error, success)
+   */
+  function logMessage(message, level = 'info') {
+    const styles = {
+      info: 'color: #3498db',
+      warn: 'color: #f39c12',
+      error: 'color: #e74c3c',
+      success: 'color: #2ecc71'
+    };
+    
+    console.log(`%c[CSS Recovery] ${message}`, styles[level] || styles.info);
+  }
+})();
+`;
+  
+  try {
+    fs.writeFileSync(verificationScriptPath, verificationScript);
+    console.log('✅ Created CSS verification script');
+  } catch (error) {
+    console.error('❌ Failed to create CSS verification script:', error.message);
   }
 }
 
 /**
  * Fix WebSocket configuration
- * Ensures proper WebSocket configuration for development and production
  */
 function fixWebSocketConfig() {
-  console.log('Applying WebSocket configuration fixes...');
+  // Create WebSocket manager script
+  const publicDir = path.join(process.cwd(), 'public');
+  const wsManagerPath = path.join(publicDir, 'websocket-manager.js');
   
-  const wsConfigDir = path.join(CLIENT_DIR, 'src/config');
-  const wsConfigPath = path.join(wsConfigDir, 'websocket-config.ts');
-  
-  ensureDirectoryExists(wsConfigDir);
-  
-  if (!fs.existsSync(wsConfigPath)) {
-    console.log('Creating WebSocket configuration file...');
-    
-    const wsConfig = `/**
- * WebSocket Connection Configuration
+  const wsManagerScript = `
+/**
+ * MCP Integration Platform - WebSocket Manager
+ * 
+ * This module provides a reliable WebSocket connection manager with
+ * automatic reconnection and fallback mechanisms.
  */
-
-export const WebSocketConfig = {
-  // Path for WebSocket endpoint
-  path: '/mcp-ws',
-  
-  // Whether to attempt fallback to standard ports (80/443) if connection fails
-  fallbackToStandardPorts: true,
-  
-  // Maximum number of reconnection attempts
-  maxReconnectAttempts: 5,
-  
-  // Delay between reconnection attempts (ms)
-  reconnectDelay: 2000,
-  
-  // Ping interval to keep connection alive (ms)
-  pingInterval: 30000
-};
-`;
-    
-    fs.writeFileSync(wsConfigPath, wsConfig, 'utf8');
-    console.log('Created WebSocket configuration file');
+(function() {
+  // Initialize on DOM content loaded
+  document.addEventListener('DOMContentLoaded', initWebSocketManager);
+  if (document.readyState === 'interactive' || document.readyState === 'complete') {
+    initWebSocketManager();
   }
-}
 
-/**
- * Update HTML file with critical CSS and proper script references
- */
-function updateHtml(timestamp) {
-  console.log('Updating HTML with critical CSS and proper script references...');
-  
-  const indexHtmlPath = path.join(PUBLIC_DIR, 'index.html');
-  const distIndexHtmlPath = path.join(DIST_DIR, 'index.html');
-  
-  // Function to update a specific HTML file
-  const updateHtmlFile = (filePath) => {
-    if (!fs.existsSync(filePath)) {
-      console.log(`HTML file not found: ${filePath}`);
-      return;
-    }
-    
-    let html = fs.readFileSync(filePath, 'utf8');
-    
-    // Add critical CSS inline if not already present
-    if (!html.includes('data-critical="true"')) {
-      const criticalCssPath = path.join(PUBLIC_DIR, 'assets/css/recovery-critical.css');
-      let criticalCss = '';
-      
-      if (fs.existsSync(criticalCssPath)) {
-        criticalCss = fs.readFileSync(criticalCssPath, 'utf8');
+  // WebSocket connection
+  let socket = null;
+  let reconnectAttempts = 0;
+  let maxReconnectAttempts = 5;
+  let reconnectDelay = 1000;
+  let pingInterval = null;
+  let reconnectTimeout = null;
+
+  /**
+   * Initialize the WebSocket manager
+   */
+  function initWebSocketManager() {
+    connectWebSocket();
+    createFallbackMechanism();
+  }
+
+  /**
+   * Connect to the WebSocket server
+   */
+  function connectWebSocket() {
+    try {
+      // Clear any existing connections
+      if (socket) {
+        console.debug('[websocket:enhanced] Closing WebSocket connection');
+        socket.close();
       }
-      
-      const inlineStyle = `<style data-critical="true">${criticalCss}</style>`;
-      html = html.replace('</head>', `${inlineStyle}\n</head>`);
-    }
-    
-    // Add versioning to CSS and JS references
-    html = html.replace(/href="([^"]+\.css)(\?v=[^"]*)?/g, `href="$1?v=${timestamp}`);
-    html = html.replace(/src="([^"]+\.js)(\?v=[^"]*)?/g, `src="$1?v=${timestamp}`);
-    
-    // Add emergency CSS recovery script
-    if (!html.includes('window.applyCssEmergencyFix')) {
-      const recoveryScript = `<script>
-      window.addEventListener('load', function() {
-        if (window.applyCssEmergencyFix) {
-          console.log('Emergency CSS fix applied');
-          window.applyCssEmergencyFix();
-        }
-      });
-      </script>`;
-      
-      html = html.replace('</head>', `${recoveryScript}\n</head>`);
-    }
-    
-    fs.writeFileSync(filePath, html, 'utf8');
-    console.log(`Updated HTML file: ${filePath}`);
-  };
-  
-  // Update both the source and dist HTML files if they exist
-  updateHtmlFile(indexHtmlPath);
-  updateHtmlFile(distIndexHtmlPath);
-}
 
-/**
- * Build the application for production
- */
-function buildApp() {
-  console.log('Building application for production...');
-  
-  try {
-    // Run the build script
-    execSync('npm run build', { stdio: 'inherit', cwd: ROOT_DIR });
-    console.log('Build completed successfully');
-    return true;
-  } catch (error) {
-    console.error('Build failed:', error.message);
+      // Determine correct protocol and build WebSocket URL
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${protocol}//${window.location.host}/mcp-ws`;
+      
+      console.debug('[websocket:enhanced] Connecting to WebSocket: ' + wsUrl);
+      console.debug('[websocket:enhanced] Using enhanced WebSocket constructor');
+      
+      // Create a new WebSocket connection
+      socket = new WebSocket(wsUrl);
+      
+      // Set up event handlers
+      socket.onopen = handleOpen;
+      socket.onclose = handleClose;
+      socket.onerror = handleError;
+      socket.onmessage = handleMessage;
+    } catch (error) {
+      console.error('[websocket:enhanced] Failed to connect to WebSocket:', error);
+      handleConnectionFailure();
+    }
+  }
+
+  /**
+   * Handle WebSocket open event
+   * @param {Event} event - The open event
+   */
+  function handleOpen(event) {
+    console.log('[websocket:enhanced] Connection established');
+    reconnectAttempts = 0;
+    reconnectDelay = 1000;
+    updateConnectionStatus(true);
+    
+    // Start ping interval to keep connection alive
+    clearInterval(pingInterval);
+    pingInterval = setInterval(sendPing, 30000);
+    
+    // Dispatch connection event
+    dispatchEvent('websocket:connected');
+  }
+
+  /**
+   * Handle WebSocket close event
+   * @param {CloseEvent} event - The close event
+   */
+  function handleClose(event) {
+    console.log('[websocket:enhanced] Connection closed:', event.code, event.reason);
+    clearTimers();
+    updateConnectionStatus(false);
+    
+    // Attempt to reconnect if not a normal closure
+    if (event.code !== 1000 && event.code !== 1001) {
+      handleConnectionFailure();
+    }
+    
+    // Dispatch disconnection event
+    dispatchEvent('websocket:disconnected', { code: event.code, reason: event.reason });
+  }
+
+  /**
+   * Handle WebSocket error event
+   * @param {Event} error - The error event
+   */
+  function handleError(error) {
+    console.error('[websocket:fix] WebSocket connection error', error);
+    updateConnectionStatus(false);
+    
+    // Dispatch error event
+    dispatchEvent('websocket:error', { error });
+  }
+
+  /**
+   * Handle connection failure with exponential backoff
+   */
+  function handleConnectionFailure() {
+    clearTimers();
+    
+    if (reconnectAttempts < maxReconnectAttempts) {
+      reconnectAttempts++;
+      console.log(`[websocket:enhanced] Reconnecting (${reconnectAttempts}/${maxReconnectAttempts}) in ${reconnectDelay}ms...`);
+      
+      // Set up reconnect with exponential backoff
+      reconnectTimeout = setTimeout(() => {
+        connectWebSocket();
+      }, reconnectDelay);
+      
+      // Increase delay for next attempt (exponential backoff with max of 30s)
+      reconnectDelay = Math.min(reconnectDelay * 2, 30000);
+      
+      // Dispatch reconnecting event
+      dispatchEvent('websocket:reconnecting', { attempt: reconnectAttempts, maxAttempts: maxReconnectAttempts, delay: reconnectDelay });
+    } else {
+      console.error('[websocket:enhanced] Maximum reconnection attempts reached');
+      
+      // Dispatch max attempts reached event
+      dispatchEvent('websocket:max_attempts', { attempts: reconnectAttempts });
+    }
+  }
+
+  /**
+   * Handle incoming WebSocket messages
+   * @param {MessageEvent} event - The message event
+   */
+  function handleMessage(event) {
+    try {
+      const data = JSON.parse(event.data);
+      
+      // Dispatch message received event
+      dispatchEvent('websocket:message', { data });
+      
+      // Handle specific message types
+      if (data.type) {
+        dispatchEvent(`websocket:message:${data.type}`, { data });
+      }
+    } catch (error) {
+      console.error('[websocket:enhanced] Error parsing message:', error);
+    }
+  }
+
+  /**
+   * Send a ping message to keep the connection alive
+   */
+  function sendPing() {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({ type: 'ping', timestamp: Date.now() }));
+    }
+  }
+
+  /**
+   * Send a message through the WebSocket
+   * @param {object} data - The data to send
+   */
+  function sendMessage(data) {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify(data));
+      return true;
+    }
     return false;
   }
+
+  /**
+   * Clear all timers to prevent memory leaks
+   */
+  function clearTimers() {
+    clearTimeout(reconnectTimeout);
+    clearInterval(pingInterval);
+  }
+
+  /**
+   * Update the connection status in the DOM
+   * @param {boolean} isConnected - Connection status
+   */
+  function updateConnectionStatus(isConnected) {
+    // Add a data attribute to the root element for styling
+    document.documentElement.dataset.wsConnected = isConnected.toString();
+    
+    // Find and update any status indicators
+    const indicators = document.querySelectorAll('[data-ws-status]');
+    indicators.forEach(el => {
+      el.setAttribute('data-ws-status', isConnected ? 'connected' : 'disconnected');
+      if (el.tagName === 'SPAN' || el.tagName === 'DIV') {
+        el.textContent = isConnected ? 'Connected' : 'Disconnected';
+      }
+    });
+  }
+
+  /**
+   * Create fallback mechanism for browsers with WebSocket issues
+   */
+  function createFallbackMechanism() {
+    // Add a method to the window object for components to use
+    window.MCP_WS = {
+      send: sendMessage,
+      reconnect: connectWebSocket,
+      isConnected: () => socket && socket.readyState === WebSocket.OPEN,
+      addEventListener: (type, callback) => {
+        document.addEventListener(`websocket:${type}`, e => callback(e.detail));
+      },
+      removeEventListener: (type, callback) => {
+        document.removeEventListener(`websocket:${type}`, callback);
+      }
+    };
+  }
+
+  /**
+   * Dispatch a custom event for the WebSocket
+   * @param {string} name - Event name
+   * @param {object} data - Event data
+   */
+  function dispatchEvent(name, data = {}) {
+    const event = new CustomEvent(name, { detail: data });
+    document.dispatchEvent(event);
+  }
+})();
+`;
+  
+  try {
+    fs.writeFileSync(wsManagerPath, wsManagerScript);
+    console.log('✅ Created WebSocket manager script');
+  } catch (error) {
+    console.error('❌ Failed to create WebSocket manager script:', error.message);
+  }
 }
 
 /**
- * Deploy the application (helper for Replit deployment)
+ * Update HTML with timestamp and critical inline styles
+ * @param {string} timestamp - The timestamp to use for cache busting
  */
-function deployApp() {
-  console.log('Preparing for deployment...');
+function updateHtml(timestamp) {
+  const indexHtmlPath = path.join(process.cwd(), 'client', 'index.html');
   
-  // Apply all fixes
-  const timestamp = updateVersionTimestamp();
-  fixModuleCompatibility();
-  fixCssRecovery();
-  fixWebSocketConfig();
-  updateHtml(timestamp);
-  
-  // Build the application
-  const buildSuccess = buildApp();
-  
-  if (buildSuccess) {
-    console.log('\nApplication is ready for deployment!');
-    console.log('Use the Replit deployment interface to deploy the application.');
-  } else {
-    console.error('\nDeployment preparation failed due to build errors.');
+  if (!fs.existsSync(indexHtmlPath)) {
+    console.error('❌ Could not find index.html');
+    return;
   }
+  
+  try {
+    let htmlContent = fs.readFileSync(indexHtmlPath, 'utf-8');
+    
+    // Add timestamp for cache busting
+    htmlContent = htmlContent.replace(
+      /<meta name="version" content="[^"]*">/,
+      `<meta name="version" content="${timestamp || Date.now()}">`
+    );
+    
+    // Add critical CSS inline
+    if (!htmlContent.includes('data-critical="true"')) {
+      htmlContent = htmlContent.replace(
+        '</head>',
+        `  <style data-critical="true">
+    /* Critical inline styles for immediate rendering */
+    .bg-gradient-to-r { background-image: linear-gradient(to right, var(--tw-gradient-stops)); }
+    .feature-card { border-radius: 0.5rem; background-color: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); }
+    .loading-spinner { border: 3px solid rgba(0, 0, 0, 0.1); border-radius: 50%; border-top: 3px solid #3498db; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: rgba(255, 255, 255, 0.8); z-index: 9999; }
+  </style>
+</head>`
+      );
+    }
+    
+    // Add CSS verification script
+    if (!htmlContent.includes('css-verification.js')) {
+      htmlContent = htmlContent.replace(
+        '</head>',
+        `  <script src="/css-verification.js?v=${timestamp || Date.now()}"></script>
+</head>`
+      );
+    }
+    
+    // Add WebSocket manager script
+    if (!htmlContent.includes('websocket-manager.js')) {
+      htmlContent = htmlContent.replace(
+        '</head>',
+        `  <script src="/websocket-manager.js?v=${timestamp || Date.now()}"></script>
+</head>`
+      );
+    }
+    
+    fs.writeFileSync(indexHtmlPath, htmlContent);
+    console.log('✅ Updated HTML with critical CSS and scripts');
+  } catch (error) {
+    console.error('❌ Failed to update HTML:', error.message);
+  }
+}
+
+/**
+ * Build the application
+ */
+function buildApp() {
+  try {
+    console.log('Building application...');
+    execSync('npm run build', { stdio: 'inherit' });
+    console.log('✅ Application built successfully');
+  } catch (error) {
+    console.error('❌ Failed to build application:', error.message);
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Clean up redundant files
+ */
+function cleanupRedundantFiles() {
+  // List of files that are now redundant after consolidation
+  const redundantFiles = [
+    'fix-deployment.js',
+    'fix-deployment.cjs',
+    'fix-hmr-websocket.cjs',
+    'fix-production-css.cjs',
+    'fix-production-ui.cjs',
+    'deploy-rebuild.cjs',
+    'deploy-ui-rebuild.js',
+    'deploy-final-fix.cjs',
+    'complete-deployment-fix.cjs',
+    'deployment-fix.js',
+    'deployment-fix.cjs'
+  ];
+  
+  let removed = 0;
+  
+  for (const file of redundantFiles) {
+    const filePath = path.join(process.cwd(), file);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      removed++;
+    }
+  }
+  
+  console.log(`✅ Cleaned up ${removed} redundant files`);
 }
 
 /**
  * Verify deployment readiness
+ * @returns {boolean} Whether the deployment is ready
  */
 function verifyDeploymentReadiness() {
-  console.log('Verifying deployment readiness...');
-  let readiness = true;
+  let isReady = true;
   
   // Check for critical files
   const criticalFiles = [
-    { path: path.join(ROOT_DIR, 'start.cjs'), description: 'CommonJS start script' },
-    { path: path.join(SERVER_DIR, 'prod-server.cjs'), description: 'CommonJS production server' },
-    { path: path.join(ROOT_DIR, '.replit.deployConfig.js'), description: 'Replit deployment configuration' },
-    { path: path.join(PUBLIC_DIR, 'assets/css/recovery-critical.css'), description: 'Critical CSS recovery file' },
-    { path: path.join(CLIENT_DIR, 'src/config/websocket-config.ts'), description: 'WebSocket configuration' },
-    { path: path.join(CLIENT_DIR, 'src/config/version.ts'), description: 'Version timestamp' }
+    path.join(process.cwd(), 'client', 'src', 'utils', 'css-system.ts'),
+    path.join(process.cwd(), 'client', 'src', 'lib', 'websocket-system.ts'),
+    path.join(process.cwd(), 'client', 'src', 'components', 'StyleFixerNew.tsx'),
+    path.join(process.cwd(), 'client', 'src', 'components', 'WebSocketProviderNew.tsx'),
+    path.join(process.cwd(), 'client', 'src', 'components', 'WebSocketReconnectManagerNew.tsx')
   ];
   
-  criticalFiles.forEach(file => {
-    if (!fs.existsSync(file.path)) {
-      console.error(`\x1b[31m✗ Missing: ${file.description} (${file.path})\x1b[0m`);
-      readiness = false;
-    } else {
-      console.log(`\x1b[32m✓ Found: ${file.description}\x1b[0m`);
+  for (const file of criticalFiles) {
+    if (!fs.existsSync(file)) {
+      console.error(`❌ Missing critical file: ${file}`);
+      isReady = false;
     }
-  });
-  
-  if (readiness) {
-    console.log('\n\x1b[32m✓ Deployment readiness check passed! Application is ready for deployment.\x1b[0m');
-  } else {
-    console.error('\n\x1b[31m✗ Deployment readiness check failed! Please fix the issues before deploying.\x1b[0m');
   }
   
-  return readiness;
-}
-
-/**
- * Clean up redundant files to optimize the codebase
- */
-function cleanupRedundantFiles() {
-  console.log('Cleaning up redundant files...');
-  
-  const redundantFiles = [
-    // Redundant deployment scripts
-    path.join(ROOT_DIR, 'deploy.js'),
-    path.join(ROOT_DIR, 'deploy-fix.cjs'),
-    path.join(ROOT_DIR, 'deploy-rebuild.js'),
-    path.join(ROOT_DIR, 'deploy-rebuild.cjs'),
-    path.join(ROOT_DIR, 'deploy-ui-rebuild.js'),
-    path.join(ROOT_DIR, 'deployment-fix.js'),
-    path.join(ROOT_DIR, 'deployment-fix.cjs'),
-    path.join(ROOT_DIR, 'fix-deployment.js'),
-    path.join(ROOT_DIR, 'fix-production-css.cjs'),
-    path.join(ROOT_DIR, 'fix-production-ui.cjs'),
-    path.join(ROOT_DIR, 'rebuild-ui.js'),
-    path.join(ROOT_DIR, 'deploy-final-fix.cjs'),
-    path.join(ROOT_DIR, 'fix-hmr-websocket.cjs'),
-    path.join(ROOT_DIR, 'complete-deployment-fix.cjs'),
-    
-    // Redundant CSS recovery files
-    path.join(CLIENT_DIR, 'src/css-recovery.ts'),
-    path.join(CLIENT_DIR, 'src/critical-css-reset.ts'),
-    path.join(CLIENT_DIR, 'src/direct-css-injection.ts'),
-    path.join(CLIENT_DIR, 'src/utils/css-recovery.ts'),
-    path.join(CLIENT_DIR, 'src/utils/css-recovery-manager.ts'),
-    path.join(CLIENT_DIR, 'src/utils/css-recovery-enhanced.ts'),
-    path.join(CLIENT_DIR, 'src/utils/css-injector.ts'),
-    path.join(CLIENT_DIR, 'src/utils/css-verifier.ts'),
-    path.join(CLIENT_DIR, 'src/utils/improved-css-recovery.ts'),
-    path.join(CLIENT_DIR, 'src/utils/css-direct-fix.ts'),
-    
-    // Redundant WebSocket files
-    path.join(CLIENT_DIR, 'src/hooks/use-websocket.tsx'),
-    path.join(CLIENT_DIR, 'src/hooks/use-enhanced-websocket.ts'),
-    path.join(CLIENT_DIR, 'src/utils/websocket-client.ts'),
-    path.join(CLIENT_DIR, 'src/utils/mcp-websocket.ts'),
-    path.join(CLIENT_DIR, 'src/utils/websocket-service.ts'),
-    path.join(CLIENT_DIR, 'src/utils/mcp-websocket-client.ts'),
-    path.join(CLIENT_DIR, 'src/utils/websocket-utils.ts'),
-    path.join(CLIENT_DIR, 'src/utils/websocket-helpers.ts'),
-    path.join(CLIENT_DIR, 'src/utils/websocket-enhanced-client.ts'),
-    path.join(CLIENT_DIR, 'src/utils/websocket-fix.ts'),
-    path.join(ROOT_DIR, 'websocket-test.js'),
-    
-    // Redundant test files
-    path.join(ROOT_DIR, 'tmp/test-openai.js'),
-    path.join(ROOT_DIR, 'tmp/test-openai-websearch.js'),
-    path.join(ROOT_DIR, 'temp-hash.js')
-  ];
-  
-  let filesRemoved = 0;
-  
-  redundantFiles.forEach(filePath => {
-    if (fs.existsSync(filePath)) {
-      try {
-        fs.unlinkSync(filePath);
-        console.log(`Removed: ${filePath}`);
-        filesRemoved++;
-      } catch (error) {
-        console.error(`Error removing ${filePath}:`, error.message);
+  // Check for package.json and required scripts
+  const packageJsonPath = path.join(process.cwd(), 'package.json');
+  if (fs.existsSync(packageJsonPath)) {
+    try {
+      const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
+      const requiredScripts = ['dev', 'build', 'start'];
+      
+      for (const script of requiredScripts) {
+        if (!packageJson.scripts || !packageJson.scripts[script]) {
+          console.error(`❌ Missing required script in package.json: ${script}`);
+          isReady = false;
+        }
       }
+    } catch (error) {
+      console.error('❌ Error parsing package.json:', error.message);
+      isReady = false;
     }
-  });
-  
-  console.log(`Cleanup complete: ${filesRemoved} redundant files removed.`);
-}
-
-/**
- * Main function based on command line arguments
- */
-function main() {
-  const args = process.argv.slice(2);
-  const command = args[0] || 'help';
-  
-  console.log('============================================');
-  console.log('MCP Integration Platform - Deployment Tools');
-  console.log('============================================\n');
-  
-  switch (command) {
-    case 'fix':
-      console.log('Running all fixes...');
-      const timestamp = updateVersionTimestamp();
-      fixModuleCompatibility();
-      fixCssRecovery();
-      fixWebSocketConfig();
-      updateHtml(timestamp);
-      console.log('\nAll fixes applied successfully!');
-      break;
-      
-    case 'build':
-      console.log('Building application...');
-      buildApp();
-      break;
-      
-    case 'deploy':
-      console.log('Preparing for deployment...');
-      deployApp();
-      break;
-      
-    case 'verify':
-      console.log('Verifying deployment readiness...');
-      verifyDeploymentReadiness();
-      break;
-      
-    case 'cleanup':
-      console.log('Cleaning up redundant files...');
-      cleanupRedundantFiles();
-      break;
-      
-    case 'all':
-      console.log('Running complete workflow: fix, verify, cleanup, build...');
-      const ts = updateVersionTimestamp();
-      fixModuleCompatibility();
-      fixCssRecovery();
-      fixWebSocketConfig();
-      updateHtml(ts);
-      verifyDeploymentReadiness();
-      cleanupRedundantFiles();
-      buildApp();
-      console.log('\nComplete workflow finished!');
-      break;
-      
-    case 'help':
-    default:
-      console.log('Usage: node deployment-tools.cjs [command]\n');
-      console.log('Available commands:');
-      console.log('  fix     - Apply all fixes (module compatibility, CSS, WebSocket)');
-      console.log('  build   - Build the application for production');
-      console.log('  deploy  - Prepare for deployment');
-      console.log('  verify  - Verify deployment readiness');
-      console.log('  cleanup - Remove redundant files');
-      console.log('  all     - Run complete workflow: fix, verify, cleanup, build');
-      console.log('  help    - Show this help message');
-      break;
+  } else {
+    console.error('❌ Missing package.json file');
+    isReady = false;
   }
   
-  console.log('\n============================================');
+  return isReady;
 }
 
-// Run the main function when this script is executed directly
-if (require.main === module) {
-  main();
-}
-
-// Export functions for use in other scripts
 module.exports = {
   updateVersionTimestamp,
   fixModuleCompatibility,
@@ -500,7 +743,6 @@ module.exports = {
   fixWebSocketConfig,
   updateHtml,
   buildApp,
-  deployApp,
-  verifyDeploymentReadiness,
-  cleanupRedundantFiles
+  cleanupRedundantFiles,
+  verifyDeploymentReadiness
 };
