@@ -9,6 +9,8 @@ import { useEffect, useState } from 'react';
 import { useWebSocketContext } from './WebSocketProvider';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/utils/logger';
 
 // Create a simple inline spinner component instead of importing
 const Spinner = ({ className = '' }: { className?: string }) => (
@@ -18,9 +20,6 @@ const Spinner = ({ className = '' }: { className?: string }) => (
     <span className="sr-only">Loading...</span>
   </div>
 );
-
-import { useToast } from '@/hooks/use-toast';
-import { logger } from '@/utils/logger';
 
 interface WebSocketReconnectManagerProps {
   /**
