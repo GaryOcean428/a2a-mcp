@@ -15,7 +15,12 @@ import {
   Database,
   Settings,
   HelpCircle,
-  Loader
+  Loader,
+  PanelLeft, 
+  PanelLeftClose,
+  Moon,
+  Sun,
+  ChevronRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -36,11 +41,17 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuthHook";
+import { cn } from '@/lib/utils';
 
 interface NavItem {
   href: string;
   label: string;
   icon: React.ReactNode;
+}
+
+interface HeaderProps {
+  onToggleSidebar?: () => void;
+  sidebarVisible?: boolean;
 }
 
 const navLinks: NavItem[] = [
@@ -86,10 +97,9 @@ const navLinks: NavItem[] = [
   }
 ];
 
-export default function Header() {
+export default function Header({ onToggleSidebar, sidebarVisible }: HeaderProps) {
   const { user, logout, isLoading: authLoading } = useAuth();
   const isAuthenticated = !!user;
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [location, navigate] = useLocation();
   const { activeRoute, navigateToTool } = useNavigation();
@@ -115,184 +125,204 @@ export default function Header() {
 
   return (
     <>
-      <header className="bg-white/95 border-b border-gray-200 sticky top-0 z-30 shadow-md backdrop-blur-lg">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            {/* Logo and Brand */}
-            <div className="flex items-center">
-              <Link href="/">
-                <div className="flex items-center space-x-3 cursor-pointer group">
-                  <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-2 rounded-lg shadow-md group-hover:shadow-lg transition-all duration-300 transform group-hover:scale-105">
-                    <Code className="h-6 w-6 text-white" />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 text-transparent bg-clip-text hidden md:inline-block">
-                      MCP Integration Platform
-                    </span>
-                    <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 text-transparent bg-clip-text md:hidden">
-                      MCP
-                    </span>
-                    <span className="text-xs text-gray-500 hidden md:inline-block">AI Service Integration Framework</span>
-                  </div>
-                  <span className="text-sm font-medium ml-1 px-2 py-1 bg-gradient-to-r from-purple-100 to-indigo-100 text-indigo-700 rounded-md shadow-sm">v2.5</span>
-                </div>
-              </Link>
+      <header className="w-full px-4 h-16 flex items-center justify-between border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        {/* Left section: Toggle and Logo */}
+        <div className="flex items-center gap-2">
+          {/* Only show toggle if sidebar is visible */}
+          {sidebarVisible && (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={onToggleSidebar}
+              className="mr-1 text-muted-foreground hover:text-foreground" 
+              title="Toggle Sidebar"
+            >
+              <PanelLeft className="h-5 w-5" />
+            </Button>
+          )}
+          
+          {/* Logo and Brand */}
+          <Link href="/">
+            <div className="flex items-center gap-3 group">
+              <div className="bg-gradient-to-br from-primary/90 to-primary-foreground/90 rounded-lg w-9 h-9 flex items-center justify-center shadow-sm group-hover:shadow transition-all duration-200">
+                <Code className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <div className="hidden md:flex flex-col">
+                <h1 className="text-lg font-semibold leading-none tracking-tight">
+                  MCP Integration Platform
+                </h1>
+                <p className="text-xs text-muted-foreground">AI Service Integration Framework</p>
+              </div>
+              <span className="text-xs font-medium px-2 py-0.5 bg-primary/10 text-primary-foreground rounded-full ml-1">v2.5</span>
             </div>
+          </Link>
+        </div>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-1">
-              {navLinks.map((item) => (
-                <Link key={item.href} href={item.href}>
-                  <div className={`px-3 py-2 rounded-md text-sm font-medium flex items-center transition-colors cursor-pointer ${
-                    location === item.href 
-                      ? 'bg-purple-100 text-purple-800' 
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}>
-                    <span className="mr-1.5">{item.icon}</span>
-                    {item.label}
-                  </div>
-                </Link>
+        {/* Center: Desktop Navigation links */}
+        <nav className="hidden lg:flex items-center justify-center absolute left-1/2 -translate-x-1/2 space-x-1">
+          {navLinks.slice(0, 5).map((item) => (
+            <Link key={item.href} href={item.href}>
+              <div className={cn(
+                "px-3 py-2 rounded-md text-sm font-medium flex items-center transition-all duration-200",
+                location === item.href 
+                  ? "bg-primary/10 text-primary" 
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent"
+              )}>
+                <span className="mr-1.5">{item.icon}</span>
+                {item.label}
+              </div>
+            </Link>
+          ))}
+          
+          {/* More dropdown for additional menu items */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="gap-1">
+                More <ChevronRight className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {navLinks.slice(5).map((item) => (
+                <DropdownMenuItem key={item.href} onClick={() => navigate(item.href)}>
+                  <span className="mr-2">{item.icon}</span>
+                  {item.label}
+                </DropdownMenuItem>
               ))}
-            </nav>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </nav>
 
-            {/* Right Section with User Menu or Login Button */}
-            <div className="flex items-center space-x-3">
-              {isAuthenticated && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button 
-                      className="hidden md:flex items-center bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105"
-                    >
-                      <PlusCircle className="h-4 w-4 mr-2" />
-                      New Connection
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuLabel>Connection Types</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => {
-                      navigate("/vector-storage");
-                      toast({
-                        title: "Vector Database Selected",
-                        description: "Redirecting to Vector Storage configuration"
-                      });
-                    }}>
-                      <Database className="mr-2 h-4 w-4 text-blue-600" />
-                      <span>Vector Database</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => {
-                      toast({
-                        title: "AI Service Selected",
-                        description: "This feature is coming soon!"
-                      });
-                    }}>
-                      <Code className="mr-2 h-4 w-4 text-purple-600" />
-                      <span>AI Service</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => {
-                      navigate("/web-search");
-                      toast({
-                        title: "Search Provider Selected",
-                        description: "Redirecting to Web Search configuration"
-                      });
-                    }}>
-                      <Search className="mr-2 h-4 w-4 text-green-600" />
-                      <span>Search Provider</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => {
-                      toast({
-                        title: "Custom Tool Selected",
-                        description: "This feature is coming soon!"
-                      });
-                    }}>
-                      <Settings className="mr-2 h-4 w-4 text-amber-600" />
-                      <span>Custom Tool</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
-              
-              {isAuthenticated ? (
-                // User is logged in - show user menu
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="rounded-full bg-gradient-to-r from-purple-100 to-indigo-100 p-2 flex items-center justify-center hover:from-purple-200 hover:to-indigo-200 transition-colors">
-                      <User className="h-5 w-5 text-purple-600" />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      <User className="mr-2 h-4 w-4" />
-                      <span>{user?.username}</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onSelect={() => navigate("/settings")}>
-                      <Key className="mr-2 h-4 w-4" />
-                      <span>API Keys</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onSelect={handleLogout}>
-                      <LogOut className="mr-2 h-4 w-4" />
-                      <span>Log out</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                // User is not logged in - show login button (with high visibility)
-                <Link href="/auth">
-                  <Button 
-                    className="flex items-center bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 px-4 py-2 rounded-lg"
-                  >
-                    <LogIn className="h-4 w-4 mr-2" />
-                    Sign In
-                  </Button>
-                </Link>
-              )}
-              
-              {/* Always show login link for production environments as a backup */}
-              {!isAuthenticated && (process.env.NODE_ENV === 'production' || import.meta.env.PROD) && (
-                <div className="ml-2">
-                  <a 
-                    href="/auth" 
-                    className="text-xs text-purple-600 underline hover:text-purple-800"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      navigate('/auth');
-                    }}
-                  >
-                    Login Page
-                  </a>
-                </div>
-              )}
-              
-              {/* Mobile menu button */}
-              <button 
-                className="md:hidden rounded-full p-2 text-gray-500 hover:bg-gray-100 focus:outline-none"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              >
-                {mobileMenuOpen ? 
-                  <X className="h-6 w-6" /> : 
-                  <Menu className="h-6 w-6" />
-                }
-              </button>
-            </div>
-          </div>
+        {/* Right Section */}
+        <div className="flex items-center gap-2">
+          {/* New Connection button (for authenticated users) */}
+          {isAuthenticated && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  className="hidden md:flex" 
+                  size="sm"
+                >
+                  <PlusCircle className="h-4 w-4 mr-2" />
+                  New Connection
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>Connection Types</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => {
+                  navigate("/vector-storage");
+                  toast({
+                    title: "Vector Database Selected",
+                    description: "Redirecting to Vector Storage configuration"
+                  });
+                }}>
+                  <Database className="mr-2 h-4 w-4 text-blue-600" />
+                  <span>Vector Database</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => {
+                  toast({
+                    title: "AI Service Selected",
+                    description: "This feature is coming soon!"
+                  });
+                }}>
+                  <Code className="mr-2 h-4 w-4 text-purple-600" />
+                  <span>AI Service</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => {
+                  navigate("/web-search");
+                  toast({
+                    title: "Search Provider Selected",
+                    description: "Redirecting to Web Search configuration"
+                  });
+                }}>
+                  <Search className="mr-2 h-4 w-4 text-green-600" />
+                  <span>Search Provider</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => {
+                  toast({
+                    title: "Custom Tool Selected",
+                    description: "This feature is coming soon!"
+                  });
+                }}>
+                  <Settings className="mr-2 h-4 w-4 text-amber-600" />
+                  <span>Custom Tool</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+          
+          {/* Theme toggle (placeholder) */}
+          <Button variant="ghost" size="icon" className="text-muted-foreground hidden md:flex">
+            <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <span className="sr-only">Toggle theme</span>
+          </Button>
+          
+          {/* User account or sign in */}
+          {isAuthenticated ? (
+            // User is logged in - show user menu
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 overflow-hidden bg-primary/10">
+                  <User className="h-4 w-4 text-primary" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="cursor-default">
+                  <User className="mr-2 h-4 w-4" />
+                  <span>{user?.username}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => navigate("/settings")}>
+                  <Key className="mr-2 h-4 w-4" />
+                  <span>API Keys</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onSelect={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            // User is not logged in - show login button
+            <Link href="/auth">
+              <Button size="sm">
+                <LogIn className="h-4 w-4 mr-2" />
+                Sign In
+              </Button>
+            </Link>
+          )}
+          
+          {/* Mobile menu button */}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="lg:hidden"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? 
+              <X className="h-5 w-5" /> : 
+              <Menu className="h-5 w-5" />
+            }
+          </Button>
         </div>
       </header>
       
-      {/* Mobile menu (slide down when mobile button is clicked) */}
+      {/* Mobile menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-b border-gray-200 shadow-sm">
-          <nav className="px-4 pt-2 pb-4 space-y-1">
+        <div className="lg:hidden border-b bg-background shadow-sm">
+          <nav className="p-4 grid gap-2">
             {navLinks.map((item) => (
               <Link key={item.href} href={item.href}>
                 <div 
-                  className={`px-3 py-2 rounded-md text-base font-medium flex items-center ${
+                  className={cn(
+                    "px-3 py-2 rounded-md text-sm font-medium flex items-center transition-all",
                     location === item.href 
-                      ? 'bg-purple-100 text-purple-800' 
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
+                      ? "bg-primary/10 text-primary" 
+                      : "text-muted-foreground hover:bg-accent"
+                  )}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <span className="mr-3">{item.icon}</span>
@@ -302,28 +332,18 @@ export default function Header() {
             ))}
             
             {isAuthenticated ? (
-              <div 
-                className="px-3 py-2 rounded-md text-base font-medium flex items-center bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-700 mt-4"
+              <Button 
+                className="mt-2"
                 onClick={() => {
                   setMobileMenuOpen(false);
                   navigate("/settings");
                 }}
               >
-                <span className="mr-3"><PlusCircle className="h-5 w-5" /></span>
+                <PlusCircle className="h-4 w-4 mr-2" />
                 New Connection
-              </div>
+              </Button>
             ) : (
-              // Login button for mobile when not authenticated
-              <div 
-                className="px-3 py-2 rounded-md text-base font-medium flex items-center bg-gradient-to-r from-purple-600 to-indigo-600 text-white mt-4"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  navigate("/auth");
-                }}
-              >
-                <span className="mr-3"><LogIn className="h-5 w-5" /></span>
-                Sign In / Register
-              </div>
+              null
             )}
           </nav>
         </div>

@@ -1,16 +1,19 @@
 import React from 'react';
 import { useLocation, Link } from 'wouter';
-import { ChevronRight, Settings, Database, Search, FileText, Code, RefreshCw } from 'lucide-react';
+import { ChevronRight, Settings, Database, Search, FileText, Code, RefreshCw, Sparkles, Server } from 'lucide-react';
 import { useNavigation } from '@/hooks/use-navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
 
 interface ToolSidebarProps {
   showRecent?: boolean;
+  collapsed?: boolean;
 }
 
-export default function ToolSidebar({ showRecent = true }: ToolSidebarProps) {
+export default function ToolSidebar({ showRecent = true, collapsed = false }: ToolSidebarProps) {
   const [location] = useLocation();
   const { getToolRoutes, navigateToTool } = useNavigation();
   
@@ -35,94 +38,128 @@ export default function ToolSidebar({ showRecent = true }: ToolSidebarProps) {
   // Get recently used tools - would be expanded with real tracking in a production app
   const recentTools = toolRoutes.slice(0, 3);
   
+  const renderToolItem = (tool: any, showLabel = true) => {
+    const content = (
+      <div 
+        className={cn(
+          "flex items-center py-2 rounded-md text-sm cursor-pointer transition-colors",
+          collapsed ? "justify-center px-0" : "px-3",
+          location === tool.path
+            ? "bg-primary/10 text-primary"
+            : "text-muted-foreground hover:text-foreground hover:bg-accent"
+        )}
+      >
+        <div className={cn(
+          "flex items-center justify-center",
+          collapsed ? "h-8 w-8" : "h-6 w-6 mr-3"
+        )}>
+          {getToolIcon(tool.id)}
+        </div>
+        {!collapsed && (
+          <>
+            <span>{tool.name}</span>
+            {location === tool.path && <ChevronRight className="ml-auto h-4 w-4" />}
+          </>
+        )}
+      </div>
+    );
+    
+    return collapsed ? (
+      <TooltipProvider key={tool.id} delayDuration={200}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Link href={tool.path}>
+              {content}
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            {tool.name}
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    ) : (
+      <Link key={tool.id} href={tool.path}>
+        {content}
+      </Link>
+    );
+  };
+  
   return (
-    <div className="h-full flex-shrink-0 bg-white z-10 relative">
-      <ScrollArea className="h-full py-4">
-        <div className="px-4 space-y-6">
-          {showRecent && (
+    <div className="h-full flex-shrink-0 bg-background z-10 relative">
+      <ScrollArea className="h-[calc(100vh-4rem)]">
+        <div className={cn(
+          "py-4 space-y-6",
+          collapsed ? "px-2" : "px-4"
+        )}>
+          {/* Logo section for collapsed mode */}
+          {collapsed && (
+            <div className="flex justify-center mb-4">
+              <div className="h-8 w-8 flex items-center justify-center bg-primary/10 rounded-md text-primary">
+                <Server className="h-4 w-4" />
+              </div>
+            </div>
+          )}
+          
+          {showRecent && !collapsed && (
             <div>
-              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
                 Recent Tools
               </h3>
-              <div className="space-y-2">
-                {recentTools.map((tool) => (
-                  <Link key={tool.id} href={tool.path}>
-                    <div 
-                      className={`flex items-center py-2 px-3 rounded-md text-sm cursor-pointer ${
-                        location === tool.path
-                          ? 'bg-primary/10 text-primary'
-                          : 'text-gray-700 hover:bg-gray-100'
-                      }`}
-                    >
-                      <div className="h-6 w-6 flex items-center justify-center mr-3">
-                        {getToolIcon(tool.id)}
-                      </div>
-                      <span>{tool.name}</span>
-                    </div>
-                  </Link>
-                ))}
+              <div className="space-y-1">
+                {recentTools.map((tool) => renderToolItem(tool))}
               </div>
             </div>
           )}
           
           <div>
-            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-              All Tools
-            </h3>
-            <div className="space-y-2">
-              {toolRoutes.map((tool) => (
-                <Link key={tool.id} href={tool.path}>
-                  <div 
-                    className={`flex items-center py-2 px-3 rounded-md text-sm cursor-pointer ${
-                      location === tool.path
-                        ? 'bg-primary/10 text-primary'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    <div className="h-6 w-6 flex items-center justify-center mr-3">
-                      {getToolIcon(tool.id)}
-                    </div>
-                    <span>{tool.name}</span>
-                    {location === tool.path && <ChevronRight className="ml-auto h-4 w-4" />}
-                  </div>
-                </Link>
-              ))}
+            {!collapsed && (
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                All Tools
+              </h3>
+            )}
+            <div className="space-y-1">
+              {toolRoutes.map((tool) => renderToolItem(tool, !collapsed))}
             </div>
           </div>
           
-          <Card className="mt-auto">
-            <CardContent className="p-4">
-              <h4 className="text-sm font-medium mb-2">Quick Actions</h4>
-              <div className="space-y-2">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="w-full justify-start"
-                  onClick={() => navigateToTool('vector-storage')}
-                >
-                  <Database className="h-4 w-4 mr-2" />
-                  New Vector DB
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="w-full justify-start"
-                  onClick={() => navigateToTool('web-search')}
-                >
-                  <Search className="h-4 w-4 mr-2" />
-                  New Search Provider
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="w-full justify-start"
-                >
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Refresh Status
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          {!collapsed && (
+            <Card className="mt-6 bg-card/60 border-muted backdrop-blur-sm">
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-xs font-semibold text-muted-foreground">QUICK ACTIONS</h4>
+                  <Sparkles className="h-3 w-3 text-primary/60" />
+                </div>
+                <div className="space-y-1">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="w-full justify-start text-xs h-8"
+                    onClick={() => navigateToTool('vector-storage')}
+                  >
+                    <Database className="h-3.5 w-3.5 mr-2 text-blue-500" />
+                    New Vector DB
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="w-full justify-start text-xs h-8"
+                    onClick={() => navigateToTool('web-search')}
+                  >
+                    <Search className="h-3.5 w-3.5 mr-2 text-green-500" />
+                    New Search Provider
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="w-full justify-start text-xs h-8"
+                  >
+                    <RefreshCw className="h-3.5 w-3.5 mr-2 text-amber-500" />
+                    Refresh Status
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </ScrollArea>
     </div>
