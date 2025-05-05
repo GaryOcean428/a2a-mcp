@@ -6,13 +6,17 @@ import { useLocation } from 'wouter';
 
 // Types
 interface User {
-  id: number;
+  id: string;
   username: string;
-  email: string;
-  role: string;
-  active: boolean;
-  lastLogin: string | null;
-  apiKey: string | null;
+  email: string | null;
+  role: string | null;
+  active: boolean | null;
+  firstName: string | null;
+  lastName: string | null;
+  bio: string | null;
+  profileImageUrl: string | null;
+  createdAt: Date | null;
+  updatedAt: Date | null;
 }
 
 interface LoginCredentials {
@@ -50,14 +54,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading,
     error,
   } = useQuery<User | null, Error>({
-    queryKey: ['/api/user'],
+    queryKey: ['/api/auth/user'],
     retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes (was cacheTime in v4)
     queryFn: async ({ signal }) => {
       try {
-        console.log('Fetching user data from /api/user');
-        const response = await fetch('/api/user', { 
+        console.log('Fetching user data from /api/auth/user');
+        const response = await fetch('/api/auth/user', { 
           signal,
           credentials: 'include',  // Important for cookies in production
           headers: {
@@ -119,7 +123,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: (user: User) => {
       console.log('Login mutation success, updating cache');
-      queryClient.setQueryData(['/api/user'], user);
+      queryClient.setQueryData(['/api/auth/user'], user);
       toast({
         title: 'Login successful!',
         description: `Welcome back, ${user.username}!`,
@@ -145,15 +149,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Logout mutation
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest('POST', '/api/logout', {});
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Logout failed');
-      }
-      return await response.json();
+      // Replit Auth expects a GET request for logout, not POST
+      window.location.href = '/api/logout';
+      return null;
     },
     onSuccess: () => {
-      queryClient.setQueryData(['/api/user'], null);
+      queryClient.setQueryData(['/api/auth/user'], null);
       toast({
         title: 'Logout successful',
         description: 'You have been logged out.',
@@ -185,7 +186,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         description: 'Your account has been created.',
       });
       // Automatically log in after registration
-      queryClient.setQueryData(['/api/user'], user);
+      queryClient.setQueryData(['/api/auth/user'], user);
       navigate('/');
     },
     onError: (error: Error) => {

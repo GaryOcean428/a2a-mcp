@@ -113,6 +113,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Standard /api/user endpoint for backward compatibility
+  app.get('/api/user', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      res.status(200).json(user);
+    } catch (error) {
+      console.error('User retrieval error:', error);
+      res.status(500).json({ error: 'Failed to retrieve user data' });
+    }
+  });
+  
   // MCP API route for HTTP transport
   app.post('/api/mcp', 
     isAuthenticated, 
