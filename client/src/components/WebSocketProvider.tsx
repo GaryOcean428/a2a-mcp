@@ -6,7 +6,7 @@
  */
 
 import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
-import { useWebSocket } from '@/hooks/use-websocket';
+import { useEnhancedWebSocket } from '@/hooks/use-enhanced-websocket';
 import { logger } from '@/utils/logger';
 
 interface WebSocketContextType {
@@ -47,13 +47,23 @@ export function WebSocketProvider({ children, autoConnect = true }: WebSocketPro
   const [schemas, setSchemas] = useState<any[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   
-  // Use our custom WebSocket hook
-  const ws = useWebSocket({
+  // Generate WebSocket URL
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const wsUrl = `${protocol}//${window.location.host}/mcp-ws`;
+  
+  // Use our enhanced WebSocket hook
+  const ws = useEnhancedWebSocket({
+    url: wsUrl,
     autoConnect,
-    handleErrors: true,
     autoReconnect: true,
+    debug: true,
+    enableHeartbeat: true,
+    heartbeatInterval: 15000, // 15 seconds
+    maxReconnectAttempts: 10,
     onConnect: () => {
       logger.info('WebSocket connected', { tags: ['websocket', 'provider'] });
+      // Authenticate after connection
+      ws.sendJson({ id: 'auth', token: 'anonymous' });
     },
     onDisconnect: () => {
       logger.info('WebSocket disconnected', { tags: ['websocket', 'provider'] });
@@ -65,6 +75,19 @@ export function WebSocketProvider({ children, autoConnect = true }: WebSocketPro
         error 
       });
       setIsAuthenticated(false);
+    },
+    onMessage: (data) => {
+      // Process message
+      if (data && typeof data === 'object') {
+        // Handle authentication response
+        if (data.id === 'auth') {
+          handleAuth(data);
+        }
+        // Handle schemas
+        else if (data.id === 'schemas' || (Array.isArray(data) && data.length > 0 && typeof data[0] === 'object')) {
+          handleSchemas(data);
+        }
+      }
     }
   });
   
@@ -94,14 +117,9 @@ export function WebSocketProvider({ children, autoConnect = true }: WebSocketPro
   
   // Register event handlers
   useEffect(() => {
-    ws.on('schemas', handleSchemas);
-    ws.on('auth', handleAuth);
-    
-    return () => {
-      ws.off('schemas', handleSchemas);
-      ws.off('auth', handleAuth);
-    };
-  }, [ws]);
+    // With enhanced WebSocket, we don't need to register event handlers
+    // as they're already handled in the onMessage callback
+  }, []);
   
   // Provide the WebSocket context
   const contextValue: WebSocketContextType = {
@@ -109,9 +127,9 @@ export function WebSocketProvider({ children, autoConnect = true }: WebSocketPro
     isAuthenticated,
     status: ws.status,
     schemas,
-    error: ws.error,
-    reconnect: ws.connect,
-    sendMessage: ws.send
+    error: ws.lastError,
+    reconnect: ws.reconnect,
+    sendMessage: ws.sendJson
   };
   
   return (

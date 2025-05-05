@@ -43,6 +43,7 @@ import { ProtectedRoute } from "@/components/protected-route";
 import ToolSidebar from "@/components/ToolSidebar";
 import LoginPrompt from "@/components/LoginPrompt";
 import StyleFixer from "@/components/StyleFixer"; // Import the StyleFixer component
+import WebSocketReconnectManager from "@/components/WebSocketReconnectManager"; // Import WebSocket reconnect manager
 
 function Router() {
   // Production authentication fix - this ensures authentication state is preserved
@@ -121,6 +122,7 @@ function App() {
                   <Router />
                 </ErrorBoundary>
                 <StyleFixer />
+                <WebSocketReconnectManager />
                 <Toaster />
               </WebSocketProvider>
             </NavigationProvider>
