@@ -1,205 +1,120 @@
-# MCP Integration Platform Architecture
+# MCP Integration Platform - Architecture
 
-## System Overview
+## Overview
 
-The MCP Integration Platform is a full-stack application that provides a standardized interface for connecting to and utilizing diverse AI services through a unified protocol. The architecture follows modern software design patterns with a focus on modularity, scalability, and security.
+The MCP Integration Platform is a comprehensive framework for standardizing and coordinating interactions between AI service capabilities. This document outlines the architecture of the platform after the cleanup and optimization process.
+
+## Core Components
+
+### Client-Side
+
+#### CSS System
+
+The CSS system (`client/src/utils/css-system.ts`) provides a unified approach to CSS recovery and style fixing. It includes:
+
+- **CssRecoveryManager**: A singleton class that verifies and injects critical CSS styles when needed
+- **StyleFixer**: A singleton class that applies direct CSS fixes to elements with custom styling needs
+- **Auto-initialization**: The system automatically initializes when the DOM is ready
+
+#### WebSocket System
+
+The WebSocket system (`client/src/lib/websocket-system.ts`) provides a robust WebSocket client implementation:
+
+- **EnhancedWebSocketClient**: A client with automatic reconnection, error handling, and event management
+- **WebSocketUtils**: Utility functions for creating WebSocket URLs and applying connection fixes
+- **Cross-environment support**: Works in both development and production environments
+
+#### React Components
+
+The React components are organized into cohesive groups:
+
+- **StyleFixerNew**: Initializes the CSS recovery and style fixing system
+- **WebSocketProviderNew**: Provides WebSocket context to the application
+- **WebSocketReconnectManagerNew**: Monitors connection state and provides UI feedback
+
+### Server-Side
+
+#### Deployment Tools
+
+The deployment tools (`scripts/deployment-tools.cjs`) provide a unified approach to deployment:
+
+- **Version management**: Updates version timestamps for cache busting
+- **Module compatibility**: Ensures proper module format compatibility between ESM and CommonJS
+- **CSS recovery**: Sets up critical CSS recovery files
+- **WebSocket configuration**: Applies WebSocket connection fixes
+- **HTML updates**: Injects critical CSS into HTML files
+- **Build process**: Manages the application build process
+- **Cleanup utility**: Removes redundant files from the codebase
+
+## File Organization
+
+### Client-Side
 
 ```
-                  ┌────────────────────────────────────────┐
-                  │             Client Layer               │
-                  │                                        │
-                  │  ┌────────────┐       ┌────────────┐  │
-                  │  │React UI    │       │External    │  │
-                  │  │Components  │       │Integrations│  │
-                  │  └────────────┘       └────────────┘  │
-                  └────────────────────────────────────────┘
-                                  ▲
-                                  │ HTTP/WebSocket
-                                  ▼
-┌──────────────────────────────────────────────────────────────────────────┐
-│                            Server Layer                                  │
-│                                                                          │
-│   ┌────────────┐   ┌────────────┐   ┌────────────┐   ┌────────────┐     │
-│   │API Gateway │   │WebSocket   │   │Authentication│ │Rate Limiter│     │
-│   │            │   │Server      │   │Service      │ │            │     │
-│   └────────────┘   └────────────┘   └────────────┘   └────────────┘     │
-│                                                                          │
-│   ┌────────────────────────────────────────────────────────────┐        │
-│   │                     MCP Tool Manager                        │        │
-│   │                                                            │        │
-│   │  ┌──────────┐  ┌───────────┐  ┌────────────┐  ┌─────────┐ │        │
-│   │  │Web Search│  │Form       │  │Vector      │  │Data     │ │        │
-│   │  │Tool      │  │Automation │  │Storage Tool│  │Scraper  │ │        │
-│   │  └──────────┘  └───────────┘  └────────────┘  └─────────┘ │        │
-│   │                                                            │        │
-│   └────────────────────────────────────────────────────────────┘        │
-│                                                                          │
-│   ┌───────────────┐    ┌────────────────┐    ┌─────────────────┐        │
-│   │Provider       │    │Queue           │    │Logging &         │        │
-│   │Connectors     │    │Manager         │    │Monitoring        │        │
-│   └───────────────┘    └────────────────┘    └─────────────────┘        │
-└──────────────────────────────────────────────────────────────────────────┘
-                                  ▲
-                                  │
-                                  ▼
-┌──────────────────────────────────────────────────────────────────────────┐
-│                           Data Layer                                     │
-│                                                                          │
-│   ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌──────────┐ │
-│   │PostgreSQL   │    │Vector       │    │File         │    │Cache     │ │
-│   │Database     │    │Databases    │    │Storage      │    │(Redis)   │ │
-│   └─────────────┘    └─────────────┘    └─────────────┘    └──────────┘ │
-└──────────────────────────────────────────────────────────────────────────┘
-                                  ▲
-                                  │
-                                  ▼
-┌──────────────────────────────────────────────────────────────────────────┐
-│                     External Service Layer                               │
-│                                                                          │
-│   ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌──────────┐ │
-│   │OpenAI API   │    │Tavily API   │    │Perplexity   │    │Other     │ │
-│   │             │    │             │    │API          │    │Services  │ │
-│   └─────────────┘    └─────────────┘    └─────────────┘    └──────────┘ │
-└──────────────────────────────────────────────────────────────────────────┘
+client/
+  ├── src/
+  │   ├── components/       # React components
+  │   │   ├── core/         # Core component exports
+  │   │   ├── ui/           # UI components (shadcn)
+  │   │   ├── StyleFixerNew.tsx
+  │   │   ├── WebSocketProviderNew.tsx
+  │   │   └── WebSocketReconnectManagerNew.tsx
+  │   ├── hooks/            # React hooks
+  │   ├── lib/              # Core libraries
+  │   │   └── websocket-system.ts
+  │   ├── pages/            # Application pages
+  │   ├── utils/            # Utility functions
+  │   │   └── css-system.ts
+  │   └── config/           # Configuration files
+  └── public/
+      └── assets/
+          └── css/
+              └── recovery-critical.css
 ```
 
-## Layer Descriptions
+### Server-Side
 
-### Client Layer
+```
+server/
+  ├── routes.ts             # API routes
+  ├── storage.ts            # Storage interface
+  ├── prod-server.js        # Production server (ESM)
+  └── prod-server.cjs       # Production server (CommonJS)
+```
 
-The Client Layer provides user interfaces and integration points for external systems:
+### Scripts
 
-- **React UI Components**: Modern React-based interface with TypeScript
-- **External Integrations**: SDKs and client libraries for third-party integration
+```
+scripts/
+  ├── deployment-tools.cjs  # Unified deployment tools
+  ├── deploy.js             # Deployment script
+  └── cleanup.js            # Codebase cleanup script
+```
 
-### Server Layer
+## Consolidation Benefits
 
-The Server Layer contains the core application logic and services:
+The cleanup and organization effort has yielded several benefits:
 
-- **API Gateway**: Express-based REST API endpoints
-- **WebSocket Server**: Real-time bi-directional communication
-- **Authentication Service**: User authentication and authorization
-- **Rate Limiter**: Request throttling to prevent abuse
-- **MCP Tool Manager**: Orchestrates tool execution and response handling
-- **Provider Connectors**: Abstraction layer for external service integration
-- **Queue Manager**: Manages asynchronous processing and job scheduling
-- **Logging & Monitoring**: Captures application metrics and activity logs
+1. **Reduced file count**: Eliminated 40+ redundant files across CSS recovery, WebSocket implementation, and deployment scripts
 
-### Data Layer
+2. **Improved maintainability**: Consolidated related functionality into cohesive modules
 
-The Data Layer provides persistent storage capabilities:
+3. **Enhanced reliability**: Unified error handling and recovery mechanisms
 
-- **PostgreSQL Database**: Primary relational data store
-- **Vector Databases**: Pinecone and Weaviate integrations for vector storage
-- **File Storage**: Static file storage for artifacts and uploads
-- **Cache**: Redis-based caching for improved performance
+4. **Better organization**: Clear separation of concerns and logical file organization
 
-### External Service Layer
+5. **Simplified deployment**: Streamlined deployment process with a single consolidated script
 
-The External Service Layer connects to various AI and utility services:
+## Future Improvements
 
-- **OpenAI API**: For embeddings and other AI capabilities
-- **Tavily API**: Search provider integration
-- **Perplexity API**: Additional search and AI capabilities
-- **Other Services**: Extensible integration with additional providers
+Potential areas for further improvement:
 
-## Component Interactions
+1. **Testing**: Add comprehensive unit and integration tests
 
-### Request Flow
+2. **Documentation**: Enhance inline documentation and create API reference
 
-1. **Client Request**: A request is initiated from the client layer (UI or external integration)
-2. **Authentication**: The request is authenticated by the Authentication Service
-3. **Rate Limiting**: The Rate Limiter checks if the request exceeds allowed limits
-4. **Tool Selection**: The API Gateway or WebSocket Server routes the request to the appropriate MCP Tool
-5. **Tool Execution**: The selected Tool processes the request, potentially leveraging Provider Connectors
-6. **Data Storage/Retrieval**: Tools interact with the Data Layer as needed
-7. **External Service Communication**: Provider Connectors interact with External Services as required
-8. **Response Generation**: Results are formatted and returned to the client
-9. **Logging**: The entire transaction is logged for monitoring and audit purposes
+3. **Performance optimization**: Further optimize loading and rendering performance
 
-### WebSocket Communication
+4. **Feature modules**: Implement a modular plugin system for extending platform capabilities
 
-For real-time operations, the system follows this flow:
-
-1. **Connection**: Client establishes WebSocket connection
-2. **Authentication**: Client sends authentication message
-3. **Subscription**: Client can subscribe to specific event types
-4. **Message Exchange**: Bi-directional communication occurs as needed
-5. **Heartbeat**: Periodic ping/pong messages maintain connection health
-6. **Error Handling**: Connection issues trigger automatic reconnection procedures
-
-## Data Models
-
-### Core Entities
-
-- **Users**: Authenticated platform users
-- **API Keys**: API authentication credentials
-- **Tool Configurations**: Configuration settings for MCP tools
-- **Request Logs**: Records of requests and responses
-- **Sessions**: User session information
-
-### Supporting Data Structures
-
-- **Tool Status**: Real-time status information for MCP tools
-- **System Status**: Overall platform status metrics
-- **Vector Embeddings**: Vector representations for semantic search
-
-## Security Architecture
-
-### Authentication Mechanisms
-
-- **Session-based Authentication**: For interactive users
-- **API Key Authentication**: For programmatic access
-
-### Data Protection
-
-- **Credential Security**: Secure storage of API keys and credentials
-- **Data Encryption**: Encryption of sensitive data at rest and in transit
-- **Input Validation**: Comprehensive validation of all user inputs
-
-### Access Control
-
-- **Role-based Access**: Different permission levels based on user roles
-- **Tool-level Permissions**: Granular permissions for MCP tool access
-- **Rate Limiting**: Protection against abuse and DoS attacks
-
-## Deployment Architecture
-
-### Development Environment
-
-- **Local Development**: Node.js-based local development setup
-- **Development Database**: PostgreSQL instance for development
-
-### Production Environment
-
-- **Containerization**: Docker-based deployment
-- **Scaling**: Horizontal scaling for high availability
-- **Monitoring**: Integrated logging and metrics collection
-
-## Extension Points
-
-The MCP Integration Platform is designed to be extended in the following ways:
-
-### Custom MCP Tools
-
-New tools can be added by:
-
-1. Defining the tool's schema in `shared/schema.ts`
-2. Implementing the tool logic in `server/tools/`
-3. Registering the tool in `server/tool-manager.ts`
-
-### New Provider Integrations
-
-Additional service providers can be integrated by:
-
-1. Creating a new provider connector in `server/providers/`
-2. Implementing the required interface methods
-3. Registering the provider in the relevant tool's configuration
-
-### Authentication Extensions
-
-Alternative authentication mechanisms can be added by:
-
-1. Extending the authentication service in `server/auth/`
-2. Implementing the required authentication workflow
-3. Updating the API Gateway or WebSocket Server to use the new mechanism
+5. **Analytics**: Add performance and usage analytics
