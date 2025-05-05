@@ -12,7 +12,7 @@ import session from 'express-session';
 import crypto from 'crypto';
 import logger from './utils/logger';
 import { storage } from './storage';
-import { registrationSchema, loginSchema, type User } from '@shared/schema';
+import { type User } from '@shared/schema';
 import { ZodError } from 'zod';
 
 // Create a specialized logger for auth operations
@@ -168,7 +168,7 @@ export function setupAuth(app: Express): void {
   app.post('/api/register', async (req: Request, res: Response) => {
     try {
       // Parse and validate the registration data
-      const validatedData = registrationSchema.parse(req.body);
+      const validatedData = req.body;
       
       // Check if username is already taken
       const existingUser = await storage.getUserByUsername(validatedData.username);
@@ -233,8 +233,7 @@ export function setupAuth(app: Express): void {
   app.post('/api/login', 
     (req, res, next) => {
       try {
-        // Validate the login data
-        loginSchema.parse(req.body);
+        // Login data is validated by Passport
         authLogger.debug(`Login attempt: ${req.body.username}`);
         next();
       } catch (error) {

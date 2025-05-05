@@ -4,23 +4,23 @@
  * This file defines the database schema and types for the application.
  */
 
-import { pgTable, serial, text, timestamp, json, boolean, varchar } from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, timestamp, json, boolean, varchar, index, integer } from 'drizzle-orm/pg-core';
 import { createInsertSchema } from 'drizzle-zod';
 import { z } from 'zod';
 
 /**
- * Users Table
+ * Users Table for Replit Auth
  */
 export const users = pgTable('users', {
-  id: serial('id').primaryKey(),
-  username: text('username').notNull().unique(),
-  password: text('password').notNull(),
-  email: text('email').notNull(),
-  name: text('name'),
+  id: varchar('id').primaryKey().notNull(),
+  username: varchar('username').unique().notNull(),
+  email: varchar('email').unique(),
+  firstName: varchar('first_name'),
+  lastName: varchar('last_name'),
+  bio: text('bio'),
+  profileImageUrl: varchar('profile_image_url'),
   role: text('role').default('user'),
-  apiKey: text('api_key'),
   active: boolean('active').default(true),
-  lastLogin: timestamp('last_login'),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });
@@ -47,24 +47,12 @@ export type User = typeof users.$inferSelect;
 
 // User insert schema
 export const insertUserSchema = createInsertSchema(users, {
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
   username: z.string().min(3, 'Username must be at least 3 characters'),
+  email: z.string().email('Invalid email address').optional(),
 }).omit({ id: true, createdAt: true, updatedAt: true });
 
-// Separate login schema (email + password)
-export const loginSchema = z.object({
-  username: z.string().min(3, 'Username must be at least 3 characters'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-});
-
-// Refined user insert schema for registration
-export const registrationSchema = insertUserSchema.extend({
-  confirmPassword: z.string().min(6, 'Password must be at least 6 characters'),
-}).refine(data => data.password === data.confirmPassword, {
-  message: 'Passwords do not match',
-  path: ['confirmPassword'],
-});
+// Type for upserting a user from Replit Auth
+export type UpsertUser = typeof users.$inferInsert;
 
 // User insert type
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -140,19 +128,25 @@ export const insertRequestLogSchema = createInsertSchema(requestLogs, {
 export type InsertRequestLog = z.infer<typeof insertRequestLogSchema>;
 
 /**
- * Session Table for Express Session
+ * Sessions Table for Replit Auth
  */
-export const sessionTable = pgTable('session', {
-  sid: varchar('sid').primaryKey().notNull(),
-  sess: json('sess').notNull(),
-  expire: timestamp('expire', { precision: 6 }).notNull(),
-});
+export const sessions = pgTable(
+  "sessions",
+  {
+    sid: varchar("sid").primaryKey(),
+    sess: json("sess").notNull(),
+    expire: timestamp("expire").notNull(),
+  },
+  (table) => [
+    index("IDX_session_expire").on(table.expire)
+  ]
+);
 
 // Session select type
-export type Session = typeof sessionTable.$inferSelect;
+export type Session = typeof sessions.$inferSelect;
 
 // Session insert schema
-export const insertSessionSchema = createInsertSchema(sessionTable);
+export const insertSessionSchema = createInsertSchema(sessions);
 
 // Session insert type
 export type InsertSession = z.infer<typeof insertSessionSchema>;

@@ -4,6 +4,7 @@ import {
   requestLogs,
   type User, 
   type InsertUser, 
+  type UpsertUser,
   type ToolConfig, 
   type InsertToolConfig,
   type RequestLog,
@@ -16,18 +17,14 @@ import {
 // you might need
 export interface IStorage {
   // User operations
-  getUser(id: number): Promise<User | undefined>;
+  getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
-  getUserByApiKey(apiKey: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  updateUserApiKey(userId: number, apiKey: string | null): Promise<void>;
+  upsertUser(user: UpsertUser): Promise<User>;
   validateUserCredentials(username: string, password: string): Promise<User | undefined>;
-  generateApiKey(userId: number): Promise<string>;
-  revokeApiKey(userId: number): Promise<void>;
-  updateUserLastLogin(userId: number): Promise<void>;
-  updateUserRole(userId: number, role: string): Promise<void>;
-  updateUserActiveStatus(userId: number, active: boolean): Promise<void>;
+  updateUserRole(userId: string, role: string): Promise<void>;
+  updateUserActiveStatus(userId: string, active: boolean): Promise<void>;
   
   // Tool configuration operations
   getToolConfig(id: number): Promise<ToolConfig | undefined>;
@@ -128,7 +125,7 @@ export class DatabaseStorage implements IStorage {
     this.sessionStore = new PostgresSessionStore({
       pool: pool,
       createTableIfMissing: true,
-      tableName: 'session' // Default
+      tableName: 'sessions' // Use the table name defined in schema.ts
     });
     
     // Initialize default tool statuses
@@ -162,7 +159,7 @@ export class DatabaseStorage implements IStorage {
   }
   
   // User operations
-  async getUser(id: number): Promise<User | undefined> {
+  async getUser(id: string): Promise<User | undefined> {
     try {
       const [user] = await db.select().from(users).where(eq(users.id, id));
       return user;
@@ -192,15 +189,28 @@ export class DatabaseStorage implements IStorage {
     }
   }
   
-  async getUserByApiKey(apiKey: string): Promise<User | undefined> {
+  // Add the upsertUser method for Replit Auth
+  async upsertUser(userData: UpsertUser): Promise<User> {
     try {
-      const [user] = await db.select()
-        .from(users)
-        .where(and(eq(users.apiKey, apiKey), eq(users.active, true)));
+      storageLogger.info(`Upserting user: ${userData.username} (${userData.id})`);
+      const [user] = await db
+        .insert(users)
+        .values({
+          ...userData,
+          updatedAt: new Date(),
+        })
+        .onConflictDoUpdate({
+          target: users.id,
+          set: {
+            ...userData,
+            updatedAt: new Date(),
+          },
+        })
+        .returning();
       return user;
     } catch (error) {
-      console.error('Error getting user by API key:', error);
-      return undefined;
+      storageLogger.error('Error upserting user:', error);
+      throw new Error('Failed to upsert user');
     }
   }
 
@@ -322,7 +332,7 @@ export class DatabaseStorage implements IStorage {
     }
   }
   
-  async updateUserRole(userId: number, role: string): Promise<void> {
+  async updateUserRole(userId: string, role: string): Promise<void> {
     try {
       await db.update(users)
         .set({ role })
@@ -333,7 +343,7 @@ export class DatabaseStorage implements IStorage {
     }
   }
   
-  async updateUserActiveStatus(userId: number, active: boolean): Promise<void> {
+  async updateUserActiveStatus(userId: string, active: boolean): Promise<void> {
     try {
       await db.update(users)
         .set({ active })
