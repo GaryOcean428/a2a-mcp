@@ -5,7 +5,7 @@ import { mcpController } from "./controllers/mcp-controller";
 import { sandboxController } from "./controllers/sandbox-controller";
 import { statusController } from "./controllers/status-controller";
 import { databaseMonitor } from "./utils/db-monitor";
-import { apiKeyAuth } from "./middleware/auth-middleware";
+// No longer using API key auth with Replit Auth
 import { globalRateLimiter, toolRateLimiter } from "./middleware/rate-limit-middleware";
 import { setupApiDocs } from "./middleware/api-docs";
 import staticAssets from "./middleware/static-assets";
@@ -13,7 +13,7 @@ import path from "path";
 import fs from "fs";
 import { z } from "zod";
 import { insertUserSchema } from "@shared/schema";
-import { setupAuth, requireAuth } from "./auth";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 
 // Cache control middleware for production static assets
 const cacheControl = (req: Request, res: Response, next: NextFunction) => {
@@ -95,68 +95,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // API Key management routes
-  app.post('/api/keys/generate', async (req, res) => {
+  // API routes are protected by Replit Auth instead of API Keys
+  
+  // User profile route (protected by Replit Auth)
+  app.get('/api/user/profile', isAuthenticated, async (req: any, res) => {
     try {
-      const { userId } = req.body;
-      
-      if (!userId) {
-        return res.status(400).json({ error: 'User ID is required' });
-      }
-      
-      // Verify the user exists
+      const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
       }
       
-      const apiKey = await storage.generateApiKey(userId);
-      res.status(200).json({ apiKey });
-    } catch (error) {
-      console.error('API key generation error:', error);
-      res.status(500).json({ error: 'Failed to generate API key' });
-    }
-  });
-  
-  app.post('/api/keys/revoke', async (req, res) => {
-    try {
-      const { userId } = req.body;
-      
-      if (!userId) {
-        return res.status(400).json({ error: 'User ID is required' });
-      }
-      
-      // Verify the user exists
-      const user = await storage.getUser(userId);
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-      
-      await storage.revokeApiKey(userId);
-      res.status(200).json({ message: 'API key revoked successfully' });
-    } catch (error) {
-      console.error('API key revocation error:', error);
-      res.status(500).json({ error: 'Failed to revoke API key' });
-    }
-  });
-  
-  // User profile route (protected)
-  app.get('/api/user/profile', apiKeyAuth, async (req, res) => {
-    try {
-      const apiKey = req.header('X-API-Key');
-      if (!apiKey) {
-        return res.status(401).json({ error: 'API key is required' });
-      }
-      
-      const user = await storage.getUserByApiKey(apiKey);
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-      
-      // Sanitize response (remove password)
-      const { password, ...userProfile } = user;
-      
-      res.status(200).json(userProfile);
+      res.status(200).json(user);
     } catch (error) {
       console.error('Profile retrieval error:', error);
       res.status(500).json({ error: 'Failed to retrieve profile' });
@@ -165,7 +115,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // MCP API route for HTTP transport
   app.post('/api/mcp', 
-    apiKeyAuth, 
+    isAuthenticated, 
     toolRateLimiter.middleware(), 
     mcpController.handleHttpRequest.bind(mcpController)
   );
@@ -181,7 +131,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/metrics', statusController.getHealthMetrics.bind(statusController)); // Alias for compatibility
   
   // Sandbox API endpoint
-  app.post('/api/sandbox', apiKeyAuth, toolRateLimiter.middleware(), sandboxController.handleRequest.bind(sandboxController));
+  app.post('/api/sandbox', isAuthenticated, toolRateLimiter.middleware(), sandboxController.handleRequest.bind(sandboxController));
   
   // Documentation API routes
   app.get('/api/documentation', (req, res) => {
