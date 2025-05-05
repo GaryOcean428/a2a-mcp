@@ -4,54 +4,57 @@
  * This script launches the correct production server based on the environment.
  */
 
-const { existsSync } = require('fs');
-const { join } = require('path');
-const { spawnSync } = require('child_process');
+const { spawn } = require('child_process');
+const path = require('path');
+const fs = require('fs');
 
-// Find available production server implementation
+// Determine which production server file to use
 function findProductionServer() {
-  const serverDir = join(__dirname, 'server');
+  const cjsPath = path.join(__dirname, 'server/prod-server.cjs');
+  const jsPath = path.join(__dirname, 'server/prod-server.js');
   
-  // Check for various server implementations in order of preference
-  const serverVariants = [
-    { file: 'prod-server.cjs', command: 'node', args: [join(serverDir, 'prod-server.cjs')] },
-    { file: 'prod-server.js', command: 'node', args: [join(serverDir, 'prod-server.js')] },
-    { file: 'production.js', command: 'node', args: [join(serverDir, 'production.js')] },
-    { file: 'index.ts', command: 'tsx', args: [join(serverDir, 'index.ts')] }
-  ];
-  
-  for (const variant of serverVariants) {
-    if (existsSync(join(serverDir, variant.file))) {
-      console.log(`Found server implementation: ${variant.file}`);
-      return variant;
-    }
+  // Prefer the CommonJS version if it exists
+  if (fs.existsSync(cjsPath)) {
+    return cjsPath;
+  } else if (fs.existsSync(jsPath)) {
+    return jsPath;
+  } else {
+    throw new Error('No production server file found!');
   }
-  
-  throw new Error('No production server implementation found');
 }
 
-// Start the appropriate server
+// Launch the server
 function startServer() {
   try {
-    const server = findProductionServer();
-    console.log(`Starting server with: ${server.command} ${server.args.join(' ')}`);
+    const serverPath = findProductionServer();
+    console.log('Starting production server: ' + serverPath);
     
-    // Use spawn to keep the process running and pipe output
-    const process = spawnSync(server.command, server.args, { 
+    // Launch the server with the appropriate Node.js flags
+    const isCommonJS = serverPath.endsWith('.cjs');
+    const args = isCommonJS ? [] : ['--experimental-modules'];
+    args.push(serverPath);
+    
+    const server = spawn('node', args, {
       stdio: 'inherit',
       env: { ...process.env, NODE_ENV: 'production' }
     });
     
-    // Check the result
-    if (process.status !== 0) {
-      console.error(`Server exited with code ${process.status}`);
-      throw new Error('Server process failed');
-    }
-  } catch (error) {
-    console.error('Failed to start server:', error);
+    server.on('error', (err) => {
+      console.error('Failed to start server:', err);
+      process.exit(1);
+    });
+    
+    server.on('exit', (code) => {
+      if (code !== 0) {
+        console.error('Server exited with code ' + code);
+        process.exit(code);
+      }
+    });
+  } catch (err) {
+    console.error('Error starting server:', err.message);
     process.exit(1);
   }
 }
 
-// Execute the server launcher
+// Start the server
 startServer();

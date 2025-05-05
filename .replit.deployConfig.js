@@ -2,14 +2,18 @@
  * MCP Integration Platform - Replit Deployment Configuration
  */
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
-
-// Run the complete deployment fix script
-try {
-  console.log('Running complete deployment fix...');
-  execSync('node complete-deployment-fix.cjs', { stdio: 'inherit' });
-} catch (error) {
-  console.error('Error running deployment fix:', error);
-}
+module.exports = {
+  // Specify the deployment target (usually autoscale for production apps)
+  deploymentTarget: "autoscale",
+  
+  // Build command to prepare the application for deployment
+  build: ["sh", "-c", "npm run build"],
+  
+  // Run command for production - use the CommonJS version of the start script
+  run: ["sh", "-c", "node start.cjs"],
+  
+  // Environment variables for production deployment
+  env: {
+    NODE_ENV: "production"
+  }
+};
