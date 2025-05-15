@@ -19,8 +19,9 @@ import { initializeTheme } from "./utils/theme-loader";
 import { logger } from "./utils/logger";
 import { isDevelopment, getBrowserInfo, getDeviceInfo } from "./utils/environment";
 
-// Import sidebar fix CSS (important: keep this direct import)
+// Import critical CSS fixes (important: keep these direct imports)
 import "./styles/fix-sidebar.css";
+import "./styles/fix-critical.css";
 
 // Apply essential CSS and initialize theme immediately
 initializeTheme();

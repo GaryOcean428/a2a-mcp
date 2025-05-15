@@ -1,0 +1,53 @@
+[CSS Verify] - feature-card: MISSING
+[CSS Verify] - from-purple-50: OK
+[CSS Verify] - to-white: OK
+[CSS Verify] - bg-grid-gray-100: OK
+[CSS Verify] - bg-blob-gradient: OK
+[CSS Verify] Some critical CSS classes are missing!
+[WebSocket Test] Testing connection to wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws
+[StyleFixer] DOM changed, reapplying CSS fixes...
+[StyleFixer] Applying direct CSS fixes...
+[StyleFixer] Finished applying direct CSS fixes.
+[WebSocket Test] Connection test successful
+[StylesProtectedRoot] Timeout waiting for UI ready event, proceeding anyway
+[api:request:get] API GET request to /api/user
+MCP Integration Platform v1.0.0-1746151780876
+Build: 2025-05-15T08:00:16.459Z (development)
+[CSS Injector] Critical CSS injected
+[CSS Verify] Starting verification...
+MCP Integration Platform v1.0.0-1746151780876
+Build: 2025-05-15T08:00:16.463Z (development)
+[CSS Injector] Critical CSS injected
+[CSS Verify] Starting verification...
+[StyleFixer] DOM changed, reapplying CSS fixes...
+[StyleFixer] Applying direct CSS fixes...
+[StyleFixer] Finished applying direct CSS fixes.
+[websocket:enhanced] WebSocket connection error 
+Event {isTrusted: true}
+
+[WebSocket Test] Connection closed
+[api:auth:401] Not authenticated (401), returning null
+Development mode: Using default API key
+MCP client initialized with baseUrl: https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev
+[StyleFixer] DOM changed, reapplying CSS fixes...
+[StyleFixer] Applying direct CSS fixes...
+[StyleFixer] Finished applying direct CSS fixes.
+[StyleFixer] DOM changed, reapplying CSS fixes...
+[StyleFixer] Applying direct CSS fixes...
+[StyleFixer] Finished applying direct CSS fixes.
+[websocket:enhanced] WebSocket connection error 
+Event {isTrusted: true}
+
+[websocket:enhanced] WebSocket connection error 
+Event {isTrusted: true}
+
+[websocket:enhanced] WebSocket connection error 
+Event {isTrusted: true}
+
+[websocket:enhanced] WebSocket connection error 
+Event {isTrusted: true}
+
+[websocket:enhanced] WebSocket connection error 
+Event {isTrusted: true}
+
+[websocket:enhanced] Maximum reconnect attempts (5) reached 

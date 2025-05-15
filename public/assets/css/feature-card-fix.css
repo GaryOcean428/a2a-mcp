@@ -1,0 +1,30 @@
+/* Emergency fix for feature-card class */
+.feature-card {
+  display: flex !important;
+  flex-direction: column !important;
+  background-color: white !important;
+  border-radius: 0.5rem !important;
+  padding: 1.5rem !important;
+  margin-bottom: 1rem !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+.feature-card h3 {
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+  margin-bottom: 0.75rem !important;
+}
+
+.feature-card p {
+  color: #6b7280 !important;
+  margin-bottom: 1rem !important;
+}
+
+/* Fix gradient text issues */
+.bg-gradient-to-r.text-transparent.bg-clip-text {
+  background-image: linear-gradient(to right, rgb(124 58 237), rgb(79 70 229)) !important;
+  color: transparent !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+}

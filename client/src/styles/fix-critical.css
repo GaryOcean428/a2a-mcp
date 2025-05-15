@@ -1,40 +1,35 @@
-/**
- * Critical CSS fixes for MCP Integration Platform
- * These styles ensure proper rendering of gradient effects and feature cards
- * by specifically targeting the most critical CSS classes that Tailwind might purge
- */
-
-/* Text transparency and gradient effects */
-.text-transparent {
-  color: transparent !important;
+/* Direct critical CSS for feature cards */
+.feature-card {
+  display: flex !important;
+  flex-direction: column !important;
+  background-color: white !important;
+  border-radius: 0.5rem !important;
+  padding: 1.5rem !important;
+  margin-bottom: 1rem !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
 }
 
-.bg-clip-text {
+.feature-card h3 {
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+  margin-bottom: 0.75rem !important;
+}
+
+.feature-card p {
+  color: #6b7280 !important;
+  margin-bottom: 1rem !important;
+}
+
+/* Fix gradient text issues */
+.bg-gradient-to-r.text-transparent.bg-clip-text {
+  background-image: linear-gradient(to right, rgb(124 58 237), rgb(79 70 229)) !important;
+  color: transparent !important;
   -webkit-background-clip: text !important;
   background-clip: text !important;
 }
 
-.bg-gradient-to-r {
-  background-image: linear-gradient(to right, var(--tw-gradient-stops)) !important;
-}
-
-/* Feature cards with all animations and effects */
-.feature-card {
-  background-color: white !important;
-  padding: 1.5rem !important;
-  border-radius: 0.5rem !important;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
-  border: 1px solid rgba(229, 231, 235, 1) !important;
-  transition: all 0.3s ease !important;
-}
-
-.feature-card:hover {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
-  border-color: rgba(167, 139, 250, 0.4) !important;
-  transform: translateY(-5px) !important;
-}
-
-/* Animation keyframes */
+/* Animation keyframes and classes */
 @keyframes fadeInDown {
   from {
     opacity: 0;
@@ -48,4 +43,41 @@
 
 .animate-fade-in-down {
   animation: fadeInDown 0.5s ease-out !important;
+}
+
+/* Emergency gradient text styles */
+:root {
+  --tw-gradient-from: var(--tw-gradient-from, rgb(124 58 237));
+  --tw-gradient-to: var(--tw-gradient-to, rgb(79 70 229));
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+
+.from-purple-50 {
+  --tw-gradient-from: rgb(250 245 255);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(250, 245, 255, 0));
+}
+
+.to-white {
+  --tw-gradient-to: rgb(255 255 255);
+}
+
+.bg-grid-gray-100 {
+  background-image: linear-gradient(to right, rgb(243 244 246 / 0.1) 1px, transparent 1px), 
+                    linear-gradient(to bottom, rgb(243 244 246 / 0.1) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.bg-blob-gradient {
+  background-image: radial-gradient(circle at 50% 50%, rgba(124, 58, 237, 0.05) 0%, rgba(124, 58, 237, 0) 70%);
+}
+
+/* Combined class styles for headers */
+h1.bg-gradient-to-r.text-transparent.bg-clip-text,
+h2.bg-gradient-to-r.text-transparent.bg-clip-text,
+h3.bg-gradient-to-r.text-transparent.bg-clip-text,
+span.bg-gradient-to-r.text-transparent.bg-clip-text {
+  background-image: linear-gradient(to right, rgb(124 58 237), rgb(79 70 229)) !important;
+  color: transparent !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
 }
