@@ -155,7 +155,11 @@
       }
     </style>
     
-    <!-- Critical CSS is now loaded via the loader.js script -->
+    <!-- Preload critical CSS -->
+    <link rel="preload" href="/assets/css/recovery-critical.css" as="style" />
+    
+    <!-- Critical CSS loader -->
+    <script src="/js/css-injector.js"></script>
     
     <!-- WebSocket connection verification -->
     <script>

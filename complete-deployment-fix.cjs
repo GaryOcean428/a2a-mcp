@@ -94,7 +94,7 @@ export const WebSocketConfig = {
 function fixCssRecovery() {
   console.log('Enhancing CSS recovery system...');
   
-  // Ensure the recovery-critical.css file exists
+  // 1. Ensure the recovery-critical.css file exists and is complete
   const cssDir = path.join(__dirname, 'public/assets/css');
   const cssPath = path.join(cssDir, 'recovery-critical.css');
   
@@ -103,32 +103,280 @@ function fixCssRecovery() {
       fs.mkdirSync(cssDir, { recursive: true });
     }
     
-    // Provide a basic recovery CSS file if it doesn't exist
-    if (!fs.existsSync(cssPath)) {
-      const criticalCss = `/* MCP Integration Platform Critical CSS Recovery */
+    // Provide a comprehensive critical CSS file
+    const criticalCss = `/**
+ * MCP Integration Platform - Critical CSS Recovery
+ * 
+ * This file contains critical CSS classes that must be preserved and loaded even when
+ * TailwindCSS purging might remove them in production builds.
+ */
 
-/* Ensure gradients work */
+/* Background Gradients */
 .bg-gradient-to-r {
-  background-image: linear-gradient(to right, var(--tw-gradient-stops));
+  background-image: linear-gradient(to right, var(--tw-gradient-stops)) !important;
+  --tw-gradient-from: rgb(124 58 237) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), rgb(79 70 229) !important;
+  --tw-gradient-to: rgb(79 70 229) !important;
 }
 
-/* Feature card styles */
+.from-purple-600 {
+  --tw-gradient-from: rgb(147 51 234) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgb(147 51 234 / 0)) !important;
+}
+
+.to-indigo-600 {
+  --tw-gradient-to: rgb(79 70 229) !important;
+}
+
+.from-purple-50 {
+  --tw-gradient-from: rgb(250 245 255) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgb(250 245 255 / 0)) !important;
+}
+
+.to-white {
+  --tw-gradient-to: rgb(255 255 255) !important;
+}
+
+/* Text Transparency */
+.text-transparent {
+  color: transparent !important;
+}
+
+.bg-clip-text {
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+}
+
+/* Combined Text Gradient */
+.bg-gradient-to-r.text-transparent.bg-clip-text {
+  background-image: linear-gradient(to right, rgb(124 58 237), rgb(79 70 229)) !important;
+  color: transparent !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+}
+
+/* Animation Classes */
+.animate-fade-in-down {
+  animation: fade-in-down 0.5s ease-in-out !important;
+}
+
+@keyframes fade-in-down {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-in {
+  animation-name: animate-in !important;
+  animation-duration: 300ms !important;
+  animation-timing-function: ease-in-out !important;
+}
+
+@keyframes animate-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.duration-300 {
+  transition-duration: 300ms !important;
+}
+
+/* Card Styles */
 .feature-card {
-  border-radius: 0.5rem;
-  border: 1px solid rgba(var(--card-border-rgb), 0.25);
-  padding: 1.5rem;
-  transition: all 0.2s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background-color: white !important;
+  border-radius: 0.5rem !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
 }
 
 .feature-card:hover {
-  border-color: rgba(var(--card-border-rgb), 0.5);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  transform: translateY(-5px) !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(124, 58, 237, 0.2) !important;
+}
+
+/* Group Hover */
+.group:hover .group-hover\\:scale-110 {
+  transform: scale(1.1) !important;
+}
+
+/* Background Patterns */
+.bg-grid-gray-100 {
+  background-image: linear-gradient(to right, rgb(243 244 246 / 0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(243 244 246 / 0.1) 1px, transparent 1px) !important;
+  background-size: 24px 24px !important;
+}
+
+.bg-blob-gradient {
+  background-image: radial-gradient(circle at 50% 50%, rgba(124, 58, 237, 0.05) 0%, rgba(124, 58, 237, 0) 70%) !important;
+}
+
+/* Make sure Tailwind CSS classes for UI components work */
+.bg-primary {
+  background-color: hsl(var(--primary)) !important;
+}
+
+.text-primary {
+  color: hsl(var(--primary)) !important;
+}
+
+.border-primary {
+  border-color: hsl(var(--primary)) !important;
 }
 `;
       
-      fs.writeFileSync(cssPath, criticalCss, 'utf8');
-      console.log('Created critical CSS recovery file');
+    // Always write the file to ensure it's up to date
+    fs.writeFileSync(cssPath, criticalCss, 'utf8');
+    console.log('Updated critical CSS recovery file');
+    
+    // 2. Create/update the CSS injector script
+    const jsDir = path.join(__dirname, 'public/js');
+    const jsInjectorPath = path.join(jsDir, 'css-injector.js');
+    
+    if (!fs.existsSync(jsDir)) {
+      fs.mkdirSync(jsDir, { recursive: true });
+    }
+    
+    // Check if injector script exists, create if needed
+    if (!fs.existsSync(jsInjectorPath)) {
+      console.log('CSS injector script not found, creating it...');
+      
+      // Create a basic version
+      const basicInjector = `/**
+ * MCP Integration Platform - CSS Injector (Production)
+ */
+(function() {
+  // Configuration
+  const CONFIG = {
+    criticalCssPath: '/assets/css/recovery-critical.css',
+    version: new Date().getTime(),
+    autoRetry: true,
+    retryDelay: 1000,
+    retryMax: 3
+  };
+
+  // Critical CSS classes that must always be available
+  const CRITICAL_CLASSES = [
+    'bg-gradient-to-r',
+    'text-transparent',
+    'bg-clip-text',
+    'feature-card',
+    'animate-fade-in-down',
+    'from-purple-50',
+    'to-white',
+    'bg-grid-gray-100',
+    'bg-blob-gradient'
+  ];
+
+  // Direct CSS injection - this will be used if the stylesheets fail
+  const DIRECT_CSS = \`
+    /* Direct critical styles - no external dependencies */
+    .bg-gradient-to-r {
+      background-image: linear-gradient(to right, var(--tw-gradient-stops)) !important;
+    }
+    
+    .text-transparent {
+      color: transparent !important;
+    }
+    
+    .bg-clip-text {
+      -webkit-background-clip: text !important;
+      background-clip: text !important;
+    }
+    
+    .feature-card {
+      display: flex !important;
+      flex-direction: column !important;
+      background-color: white !important;
+      border-radius: 0.5rem !important;
+      overflow: hidden !important;
+      border: 1px solid rgba(0, 0, 0, 0.05) !important;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+      transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+    }
+    
+    .animate-fade-in-down {
+      animation: cssInjector_fadeIn 0.5s ease-in-out !important;
+    }
+    
+    @keyframes cssInjector_fadeIn {
+      0% { opacity: 0; transform: translateY(-10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+  \`;
+
+  // Load critical CSS
+  function loadCriticalStylesheet() {
+    if (document.querySelector('link[href*="recovery-critical.css"]')) {
+      console.log('Critical CSS already loaded');
+      return;
+    }
+    
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = CONFIG.criticalCssPath + '?v=' + CONFIG.version;
+    link.id = 'mcp-critical-css-link';
+    document.head.appendChild(link);
+    
+    console.log('Critical CSS stylesheet loaded');
+  }
+
+  // Inject direct styles
+  function injectDirectStyles() {
+    if (document.getElementById('mcp-direct-css')) {
+      return;
+    }
+    
+    const style = document.createElement('style');
+    style.id = 'mcp-direct-css';
+    style.textContent = DIRECT_CSS;
+    document.head.appendChild(style);
+    
+    console.log('Direct CSS styles injected');
+  }
+
+  // Initialize immediately
+  loadCriticalStylesheet();
+  injectDirectStyles();
+})();`;
+        
+      fs.writeFileSync(jsInjectorPath, basicInjector, 'utf8');
+      console.log('Created CSS injector script');
+    }
+    
+    // 3. Ensure the CSS injector is included in the HTML
+    const indexHtmlPath = path.join(__dirname, 'client/index.html');
+    if (fs.existsSync(indexHtmlPath)) {
+      let htmlContent = fs.readFileSync(indexHtmlPath, 'utf8');
+      
+      // Check if CSS injector script is included
+      if (!htmlContent.includes('/js/css-injector.js')) {
+        console.log('Adding CSS injector script to HTML...');
+        
+        // Add after the icon
+        htmlContent = htmlContent.replace(
+          /<link rel="icon".*?>/,
+          '$&\n    \n    <!-- Preload critical CSS -->\n    <link rel="preload" href="/assets/css/recovery-critical.css" as="style" />\n    \n    <!-- Critical CSS loader -->\n    <script src="/js/css-injector.js"></script>'
+        );
+        
+        fs.writeFileSync(indexHtmlPath, htmlContent, 'utf8');
+        console.log('Added CSS injector script to HTML');
+      }
     }
     
     return true;
