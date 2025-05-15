@@ -8,6 +8,7 @@ import { mcpClient } from '@/lib/mcp-client';
 import { SystemStatus } from '@shared/schema';
 import { useToast } from '@/hooks/use-toast';
 import LoginPrompt from '@/components/LoginPrompt';
+import FeatureCard from '@/components/FeatureCard';
 
 export default function Home() {
   const [status, setStatus] = useState<SystemStatus | null>(null);
@@ -210,107 +211,26 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div 
-            className="feature-card group relative"
-            style={{
-              backgroundColor: 'white',
-              padding: '1.5rem',
-              borderRadius: '0.5rem',
-              boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-              border: '1px solid rgba(229, 231, 235)',
-              transition: 'all 0.3s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
-              e.currentTarget.style.borderColor = 'rgba(167, 139, 250, 0.4)';
-              e.currentTarget.style.transform = 'translateY(-5px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
-              e.currentTarget.style.borderColor = 'rgba(229, 231, 235)';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-100/20 to-indigo-100/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg"></div>
-            <div 
-              className="bg-gradient-to-r from-purple-500 to-indigo-500 rounded-lg w-12 h-12 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"
-              style={{
-                backgroundImage: 'linear-gradient(to right, #a855f7, #6366f1)',
-              }}
-            >
-              <Zap className="h-6 w-6 text-white" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2 group-hover:text-purple-700 transition-colors">Standardized Protocols</h3>
-            <p className="text-gray-600">Implement a consistent interface for AI interactions with external tools through the MCP protocol.</p>
-          </div>
+          <FeatureCard
+            icon={<Zap className="h-6 w-6 text-white" />}
+            title="Standardized Protocols"
+            description="Implement a consistent interface for AI interactions with external tools through the MCP protocol."
+            iconClassName="from-purple-500 to-indigo-500"
+          />
           
-          <div 
-            className="feature-card group relative"
-            style={{
-              backgroundColor: 'white',
-              padding: '1.5rem',
-              borderRadius: '0.5rem',
-              boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-              border: '1px solid rgba(229, 231, 235)',
-              transition: 'all 0.3s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
-              e.currentTarget.style.borderColor = 'rgba(167, 139, 250, 0.4)';
-              e.currentTarget.style.transform = 'translateY(-5px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
-              e.currentTarget.style.borderColor = 'rgba(229, 231, 235)';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-indigo-100/20 to-blue-100/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg"></div>
-            <div 
-              className="bg-gradient-to-r from-indigo-500 to-blue-500 rounded-lg w-12 h-12 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"
-              style={{
-                backgroundImage: 'linear-gradient(to right, #6366f1, #3b82f6)',
-              }}
-            >
-              <Layers className="h-6 w-6 text-white" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2 group-hover:text-indigo-700 transition-colors">Multiple Providers</h3>
-            <p className="text-gray-600">Configure each tool to use your preferred provider with customizable options for optimal results.</p>
-          </div>
+          <FeatureCard
+            icon={<Layers className="h-6 w-6 text-white" />}
+            title="Multiple Providers"
+            description="Configure each tool to use your preferred provider with customizable options for optimal results."
+            iconClassName="from-indigo-500 to-blue-500"
+          />
           
-          <div 
-            className="feature-card group relative"
-            style={{
-              backgroundColor: 'white',
-              padding: '1.5rem',
-              borderRadius: '0.5rem',
-              boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-              border: '1px solid rgba(229, 231, 235)',
-              transition: 'all 0.3s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
-              e.currentTarget.style.borderColor = 'rgba(167, 139, 250, 0.4)';
-              e.currentTarget.style.transform = 'translateY(-5px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
-              e.currentTarget.style.borderColor = 'rgba(229, 231, 235)';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-violet-100/20 to-purple-100/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg"></div>
-            <div 
-              className="bg-gradient-to-r from-violet-500 to-purple-500 rounded-lg w-12 h-12 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"
-              style={{
-                backgroundImage: 'linear-gradient(to right, #8b5cf6, #a855f7)',
-              }}
-            >
-              <Sparkles className="h-6 w-6 text-white" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2 group-hover:text-violet-700 transition-colors">Seamless Integration</h3>
-            <p className="text-gray-600">Easily integrate with Cline's VS Code extension or make direct API calls from any application.</p>
-          </div>
+          <FeatureCard
+            icon={<Sparkles className="h-6 w-6 text-white" />}
+            title="Seamless Integration"
+            description="Easily integrate with Cline's VS Code extension or make direct API calls from any application."
+            iconClassName="from-violet-500 to-purple-500"
+          />
         </div>
       </div>
 
