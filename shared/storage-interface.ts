@@ -1,42 +1,21 @@
-import { User, InsertUser, ToolConfig, InsertToolConfig, RequestLog, InsertRequestLog, SystemStatus, ToolStatus } from './schema';
-import { Store } from 'express-session';
+import { InsertUser, User, ToolConfig, SystemStatus } from "./schema";
 
-/**
- * Storage interface for the application
- */
 export interface IStorage {
-  // User operations
+  // User methods
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
-  getUserByEmail(email: string): Promise<User | undefined>;
-  getUserByApiKey(apiKey: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  updateUserApiKey(userId: number, apiKey: string | null): Promise<void>;
-  validateUserCredentials(username: string, password: string): Promise<User | undefined>;
-  generateApiKey(userId: number): Promise<string>;
-  revokeApiKey(userId: number): Promise<void>;
-  updateUserLastLogin(userId: number): Promise<void>;
-  updateUserRole(userId: number, role: string): Promise<void>;
-  updateUserActiveStatus(userId: number, active: boolean): Promise<void>;
   
-  // Tool configuration operations
+  // Tool Configuration methods
   getToolConfig(id: number): Promise<ToolConfig | undefined>;
-  getToolConfigByUserAndType(userId: number, toolType: string): Promise<ToolConfig | undefined>;
-  getAllToolConfigs(userId: number): Promise<ToolConfig[]>;
-  createToolConfig(config: InsertToolConfig): Promise<ToolConfig>;
-  updateToolConfig(id: number, config: Partial<ToolConfig>): Promise<ToolConfig | undefined>;
+  getAllToolConfigs(): Promise<ToolConfig[]>;
+  createToolConfig(config: any): Promise<ToolConfig>;
   
-  // Request logging operations
-  createRequestLog(log: InsertRequestLog): Promise<RequestLog>;
-  getRequestLogs(userId: number, limit?: number): Promise<RequestLog[]>;
-  getRequestLogsByToolType(userId: number, toolType: string, limit?: number): Promise<RequestLog[]>;
-  
-  // Status operations
+  // Status methods
+  getToolStatus(toolName: string): Promise<Record<string, boolean>>;
+  updateToolStatus(toolName: string, status: any): Promise<void>;
   getSystemStatus(): Promise<SystemStatus>;
-  getToolStatus(toolName?: string): Promise<ToolStatus[]>;
-  updateToolStatus(toolName: string, status: Partial<ToolStatus>): Promise<void>;
-  setTransportType(type: 'STDIO' | 'SSE'): void;
   
-  // Session store
-  sessionStore: Store;
+  // Request logging methods
+  createRequestLog(log: any): Promise<any>;
 }

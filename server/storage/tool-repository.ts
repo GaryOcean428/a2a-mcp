@@ -20,36 +20,47 @@ export class ToolRepository {
   }
   
   /**
-   * Get a tool configuration by user ID and tool type
+   * Get a tool configuration by name and type
    */
-  async getToolConfigByUserAndType(userId: number, toolType: string): Promise<ToolConfig | undefined> {
+  async getToolConfigByNameAndType(name: string, type: string): Promise<ToolConfig | undefined> {
     try {
       const [config] = await db.select()
         .from(toolConfigs)
         .where(
           and(
-            eq(toolConfigs.userId, userId),
-            // Use direct SQL comparison for enum value
-            eq(toolConfigs.toolType as any, toolType)
+            eq(toolConfigs.name, name),
+            eq(toolConfigs.type, type)
           )
         );
       return config;
     } catch (error) {
-      console.error('Error getting tool config by user and type:', error);
+      console.error('Error getting tool config by name and type:', error);
       return undefined;
     }
   }
   
   /**
-   * Get all tool configurations for a user
+   * Get all tool configurations
    */
-  async getAllToolConfigs(userId: number): Promise<ToolConfig[]> {
+  async getAllToolConfigs(): Promise<ToolConfig[]> {
+    try {
+      return await db.select().from(toolConfigs);
+    } catch (error) {
+      console.error('Error getting all tool configs:', error);
+      return [];
+    }
+  }
+  
+  /**
+   * Get all enabled tool configurations
+   */
+  async getEnabledToolConfigs(): Promise<ToolConfig[]> {
     try {
       return await db.select()
         .from(toolConfigs)
-        .where(eq(toolConfigs.userId, userId));
+        .where(eq(toolConfigs.enabled, true));
     } catch (error) {
-      console.error('Error getting all tool configs:', error);
+      console.error('Error getting enabled tool configs:', error);
       return [];
     }
   }
@@ -59,13 +70,10 @@ export class ToolRepository {
    */
   async createToolConfig(config: InsertToolConfig): Promise<ToolConfig> {
     try {
-      const now = new Date();
       const [toolConfig] = await db.insert(toolConfigs)
         .values({
           ...config,
-          active: config.active ?? true,
-          createdAt: now,
-          updatedAt: now
+          enabled: config.enabled ?? true
         })
         .returning();
       return toolConfig;

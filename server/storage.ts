@@ -1,428 +1,130 @@
-import { 
-  users, 
-  toolConfigs, 
-  requestLogs,
-  type User, 
-  type InsertUser, 
-  type UpsertUser,
-  type ToolConfig, 
-  type InsertToolConfig,
-  type RequestLog,
-  type InsertRequestLog,
-  type SystemStatus,
-  type ToolStatus
-} from "@shared/schema";
+import { users, toolConfigs, type User, type InsertUser, type ToolConfig, type SystemStatus } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc } from "drizzle-orm";
+import { IStorage } from "@shared/storage-interface";
+import { ToolRepository } from "./storage/tool-repository";
+import { RequestLogRepository } from "./storage/request-log-repository";
 
-// modify the interface with any CRUD methods
-// you might need
-export interface IStorage {
-  // User operations (Replit Auth)
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  getUserByEmail(email: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
-  upsertUser(user: UpsertUser): Promise<User>;
-  validateUserCredentials(username: string, password: string): Promise<User | undefined>; // Legacy method - not used
-  updateUserRole(userId: string, role: string): Promise<void>;
-  updateUserActiveStatus(userId: string, active: boolean): Promise<void>;
-  
-  // Tool configuration operations
-  getToolConfig(id: number): Promise<ToolConfig | undefined>;
-  getToolConfigByUserAndType(userId: string, toolType: string): Promise<ToolConfig | undefined>;
-  getAllToolConfigs(userId: string): Promise<ToolConfig[]>;
-  createToolConfig(config: InsertToolConfig): Promise<ToolConfig>;
-  updateToolConfig(id: number, config: Partial<ToolConfig>): Promise<ToolConfig | undefined>;
-  
-  // Request logging operations
-  createRequestLog(log: InsertRequestLog): Promise<RequestLog>;
-  getRequestLogs(userId: string, limit?: number): Promise<RequestLog[]>;
-  getRequestLogsByToolType(userId: string, toolType: string, limit?: number): Promise<RequestLog[]>;
-  
-  // Status operations
-  getSystemStatus(): Promise<SystemStatus>;
-  getToolStatus(toolName?: string): Promise<ToolStatus[]>;
-  updateToolStatus(toolName: string, status: Partial<ToolStatus>): Promise<void>;
-}
-
-import { db, pool } from './db';
-import { eq, or, and, desc } from 'drizzle-orm';
-import { scrypt, randomBytes, timingSafeEqual } from 'crypto';
-import { promisify } from 'util';
-import session from 'express-session';
-import ConnectPg from 'connect-pg-simple';
-import logger from './utils/logger';
-
-// Create a specialized logger for storage operations
-const storageLogger = logger.child('Storage');
-
-// Session store setup
-const PostgresSessionStore = ConnectPg(session);
-
-// Async versions of crypto functions
-const scryptAsync = promisify(scrypt);
-
-/**
- * Hash a password using scrypt
- */
-async function hashPassword(password: string): Promise<string> {
-  const salt = randomBytes(16).toString('hex');
-  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
-  const hashedStr = `${buf.toString('hex')}.${salt}`;
-  storageLogger.debug('Generated password hash (last 10 chars hidden)', { hashEnd: hashedStr.slice(-10) });
-  return hashedStr;
-}
-
-/**
- * Compare a supplied password with a stored hash
- */
-async function comparePasswords(supplied: string, stored: string): Promise<boolean> {
-  try {
-    storageLogger.debug('Comparing password');
-    
-    // Handle case when stored password doesn't have the expected format
-    if (!stored || !stored.includes('.')) {
-      storageLogger.error('Invalid stored password format');
-      return false;
-    }
-    
-    const [hashed, salt] = stored.split('.');
-    const hashedBuf = Buffer.from(hashed, 'hex');
-    const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
-    
-    // Ensure both buffers are of the same length before comparison
-    if (hashedBuf.length !== suppliedBuf.length) {
-      storageLogger.error('Buffer length mismatch in password comparison');
-      return false;
-    }
-    
-    return timingSafeEqual(hashedBuf, suppliedBuf);
-  } catch (error) {
-    storageLogger.error('Error comparing passwords:', error);
-    return false;
-  }
-}
-
+// Database storage implementation
 export class DatabaseStorage implements IStorage {
-  // Tool status tracking
-  private toolStatus: Map<string, ToolStatus>;
-  private systemStatus: SystemStatus;
-  // Session store for authentication
-  public sessionStore: session.Store;
-  
+  private toolRepository: ToolRepository;
+  private requestLogRepository: RequestLogRepository;
+
   constructor() {
-    // Initialize in-memory tool status (this would be in the database in a production app)
-    this.toolStatus = new Map();
-    
-    // Initialize system status
-    this.systemStatus = {
-      version: "0.1.0-alpha",
-      uptime: 0,
-      transport: "STDIO",
-      activeTools: []
-    };
-    
-    // Set up session store using the same database connection
-    this.sessionStore = new PostgresSessionStore({
-      pool: pool,
-      createTableIfMissing: true,
-      tableName: 'sessions' // Use the table name defined in schema.ts
-    });
-    
-    // Initialize default tool statuses
-    const defaultTools = ["web_search", "form_automation", "vector_storage", "data_scraper", "status"];
-    defaultTools.forEach(tool => {
-      this.toolStatus.set(tool, {
-        name: tool,
-        available: false,
-        latency: 0
-      });
-    });
-    
-    // Status tool is always available
-    this.toolStatus.set("status", {
-      name: "status",
-      available: true,
-      latency: 0
-    });
-    
-    this.updateSystemStatus();
+    this.toolRepository = new ToolRepository();
+    this.requestLogRepository = new RequestLogRepository();
   }
   
-  private updateSystemStatus() {
-    // Update active tools in system status
-    this.systemStatus.activeTools = Array.from(this.toolStatus.values());
-    
-    // Start a timer to update uptime every second
-    setInterval(() => {
-      this.systemStatus.uptime += 1;
-    }, 1000);
-  }
-  
-  // User operations
-  async getUser(id: string): Promise<User | undefined> {
-    try {
-      const [user] = await db.select().from(users).where(eq(users.id, id));
-      return user;
-    } catch (error) {
-      console.error('Error getting user by ID:', error);
-      return undefined;
-    }
+  // User methods
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    try {
-      const [user] = await db.select().from(users).where(eq(users.username, username));
-      return user;
-    } catch (error) {
-      console.error('Error getting user by username:', error);
-      return undefined;
-    }
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
   }
-  
-  async getUserByEmail(email: string): Promise<User | undefined> {
-    try {
-      const [user] = await db.select().from(users).where(eq(users.email, email));
-      return user;
-    } catch (error) {
-      console.error('Error getting user by email:', error);
-      return undefined;
-    }
-  }
-  
-  // Add the upsertUser method for Replit Auth
-  async upsertUser(userData: UpsertUser): Promise<User> {
-    try {
-      storageLogger.info(`Upserting user: ${userData.username} (${userData.id})`);
-      const [user] = await db
-        .insert(users)
-        .values({
-          ...userData,
-          updatedAt: new Date(),
-        })
-        .onConflictDoUpdate({
-          target: users.id,
-          set: {
-            ...userData,
-            updatedAt: new Date(),
-          },
-        })
-        .returning();
-      return user;
-    } catch (error) {
-      storageLogger.error('Error upserting user:', error);
-      throw new Error('Failed to upsert user');
-    }
-  }
-
-  // This method is removed as we no longer use API keys with Replit Auth
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    try {
-      storageLogger.info(`Creating user: ${insertUser.username}`);
-      const [user] = await db.insert(users)
-        .values({
-          ...insertUser,
-          role: 'user',
-          active: true,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        })
-        .returning();
-      
-      return user;
-    } catch (error) {
-      storageLogger.error('Error creating user:', error);
-      throw new Error('Failed to create user');
-    }
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
   }
   
-  // This method is for legacy authentication - no longer used with Replit Auth
-async validateUserCredentials(usernameOrEmail: string, password: string): Promise<User | undefined> {
-    storageLogger.warn('Legacy authentication attempt - using Replit Auth instead');
-    return undefined;
-  }
-  
-  async updateUserRole(userId: string, role: string): Promise<void> {
-    try {
-      await db.update(users)
-        .set({ role })
-        .where(eq(users.id, userId));
-    } catch (error) {
-      console.error('Error updating user role:', error);
-      throw new Error('Failed to update user role');
-    }
-  }
-  
-  async updateUserActiveStatus(userId: string, active: boolean): Promise<void> {
-    try {
-      await db.update(users)
-        .set({ active })
-        .where(eq(users.id, userId));
-    } catch (error) {
-      console.error('Error updating user active status:', error);
-      throw new Error('Failed to update user active status');
-    }
-  }
-  
-  // Tool configuration operations
+  // Tool Configuration methods
   async getToolConfig(id: number): Promise<ToolConfig | undefined> {
-    try {
-      const [config] = await db.select().from(toolConfigs).where(eq(toolConfigs.id, id));
-      return config;
-    } catch (error) {
-      console.error('Error getting tool config:', error);
-      return undefined;
-    }
+    return this.toolRepository.getToolConfig(id);
   }
   
-  async getToolConfigByUserAndType(userId: string, toolType: string): Promise<ToolConfig | undefined> {
+  async getAllToolConfigs(): Promise<ToolConfig[]> {
+    return this.toolRepository.getAllToolConfigs();
+  }
+  
+  async createToolConfig(config: any): Promise<ToolConfig> {
+    return this.toolRepository.createToolConfig(config);
+  }
+  
+  // Status methods
+  async getToolStatus(toolName: string): Promise<Record<string, boolean>> {
     try {
       const [config] = await db.select()
         .from(toolConfigs)
-        .where(
-          and(
-            eq(toolConfigs.userId, userId),
-            // Use direct SQL comparison for enum value
-            eq(toolConfigs.toolType as any, toolType)
-          )
-        );
-      return config;
+        .where(eq(toolConfigs.name, toolName));
+      
+      return {
+        [toolName]: config?.enabled || false
+      };
     } catch (error) {
-      console.error('Error getting tool config by user and type:', error);
-      return undefined;
+      console.error(`Error getting status for tool ${toolName}:`, error);
+      return { [toolName]: false };
     }
   }
   
-  async getAllToolConfigs(userId: string): Promise<ToolConfig[]> {
+  async updateToolStatus(toolName: string, status: any): Promise<void> {
     try {
-      return await db.select()
+      // First check if we have this tool in our config
+      const [existingTool] = await db.select()
         .from(toolConfigs)
-        .where(eq(toolConfigs.userId, userId));
+        .where(eq(toolConfigs.name, toolName));
+        
+      if (existingTool) {
+        // Update the existing tool
+        await db.update(toolConfigs)
+          .set({
+            config: {
+              ...existingTool.config,
+              ...status,
+              lastUpdated: new Date().toISOString()
+            }
+          })
+          .where(eq(toolConfigs.name, toolName));
+      } else {
+        // Create a new tool config
+        await db.insert(toolConfigs)
+          .values({
+            name: toolName,
+            type: 'tool',
+            enabled: status.available !== false,
+            config: {
+              ...status,
+              lastUpdated: new Date().toISOString()
+            }
+          });
+      }
     } catch (error) {
-      console.error('Error getting all tool configs:', error);
-      return [];
+      console.error(`Error updating tool status for ${toolName}:`, error);
     }
   }
   
-  async createToolConfig(config: InsertToolConfig): Promise<ToolConfig> {
-    try {
-      const now = new Date();
-      const [toolConfig] = await db.insert(toolConfigs)
-        .values({
-          ...config,
-          active: config.active ?? true,
-          createdAt: now,
-          updatedAt: now
-        })
-        .returning();
-      return toolConfig;
-    } catch (error) {
-      console.error('Error creating tool config:', error);
-      throw new Error('Failed to create tool config');
-    }
-  }
-  
-  async updateToolConfig(id: number, configUpdate: Partial<ToolConfig>): Promise<ToolConfig | undefined> {
-    try {
-      const [updatedConfig] = await db.update(toolConfigs)
-        .set({
-          ...configUpdate,
-          updatedAt: new Date()
-        })
-        .where(eq(toolConfigs.id, id))
-        .returning();
-      return updatedConfig;
-    } catch (error) {
-      console.error('Error updating tool config:', error);
-      return undefined;
-    }
-  }
-  
-  // Request logging operations
-  async createRequestLog(log: InsertRequestLog): Promise<RequestLog> {
-    try {
-      const [requestLog] = await db.insert(requestLogs)
-        .values({
-          ...log,
-          userId: log.userId ?? null,
-          statusCode: log.statusCode ?? null,
-          executionTimeMs: log.executionTimeMs ?? null,
-          responseData: log.responseData ?? null,
-          timestamp: new Date()
-        })
-        .returning();
-      
-      // Update last request time in system status
-      this.systemStatus.lastRequest = new Date().toISOString();
-      
-      return requestLog;
-    } catch (error) {
-      console.error('Error creating request log:', error);
-      throw new Error('Failed to create request log');
-    }
-  }
-  
-  async getRequestLogs(userId: string, limit = 100): Promise<RequestLog[]> {
-    try {
-      return await db.select()
-        .from(requestLogs)
-        .where(eq(requestLogs.userId, userId))
-        .orderBy(desc(requestLogs.timestamp))
-        .limit(limit);
-    } catch (error) {
-      console.error('Error getting request logs:', error);
-      return [];
-    }
-  }
-  
-  async getRequestLogsByToolType(userId: string, toolType: string, limit = 100): Promise<RequestLog[]> {
-    try {
-      return await db.select()
-        .from(requestLogs)
-        .where(
-          and(
-            eq(requestLogs.userId, userId),
-            eq(requestLogs.toolType as any, toolType)
-          )
-        )
-        .orderBy(desc(requestLogs.timestamp))
-        .limit(limit);
-    } catch (error) {
-      console.error('Error getting request logs by tool type:', error);
-      return [];
-    }
-  }
-  
-  // Status operations
   async getSystemStatus(): Promise<SystemStatus> {
-    this.updateSystemStatus();
-    return this.systemStatus;
-  }
-  
-  async getToolStatus(toolName?: string): Promise<ToolStatus[]> {
-    if (toolName) {
-      const status = this.toolStatus.get(toolName);
-      return status ? [status] : [];
-    }
-    return Array.from(this.toolStatus.values());
-  }
-  
-  async updateToolStatus(toolName: string, status: Partial<ToolStatus>): Promise<void> {
-    const currentStatus = this.toolStatus.get(toolName) || { 
-      name: toolName,
-      available: false
-    };
+    // Get all enabled tools
+    const tools = await db.select()
+      .from(toolConfigs)
+      .where(eq(toolConfigs.enabled, true));
     
-    this.toolStatus.set(toolName, {
-      ...currentStatus,
-      ...status,
-      lastUsed: new Date().toISOString()
+    const features: Record<string, boolean> = {};
+    tools.forEach(tool => {
+      features[tool.name] = true;
     });
     
-    // Update active tools in system status
-    this.systemStatus.activeTools = Array.from(this.toolStatus.values());
+    return {
+      version: '0.1.0-alpha',
+      uptime: process.uptime(),
+      transport: 'http',
+      wsEnabled: true,
+      environment: process.env.NODE_ENV || 'development',
+      features
+    };
+  }
+  
+  // Request logging methods
+  async createRequestLog(log: any): Promise<any> {
+    return this.requestLogRepository.createRequestLog(log);
   }
 }
 
-// Export singleton instance of DatabaseStorage for use throughout the application
+// Create and export storage instance
 export const storage = new DatabaseStorage();
