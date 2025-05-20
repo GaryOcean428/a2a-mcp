@@ -138,13 +138,13 @@ function App() {
 A unified clean-codebase script has been created to perform all cleanup operations:
 
 ```bash
-node clean-codebase.js
+node clean-codebase.cjs
 ```
 
 To deploy the application with all optimizations applied:
 
 ```bash
-node scripts/deploy.js
+node scripts/deploy.cjs
 ```
 
 ## Benefits of Consolidation
