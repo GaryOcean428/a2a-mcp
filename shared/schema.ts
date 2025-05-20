@@ -7,8 +7,12 @@ export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: varchar("username", { length: 100 }).notNull().unique(),
   email: varchar("email", { length: 255 }),
-  passwordHash: varchar("password_hash", { length: 255 }),
+  password: varchar("password", { length: 255 }).notNull(),
   role: varchar("role", { length: 50 }).default("user"),
+  apiKey: varchar("api_key", { length: 255 }).default(""),
+  active: boolean("active").default(true),
+  lastLogin: timestamp("last_login"),
+  name: varchar("name", { length: 255 }),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -48,6 +52,13 @@ export type InsertToolConfig = typeof toolConfigs.$inferInsert;
 export type RequestLog = typeof requestLogs.$inferSelect;
 export type InsertRequestLog = typeof requestLogs.$inferInsert;
 
+export type ToolStatus = {
+  name: string;
+  available: boolean;
+  latency: number;
+  lastUsed?: string;
+};
+
 // Zod schemas for validation
 export const insertUserSchema = createInsertSchema(users)
   .omit({ id: true, createdAt: true, updatedAt: true });
@@ -76,8 +87,24 @@ export interface MCPResponse {
 
 export interface WebSearchParams {
   query: string;
-  numResults?: number;
+  resultCount?: number;
+  provider: 'openai' | 'tavily' | 'perplexity';
   safeSearch?: boolean;
+  openaiOptions?: {
+    model?: string;
+    temperature?: number;
+  };
+  tavilyOptions?: {
+    searchDepth?: string;
+    includeRawContent?: boolean;
+    includeImages?: boolean;
+    topic?: string;
+  };
+  perplexityOptions?: {
+    model?: string;
+    searchContextSize?: string;
+    searchDomainFilter?: string[];
+  };
 }
 
 export interface FormAutomationParams {
@@ -91,16 +118,18 @@ export interface FormAutomationParams {
 }
 
 export interface VectorStorageParams {
-  operation: 'query' | 'insert' | 'update' | 'delete';
+  operation: 'search' | 'retrieve' | 'store' | 'delete';
   collection: string;
-  data?: Array<{
-    id?: string;
-    vector?: number[];
-    metadata?: Record<string, any>;
-    text?: string;
-  }>;
-  filter?: Record<string, any>;
-  topK?: number;
+  provider: 'pinecone' | 'weaviate';
+  query?: string;
+  embedding?: number[];
+  ids?: string[];
+  data?: Record<string, any>;
+  filters?: Record<string, any>;
+  limit?: number;
+  weaviateOptions?: {
+    className?: string;
+  };
 }
 
 export interface DataScraperParams {
@@ -174,6 +203,8 @@ export type SystemStatus = {
   version: string;
   uptime: number;
   transport: string;
+  lastRequest?: string;
+  activeTools: ToolStatus[];
   wsEnabled: boolean;
   environment: string;
   features: Record<string, boolean>;
