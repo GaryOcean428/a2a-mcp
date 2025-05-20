@@ -75,7 +75,7 @@ export class DatabaseStorage implements IStorage {
         await db.update(toolConfigs)
           .set({
             config: {
-              ...existingTool.config,
+              ...(existingTool.config as Record<string, any>),
               ...status,
               lastUpdated: new Date().toISOString()
             }
@@ -116,7 +116,8 @@ export class DatabaseStorage implements IStorage {
       transport: 'http',
       wsEnabled: true,
       environment: process.env.NODE_ENV || 'development',
-      features
+      features,
+      activeTools: [],
     };
   }
   

@@ -18,7 +18,10 @@ export class StatusRepository {
       version: "0.1.0-alpha",
       uptime: 0,
       transport: "STDIO",
-      activeTools: []
+      activeTools: [],
+      wsEnabled: true,
+      environment: process.env.NODE_ENV || "development",
+      features: {},
     };
     
     // Initialize default tool statuses
@@ -86,9 +89,10 @@ export class StatusRepository {
    * Update tool status
    */
   async updateToolStatus(toolName: string, status: Partial<ToolStatus>): Promise<void> {
-    const currentStatus = this.toolStatus.get(toolName) || { 
+    const currentStatus = this.toolStatus.get(toolName) || {
       name: toolName,
-      available: false
+      available: false,
+      latency: 0,
     };
     
     this.toolStatus.set(toolName, {

@@ -28,8 +28,7 @@ export interface IStorage {
   
   // Tool configuration operations
   getToolConfig(id: number): Promise<ToolConfig | undefined>;
-  getToolConfigByUserAndType(userId: number, toolType: string): Promise<ToolConfig | undefined>;
-  getAllToolConfigs(userId: number): Promise<ToolConfig[]>;
+  getAllToolConfigs(): Promise<ToolConfig[]>;
   createToolConfig(config: InsertToolConfig): Promise<ToolConfig>;
   updateToolConfig(id: number, config: Partial<ToolConfig>): Promise<ToolConfig | undefined>;
   
@@ -130,12 +129,9 @@ export class DatabaseStorage implements IStorage {
     return this.toolRepo.getToolConfig(id);
   }
   
-  getToolConfigByUserAndType(userId: number, toolType: string) {
-    return this.toolRepo.getToolConfigByUserAndType(userId, toolType);
-  }
   
-  getAllToolConfigs(userId: number) {
-    return this.toolRepo.getAllToolConfigs(userId);
+  getAllToolConfigs() {
+    return this.toolRepo.getAllToolConfigs();
   }
   
   createToolConfig(config: InsertToolConfig) {
