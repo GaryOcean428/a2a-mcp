@@ -22,6 +22,7 @@ import { isDevelopment, getBrowserInfo, getDeviceInfo } from "./utils/environmen
 // Import critical CSS fixes (important: keep these direct imports)
 import "./styles/fix-sidebar.css";
 import "./styles/fix-critical.css";
+import "./styles/critical-fix.css"; // Added new CSS with gradient and feature-card fixes
 
 // Apply essential CSS and initialize theme immediately
 initializeTheme();
