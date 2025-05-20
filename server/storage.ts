@@ -50,12 +50,14 @@ export class DatabaseStorage implements IStorage {
   // Status methods
   async getToolStatus(toolName: string): Promise<Record<string, boolean>> {
     try {
-      const [config] = await db.select()
-        .from(toolConfigs)
-        .where(eq(toolConfigs.name, toolName));
+      // Use a raw query to match the actual database schema
+      const query = "SELECT id, tool_type, active FROM tool_configs WHERE tool_type = $1";
+      const result = await (db as any).client.query(query, [toolName]);
+      
+      const config = result.rows && result.rows.length > 0 ? result.rows[0] : null;
       
       return {
-        [toolName]: config?.enabled || false
+        [toolName]: config?.active || false
       };
     } catch (error) {
       console.error(`Error getting status for tool ${toolName}:`, error);
@@ -65,34 +67,54 @@ export class DatabaseStorage implements IStorage {
   
   async updateToolStatus(toolName: string, status: any): Promise<void> {
     try {
-      // First check if we have this tool in our config
-      const [existingTool] = await db.select()
-        .from(toolConfigs)
-        .where(eq(toolConfigs.name, toolName));
+      // Use raw queries to match the actual database schema
+      const checkQuery = "SELECT id, tool_type, active, config FROM tool_configs WHERE tool_type = $1";
+      const result = await (db as any).client.query(checkQuery, [toolName]);
+      
+      const existingTool = result.rows && result.rows.length > 0 ? result.rows[0] : null;
         
       if (existingTool) {
         // Update the existing tool
-        await db.update(toolConfigs)
-          .set({
-            config: {
-              ...(existingTool.config as Record<string, any>),
-              ...status,
-              lastUpdated: new Date().toISOString()
-            }
-          })
-          .where(eq(toolConfigs.name, toolName));
+        const updateQuery = `
+          UPDATE tool_configs 
+          SET config = $1, 
+              updated_at = $2
+          WHERE tool_type = $3
+        `;
+        
+        const updatedConfig = {
+          ...(existingTool.config || {}),
+          ...status,
+          lastUpdated: new Date().toISOString()
+        };
+        
+        await (db as any).client.query(updateQuery, [
+          updatedConfig, 
+          new Date(), 
+          toolName
+        ]);
       } else {
         // Create a new tool config
-        await db.insert(toolConfigs)
-          .values({
-            name: toolName,
-            type: 'tool',
-            enabled: status.available !== false,
-            config: {
-              ...status,
-              lastUpdated: new Date().toISOString()
-            }
-          });
+        const insertQuery = `
+          INSERT INTO tool_configs 
+          (tool_type, active, config, created_at, updated_at)
+          VALUES ($1, $2, $3, $4, $5)
+        `;
+        
+        const newConfig = {
+          ...status,
+          lastUpdated: new Date().toISOString()
+        };
+        
+        const now = new Date();
+        
+        await (db as any).client.query(insertQuery, [
+          toolName,
+          status.available !== false,
+          newConfig,
+          now,
+          now
+        ]);
       }
     } catch (error) {
       console.error(`Error updating tool status for ${toolName}:`, error);
@@ -100,25 +122,59 @@ export class DatabaseStorage implements IStorage {
   }
   
   async getSystemStatus(): Promise<SystemStatus> {
-    // Get all enabled tools
-    const tools = await db.select()
-      .from(toolConfigs)
-      .where(eq(toolConfigs.enabled, true));
-    
-    const features: Record<string, boolean> = {};
-    tools.forEach(tool => {
-      features[tool.name] = true;
-    });
-    
-    return {
-      version: '0.1.0-alpha',
-      uptime: process.uptime(),
-      transport: 'http',
-      wsEnabled: true,
-      environment: process.env.NODE_ENV || 'development',
-      features,
-      activeTools: [],
-    };
+    try {
+      // Use raw query to match the actual database schema
+      const rawQuery = "SELECT id, tool_type, active FROM tool_configs WHERE active = true";
+      const result = await (db as any).client.query(rawQuery);
+      
+      const features: Record<string, boolean> = {};
+      const activeTools: string[] = [];
+      
+      if (result.rows && result.rows.length > 0) {
+        result.rows.forEach((tool: any) => {
+          // Use tool_type as the feature name
+          const featureName = tool.tool_type || `tool-${tool.id}`;
+          features[featureName] = true;
+          activeTools.push(featureName);
+        });
+      }
+      
+      // Add default features
+      features['api'] = true;
+      features['websocket'] = true;
+      features['database'] = true;
+      
+      if (!activeTools.includes('api')) activeTools.push('api');
+      if (!activeTools.includes('websocket')) activeTools.push('websocket');
+      if (!activeTools.includes('database')) activeTools.push('database');
+      
+      return {
+        version: '0.1.0-alpha',
+        uptime: process.uptime(),
+        transport: 'http',
+        wsEnabled: true,
+        environment: process.env.NODE_ENV || 'development',
+        features,
+        activeTools
+      };
+    } catch (error) {
+      console.error("Error in getSystemStatus:", error);
+      
+      // Return minimal system status on error
+      return {
+        version: '0.1.0-alpha',
+        uptime: process.uptime(),
+        transport: 'http',
+        wsEnabled: true,
+        environment: process.env.NODE_ENV || 'development',
+        features: {
+          'api': true, 
+          'database': false, 
+          'websocket': true
+        },
+        activeTools: ['api', 'websocket']
+      };
+    }
   }
   
   // Request logging methods
