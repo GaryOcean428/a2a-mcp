@@ -137,6 +137,11 @@ For convenience, we've included automated fix scripts that handle all compatibil
 # Comprehensive fix for all deployment issues
 node complete-deployment-fix.cjs
 
+# This script rebuilds the UI, verifies CSS consistency,
+# and then runs the standard deployment fixes. It
+# resolves issues where the interface renders with
+# missing styles or appears blocky after deployment.
+
 # Deploy with compatibility fixes applied
 node deploy-fix.cjs
 ```
