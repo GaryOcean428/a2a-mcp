@@ -23,7 +23,7 @@ import "./styles/fix-critical.css"; // Additional critical CSS fixes
 import { createLazyComponent, LoadingSpinner } from "./components/LazyLoad";
 
 // Lazy load all pages for better performance
-const Home = createLazyComponent(() => import("@/pages/Home"));
+const Home = createLazyComponent(() => import("@/pages/Home-fixed"));
 const WebSearch = createLazyComponent(() => import("@/pages/WebSearch"));
 const FormAutomation = createLazyComponent(() => import("@/pages/FormAutomation"));
 const VectorStorage = createLazyComponent(() => import("@/pages/VectorStorage"));
