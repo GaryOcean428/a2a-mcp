@@ -109,27 +109,19 @@ export default function AuthPage() {
     setError(null);
     
     try {
-      logger.debug('Attempting login', {
-        tags: ['auth', 'login', 'submit'],
-        data: { username: values.username }
+      logger.debug('Redirecting to Replit Auth', {
+        tags: ['auth', 'login', 'redirect']
       });
       
-      await login(values);
+      // Redirect to Replit Auth login
+      window.location.href = '/api/login';
       
-      toast({
-        title: 'Login Successful',
-        description: 'You have been logged in successfully',
-      });
-      
-      // Redirect to returnUrl or home page
-      navigate(returnUrl);
     } catch (err: any) {
-      logger.error('Login error', {
+      logger.error('Login redirect error', {
         tags: ['auth', 'login', 'error'],
         error: err
       });
-      setError(err.message || 'Failed to log in');
-    } finally {
+      setError('Unable to redirect to login');
       setSubmitting(false);
     }
   };

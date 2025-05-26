@@ -78,8 +78,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Mutation for login
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginCredentials) => {
-      const response = await apiRequest("POST", "/api/login", credentials);
-      return await response.json();
+      // Redirect to Replit Auth instead of POST request
+      window.location.href = "/api/login";
+      throw new Error("Redirecting to login...");
     },
     onSuccess: (user: User) => {
       logger.info("Login successful", { tags: ["auth", "login"] });
