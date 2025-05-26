@@ -1,0 +1,75 @@
+[CSS Verify] - from-purple-50: OK
+[CSS Verify] - to-white: OK
+[CSS Verify] - bg-grid-gray-100: OK
+[CSS Verify] - bg-blob-gradient: OK
+[CSS Verify] Some critical CSS classes are missing!
+[WebSocket Test] Testing connection to wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws
+[StyleFixer] DOM changed, reapplying CSS fixes...
+[StyleFixer] Applying direct CSS fixes...
+[StyleFixer] Finished applying direct CSS fixes.
+[CSS Recovery] Recovery result: Failed Missing: bg-gradient-to-r, animate-fade-in-down, feature-card
+[StyleFixer] DOM changed, reapplying CSS fixes...
+[StyleFixer] Applying direct CSS fixes...
+[StyleFixer] Finished applying direct CSS fixes.
+[ui] Removed loading overlay
+[WebSocket Test] Connection test successful
+[WebSocket Test] Connection closed
+[StylesProtectedRoot] Timeout waiting for UI ready event, proceeding anyway
+[api:request:get] API GET request to /api/user
+MCP Integration Platform v1.0.0-1746151780876
+Build: 2025-05-26T09:41:48.376Z (development)
+[CSS Injector] Critical CSS injected
+[CSS Verify] Starting verification...
+MCP Integration Platform v1.0.0-1746151780876
+Build: 2025-05-26T09:41:48.379Z (development)
+[CSS Injector] Critical CSS injected
+[CSS Verify] Starting verification...
+[StyleFixer] DOM changed, reapplying CSS fixes...
+[StyleFixer] Applying direct CSS fixes...
+[StyleFixer] Finished applying direct CSS fixes.
+[websocket:enhanced] WebSocket connection error 
+Event {isTrusted: true}
+isTrusted: true
+get isTrusted: ƒ get isTrusted()
+length: 0
+name: "get isTrusted"
+[[Prototype]]: ƒ ()
+[[Prototype]]: Event
+AT_TARGET: 2
+BUBBLING_PHASE: 3
+CAPTURING_PHASE: 1
+NONE: 0
+bubbles: false
+get bubbles: ƒ get bubbles()
+cancelBubble: false
+get cancelBubble: ƒ get cancelBubble()
+set cancelBubble: ƒ set cancelBubble()
+cancelable: false
+get cancelable: ƒ get cancelable()
+composed: false
+get composed: ƒ get composed()
+composedPath: ƒ composedPath()
+currentTarget: WebSocket
+get currentTarget: ƒ get currentTarget()
+defaultPrevented: false
+get defaultPrevented: ƒ get defaultPrevented()
+eventPhase: 0
+get eventPhase: ƒ get eventPhase()
+initEvent: ƒ initEvent()
+preventDefault: ƒ preventDefault()
+returnValue: true
+get returnValue: ƒ get returnValue()
+set returnValue: ƒ set returnValue()
+srcElement: WebSocket
+get srcElement: ƒ get srcElement()
+stopImmediatePropagation: ƒ stopImmediatePropagation()
+stopPropagation: ƒ stopPropagation()
+target: WebSocket
+get target: ƒ get target()
+timeStamp: 10944.39999999851
+get timeStamp: ƒ get timeStamp()
+type: "error"
+get type: ƒ get type()
+constructor: ƒ Event()
+Symbol(Symbol.toStringTag): undefined
+[[Prototype]]: Object

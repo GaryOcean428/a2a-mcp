@@ -20,6 +20,7 @@ import { logger } from "./utils/logger";
 import { isDevelopment, getBrowserInfo, getDeviceInfo } from "./utils/environment";
 
 // Import critical CSS fixes (important: keep these direct imports)
+import "./styles/emergency-fix.css"; // EMERGENCY: Force load all critical styles
 import "./styles/fix-sidebar.css";
 import "./styles/fix-critical.css";
 import "./styles/critical-fix.css"; // Added new CSS with gradient and feature-card fixes
