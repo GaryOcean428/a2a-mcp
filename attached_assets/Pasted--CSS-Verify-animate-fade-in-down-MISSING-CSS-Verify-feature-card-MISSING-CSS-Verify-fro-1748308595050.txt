@@ -1,0 +1,61 @@
+[CSS Verify] - animate-fade-in-down: MISSING
+[CSS Verify] - feature-card: MISSING
+[CSS Verify] - from-purple-50: OK
+[CSS Verify] - to-white: OK
+[CSS Verify] - bg-grid-gray-100: OK
+[CSS Verify] - bg-blob-gradient: OK
+[CSS Verify] Some critical CSS classes are missing!
+[WebSocket Test] Testing connection to wss://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/mcp-ws
+[StyleFixer] DOM changed, reapplying CSS fixes...
+[StyleFixer] Applying direct CSS fixes...
+[StyleFixer] Finished applying direct CSS fixes.
+[WebSocket Test] Connection test successful
+[StylesProtectedRoot] Timeout waiting for UI ready event, proceeding anyway
+[api:request:get] API GET request to /api/user
+MCP Integration Platform v1.0.0-1746151780876
+Build: 2025-05-27T01:15:56.084Z (development)
+[CSS Injector] Critical CSS injected
+[CSS Verify] Starting verification...
+MCP Integration Platform v1.0.0-1746151780876
+Build: 2025-05-27T01:15:56.086Z (development)
+[CSS Injector] Critical CSS injected
+[CSS Verify] Starting verification...
+[StyleFixer] DOM changed, reapplying CSS fixes...
+[StyleFixer] Applying direct CSS fixes...
+[StyleFixer] Finished applying direct CSS fixes.
+[WebSocket Test] Connection closed
+[websocket:enhanced] WebSocket connection error 
+Event {isTrusted: true}
+isTrusted: true
+get isTrusted: ƒ get isTrusted()
+length: 0
+name: "get isTrusted"
+[[Prototype]]: ƒ ()
+apply: ƒ apply()
+arguments: "'caller', 'callee', and 'arguments' properties may not be accessed on strict mode functions or the arguments objects for calls to them"
+get arguments: ƒ ()
+set arguments: ƒ ()
+bind: ƒ bind()
+call: ƒ call()
+caller: "'caller', 'callee', and 'arguments' properties may not be accessed on strict mode functions or the arguments objects for calls to them"
+get caller: ƒ ()
+set caller: ƒ ()
+constructor: ƒ Function()
+length: 0
+name: "get isTrusted"
+toString: ƒ toString()
+Symbol(Symbol.hasInstance): undefined
+[[Prototype]]: Object
+[[Prototype]]: Event
+
+at t.value (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://a0f900fa-098a-465e-817c-314b182b0cdf-00-61rwve6c86ns.worf.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+[api:auth:401] Not authenticated (401), returning null
+[StyleFixer] DOM changed, reapplying CSS fixes...
+[StyleFixer] Applying direct CSS fixes...
+[StyleFixer] Finished applying direct CSS fixes.
+[StyleFixer] DOM changed, reapplying CSS fixes...
+[StyleFixer] Applying direct CSS fixes...
+[StyleFixer] Finished applying direct CSS fixes.
