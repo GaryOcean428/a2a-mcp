@@ -306,7 +306,7 @@ export class WebSearchService {
         "Authorization": `Bearer ${perplexityApiKey}`
       },
       body: JSON.stringify({
-        model: params.perplexityOptions?.model || "sonar",
+        model: params.perplexityOptions?.model || "llama-3.1-sonar-small-128k-online",
         messages: [
           { role: "system", content: "Please search for information on the following query and format the results as an array of search results objects with title, url, and snippet." },
           { role: "user", content: params.query }

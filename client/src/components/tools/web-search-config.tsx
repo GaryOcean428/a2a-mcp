@@ -288,15 +288,16 @@ export function WebSearchConfig({ config, onChange }: WebSearchConfigProps) {
                 <div>
                   <Label htmlFor="perplexity-model" className="block text-sm font-medium mb-1">Model</Label>
                   <Select 
-                    value={config.perplexityOptions?.model || 'sonar'}
+                    value={config.perplexityOptions?.model || 'llama-3.1-sonar-small-128k-online'}
                     onValueChange={(value) => handlePerplexityOptionChange('model', value)}
                   >
                     <SelectTrigger id="perplexity-model">
                       <SelectValue placeholder="Select model" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="sonar">Sonar</SelectItem>
-                      <SelectItem value="sonar-pro">Sonar Pro</SelectItem>
+                      <SelectItem value="llama-3.1-sonar-small-128k-online">Sonar Small (128k)</SelectItem>
+                      <SelectItem value="llama-3.1-sonar-large-128k-online">Sonar Large (128k)</SelectItem>
+                      <SelectItem value="llama-3.1-sonar-huge-128k-online">Sonar Huge (128k)</SelectItem>
                     </SelectContent>
                   </Select>
                   <p className="mt-1 text-xs text-gray-500">Perplexity model to use</p>

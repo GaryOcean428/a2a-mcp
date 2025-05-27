@@ -70,11 +70,17 @@ To use the web search feature, send a POST request to `/api/mcp` with the follow
 - Better understanding of complex queries
 - Rich context and summaries included with results
 - Good for technical and scientific content
+- Multiple model sizes available (Small, Large, Huge)
 
 **Best for**:
 - Complex queries requiring understanding of context
 - Research-oriented searches
 - Technical or academic inquiries
+
+**Available Models**:
+- `llama-3.1-sonar-small-128k-online` - Fast, efficient for general queries
+- `llama-3.1-sonar-large-128k-online` - Balanced performance and accuracy
+- `llama-3.1-sonar-huge-128k-online` - Maximum accuracy for complex queries
 
 **Example**:
 ```json
@@ -85,7 +91,10 @@ To use the web search feature, send a POST request to `/api/mcp` with the follow
     "query": "How do transformer neural networks work and what are their limitations?",
     "provider": "perplexity",
     "max_results": 3,
-    "search_depth": "comprehensive"
+    "perplexityOptions": {
+      "model": "llama-3.1-sonar-large-128k-online",
+      "searchContextSize": "high"
+    }
   }
 }
 ```
