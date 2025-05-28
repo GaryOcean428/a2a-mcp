@@ -54,7 +54,7 @@ export default function Layout({
       </a>
 
       {/* Header with integrated navigation */}
-      <div className="sticky top-0 z-40 w-full backdrop-blur-sm bg-white/80 dark:bg-gray-900/80 border-b border-gray-200 dark:border-gray-800 shadow-sm">
+      <div className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-border shadow-sm">
         <Header
           onToggleSidebar={toggleSidebar}
           sidebarVisible={shouldShowSidebar}
@@ -71,7 +71,7 @@ export default function Layout({
           {shouldShowSidebar && (
             <div
               className={cn(
-                "sidebar-container transition-all duration-200 bg-white dark:bg-gray-950 border-r border-gray-200 dark:border-gray-800 shadow-sm",
+                "sidebar-container transition-all duration-200 bg-sidebar border-r border-sidebar-border shadow-sm",
                 sidebarCollapsed ? "w-20" : "w-64",
               )}
             >
@@ -92,7 +92,7 @@ export default function Layout({
             {activeRoute && <Breadcrumb className="mb-6" />}
 
             {/* Content Container with subtle gradient and soft shadow */}
-            <div className="relative overflow-hidden rounded-xl bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 shadow-md">
+            <div className="relative overflow-hidden rounded-xl bg-card border border-border shadow-md">
               {/* Decorative gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-br from-primary-50/30 via-transparent to-transparent dark:from-primary-950/10 pointer-events-none opacity-60"></div>
 
@@ -107,13 +107,13 @@ export default function Layout({
       </main>
 
       {/* Footer with gradient effect */}
-      <div className="relative overflow-hidden border-t border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-950/80 backdrop-blur-sm">
+      <div className="relative overflow-hidden border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="absolute inset-0 bg-gradient-to-t from-primary-50/10 to-transparent dark:from-primary-950/10 pointer-events-none"></div>
         <Footer />
       </div>
 
       {/* Status bar with glassmorphism effect */}
-      <div className="sticky bottom-0 z-30 backdrop-blur-md bg-gray-900/80 border-t border-gray-800">
+      <div className="sticky bottom-0 z-30 backdrop-blur-md bg-background/80 border-t border-border">
         <StatusBar />
       </div>
     </div>

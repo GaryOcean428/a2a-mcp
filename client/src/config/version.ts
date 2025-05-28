@@ -1,6 +1,6 @@
 /**
  * MCP Integration Platform Version
- * Auto-generated timestamp for cache busting
+ * Auto-generated on 2025-05-26T10:09:38.871Z
  */
 
-export const VERSION = '1746410231460';
+export const VERSION = '1748254178808';

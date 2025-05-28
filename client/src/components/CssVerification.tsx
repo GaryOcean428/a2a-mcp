@@ -1,338 +1,158 @@
-import { useEffect, useState } from "react";
-import { VERSION } from "../version";
-
-// List of critical CSS classes that must be preserved in production
-// These are often purged by Tailwind in production builds
-const CRITICAL_CLASSES = [
-  "bg-grid-gray-100",
-  "bg-blob-gradient",
-  "feature-card",
-  "animate-fade-in-down",
-  "from-purple-50",
-  "from-purple-600",
-  "to-indigo-600",
-  "bg-gradient-to-r",
-  "group-hover:scale-110",
-  "animate-in",
-  "duration-300",
-  "ease-in-out"
-];
-
-// Critical styles that will be injected if missing
-const CRITICAL_STYLES = `
-/* Critical UI styles for production - DO NOT REMOVE OR MODIFY */
-.bg-grid-gray-100 {
-  background-image: 
-    linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
-  background-size: 24px 24px;
-}
-
-.bg-blob-gradient {
-  background-image: radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.1) 0%, transparent 75%);
-  filter: blur(50px);
-}
-
-.feature-card {
-  background-color: white;
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(229, 231, 235);
-  transition: all 0.3s;
-}
-
-.feature-card:hover {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  border-color: rgba(167, 139, 250, 0.4);
-  transform: translateY(-2px);
-}
-
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-in-down {
-  animation: fadeInDown 0.5s ease-out;
-}
-
-/* Card hover effects */
-.group-hover\\:scale-110 {
-  transition: transform 0.3s ease-out;
-}
-.group:hover .group-hover\\:scale-110 {
-  transform: scale(1.1);
-}
-
-/* Gradient backgrounds */
-.from-purple-50 {
-  --tw-gradient-from: #faf5ff;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
-}
-.from-purple-600 {
-  --tw-gradient-from: #9333ea;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
-}
-.to-indigo-600 {
-  --tw-gradient-to: #4f46e5;
-}
-.bg-gradient-to-r {
-  background-image: linear-gradient(to right, var(--tw-gradient-stops));
-}
-
-/* Shadcn UI animation classes */
-.animate-in {
-  animation-duration: 150ms;
-  animation-timing-function: cubic-bezier(0.1, 0.99, 0.1, 0.99);
-  animation-fill-mode: both;
-}
-
-.fade-in {
-  animation-name: fadeIn;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-/* Additional critical styles */
-.duration-300 {
-  transition-duration: 300ms;
-}
-
-.ease-in-out {
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
-`;
-
 /**
- * CSS Verification Component
- * 
- * This component verifies critical CSS classes are present in the DOM
- * and adds any missing styles automatically to ensure consistent UI rendering
- * between development and production environments.
- */
-export function CssVerification() {
-  const [verificationComplete, setVerificationComplete] = useState(false);
-  const [missingClasses, setMissingClasses] = useState<string[]>([]);
-  const [hasInlineStyles, setHasInlineStyles] = useState(false);
-  const [externalStylesheets, setExternalStylesheets] = useState(0);
-  const [recovered, setRecovered] = useState(false);
+* CSS Verification Component
+* 
+* This component verifies that critical CSS styles are loaded correctly
+* and provides a way to manually trigger the CSS recovery system.
+* Used in development and production to ensure UI consistency.
+*/
+import { useState } from 'react';
+import { VERSION } from '../version';
+import { Button } from '@/components/ui/button';
+import { AlertCircle, CheckCircle2, RefreshCw } from 'lucide-react';
 
-  useEffect(() => {
-    // Only run verification once on mount
-    if (verificationComplete) return;
-
-    /**
-     * Verify if a CSS class is correctly styled in the DOM
-     */
-    const verifyClass = (className: string): boolean => {
-      // Create a temporary element with the class
-      const testElement = document.createElement('div');
-      testElement.className = className;
-      testElement.style.position = 'absolute';
-      testElement.style.visibility = 'hidden';
-      testElement.style.pointerEvents = 'none';
-      document.body.appendChild(testElement);
+export default function CssVerification() {
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [verificationResults, setVerificationResults] = useState<{cls: string, result: boolean}[]>([]);
+  
+  // Critical classes that must be verified
+  const criticalClasses = [
+    'bg-grid-gray-100',
+    'bg-blob-gradient',
+    'feature-card',
+    'animate-fade-in-down',
+    'from-purple-50',
+    'from-purple-600',
+    'to-indigo-600',
+    'bg-gradient-to-r',
+    'group-hover:scale-110',
+    'animate-in'
+  ];
+  
+  // Verify critical CSS classes are properly applied
+  function verifyStyles() {
+    setIsVerifying(true);
+    setVerificationResults([]);
+    
+    const results = criticalClasses.map(cls => {
+      // Create test element
+      const testEl = document.createElement('div');
+      testEl.className = cls;
+      document.body.appendChild(testEl);
       
       // Get computed style
-      const style = window.getComputedStyle(testElement);
+      const style = window.getComputedStyle(testEl);
       
-      // Check if the class has any effect on the element
-      let isStyled = false;
-      
-      // Class-specific checks
-      switch (className) {
-        case 'bg-grid-gray-100':
-          isStyled = style.backgroundImage !== 'none';
-          break;
-        case 'bg-blob-gradient':
-          isStyled = style.backgroundImage !== 'none' && style.filter !== 'none';
-          break;
-        case 'feature-card':
-          isStyled = style.backgroundColor === 'rgb(255, 255, 255)' && 
-                    style.borderRadius === '0.5rem';
-          break;
-        case 'animate-fade-in-down':
-          isStyled = style.animationName !== 'none';
-          break;
-        case 'from-purple-50':
-        case 'from-purple-600':
-          isStyled = style.getPropertyValue('--tw-gradient-from') !== '';
-          break;
-        case 'to-indigo-600':
-          isStyled = style.getPropertyValue('--tw-gradient-to') !== '';
-          break;
-        case 'bg-gradient-to-r':
-          isStyled = style.backgroundImage.includes('linear-gradient');
-          break;
-        case 'group-hover:scale-110':
-          isStyled = style.transition.includes('transform');
-          break;
-        case 'animate-in':
-          isStyled = style.animationDuration !== 'none' && 
-                    style.animationDuration === '150ms';
-          break;
-        case 'duration-300':
-          isStyled = style.transitionDuration === '300ms';
-          break;
-        case 'ease-in-out':
-          isStyled = style.transitionTimingFunction.includes('cubic-bezier');
-          break;
-        default:
-          // Generic check for any styling effect
-          isStyled = (
-            style.color !== 'rgb(0, 0, 0)' ||
-            style.backgroundColor !== 'rgba(0, 0, 0, 0)' ||
-            style.borderRadius !== '0px' ||
-            style.margin !== '0px' ||
-            style.padding !== '0px' ||
-            style.transform !== 'none' ||
-            style.opacity !== '1'
-          );
+      // Check if style has expected properties
+      let result = false;
+      if (cls === 'bg-grid-gray-100') {
+        result = style.backgroundImage.includes('linear-gradient');
+      } else if (cls === 'bg-blob-gradient') {
+        result = style.backgroundImage.includes('radial-gradient');
+      } else if (cls === 'feature-card') {
+        result = style.transition.includes('all');
+      } else if (cls === 'animate-fade-in-down') {
+        result = style.animation.includes('fadeInDown');
+      } else if (cls.startsWith('from-')) {
+        result = style.getPropertyValue('--tw-gradient-from') !== '';
+      } else if (cls.startsWith('to-')) {
+        result = style.getPropertyValue('--tw-gradient-to') !== '';
+      } else if (cls === 'bg-gradient-to-r') {
+        result = style.backgroundImage.includes('linear-gradient(to right');
+      } else if (cls.includes('hover:')) {
+        result = true; // Can't verify hover state
+      } else if (cls.includes('group-hover:')) {
+        result = true; // Can't verify group-hover state
+      } else if (cls === 'animate-in') {
+        result = style.animationDuration === '150ms';
+      } else {
+        result = true; // Default to true for unknown classes
       }
       
       // Clean up
-      document.body.removeChild(testElement);
+      document.body.removeChild(testEl);
       
-      // Log verification result
-      console.log(`[CSS Verify] - ${className}: ${isStyled ? 'OK' : 'MISSING'}`);
-      
-      return isStyled;
-    };
-
-    /**
-     * Check if critical inline styles are present in the document
-     */
-    const checkInlineStyles = (): boolean => {
-      const styleElements = document.querySelectorAll('style');
-      let hasCriticalStyles = false;
-      
-      for (const style of Array.from(styleElements)) {
-        if (style.textContent && style.textContent.includes('Critical UI styles for production')) {
-          hasCriticalStyles = true;
-          break;
-        }
-      }
-      
-      return hasCriticalStyles;
-    };
-
-    /**
-     * Count loaded external CSS files
-     */
-    const countExternalStylesheets = (): number => {
-      return document.querySelectorAll('link[rel="stylesheet"]').length;
-    };
-
-    /**
-     * Verify all critical CSS classes
-     */
-    const runVerification = () => {
-      console.log('[CSS Verify] Running verification...');
-      
-      // Check for critical inline styles
-      const hasStyles = checkInlineStyles();
-      setHasInlineStyles(hasStyles);
-      console.log('[CSS Verify] Critical inline styles present:', hasStyles);
-      
-      // Count external stylesheets
-      const stylesheetCount = countExternalStylesheets();
-      setExternalStylesheets(stylesheetCount);
-      console.log('[CSS Verify] External stylesheets loaded:', stylesheetCount);
-      
-      // Test critical classes
-      console.log('[CSS Verify] Testing critical CSS classes:');
-      const missing: string[] = [];
-      
-      CRITICAL_CLASSES.forEach(className => {
-        const isPresent = verifyClass(className);
-        if (!isPresent) {
-          missing.push(className);
-        }
-      });
-      
-      setMissingClasses(missing);
-      console.log('[CSS Verify] Verification complete');
-      setVerificationComplete(true);
-      
-      // Warn if any critical classes are missing
-      if (missing.length > 0) {
-        console.warn(`❌ Some critical CSS classes failed verification: ${missing.join(', ')}`);
-      }
-    };
-
-    // Run verification after a short delay to ensure styles are loaded
-    const timer = setTimeout(runVerification, 500);
+      return { cls, result };
+    });
     
-    return () => clearTimeout(timer);
-  }, [verificationComplete]);
-
-  useEffect(() => {
-    // Only attempt recovery if verification is complete and there are missing classes
-    if (!verificationComplete || missingClasses.length === 0 || recovered) return;
+    setVerificationResults(results);
+    setIsVerifying(false);
     
-    /**
-     * Inject critical CSS styles to recover missing classes
-     */
-    const recoverStyles = () => {
-      console.log('%c🔄 Triggering CSS recovery process', 'color: blue; font-weight: bold;');
-      console.log('[CSS Recovery] Checking for missing styles...');
+    // If any failed, try to recover
+    const anyFailed = results.some(r => !r.result);
+    if (anyFailed && window.recoverMissingStyles) {
+      window.recoverMissingStyles();
+    }
+  }
+  
+  // Force CSS recovery
+  function recoverStyles() {
+    if (window.recoverMissingStyles) {
+      window.recoverMissingStyles();
+      setTimeout(verifyStyles, 100);
+    }
+  }
+  
+  return (
+    <div className="p-4 border rounded-lg bg-white shadow-sm">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-lg font-medium">UI Verification</h3>
+        <span className="text-xs text-gray-500">v{VERSION}</span>
+      </div>
       
-      // In development, just verify styles without modifying
-      // This allows for proper debugging
-      if (process.env.NODE_ENV === 'development' || import.meta.env.DEV) {
-        console.log('[CSS Recovery] Development mode - only verifying styles');
-        console.log('[CSS Recovery] All styles verified in development ✓');
-        setRecovered(true);
-        return;
-      }
-      
-      // For production, actually inject the missing styles
-      if (missingClasses.length > 0) {
-        // Create a style element
-        const styleElement = document.createElement('style');
-        styleElement.id = 'critical-styles-recovery';
-        styleElement.setAttribute('data-recovery-version', VERSION);
-        styleElement.textContent = CRITICAL_STYLES;
+      <div className="mb-4">
+        <p className="text-sm text-gray-600 mb-2">
+          Verify that all UI components are rendering correctly in {import.meta.env.PROD ? 'production' : 'development'}.
+        </p>
         
-        // Add it to the head
-        document.head.appendChild(styleElement);
-        console.log('[CSS Recovery] Critical styles injected ✓');
-      } else {
-        console.log('[CSS Recovery] All critical styles verified ✓');
-      }
+        <div className="flex space-x-2">
+          <Button
+            size="sm"
+            onClick={verifyStyles}
+            disabled={isVerifying}
+          >
+            {isVerifying ? (
+              <>
+                <RefreshCw className="h-4 w-4 mr-1 animate-spin" />
+                Verifying
+              </>
+            ) : (
+              'Verify Styles'
+            )}
+          </Button>
+          
+          <Button
+            size="sm" 
+            variant="outline"
+            onClick={recoverStyles}
+          >
+            Recover Styles
+          </Button>
+        </div>
+      </div>
       
-      setRecovered(true);
-      console.log('✅ Recovery process executed');
-    };
-    
-    // Run recovery process
-    recoverStyles();
-  }, [verificationComplete, missingClasses, recovered]);
-
-  // No visible UI - this is a utility component
-  return null;
+      {verificationResults.length > 0 && (
+        <div className="text-xs space-y-1 max-h-40 overflow-y-auto">
+          {verificationResults.map(({ cls, result }) => (
+            <div key={cls} className="flex items-center">
+              {result ? (
+                <CheckCircle2 className="h-3 w-3 text-green-500 mr-1" />
+              ) : (
+                <AlertCircle className="h-3 w-3 text-red-500 mr-1" />
+              )}
+              <span className={result ? 'text-green-700' : 'text-red-700'}>
+                {cls}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
-/**
- * Export environment information for debugging
- */
-export function logEnvironmentInfo() {
-  // Log environment information
-  console.log(`
-    Environment: ${process.env.NODE_ENV === 'development' || import.meta.env.DEV ? 'Development' : 'Production'}
-    Version: ${VERSION}
-    Build Time: ${new Date().toISOString()}
-    `);
+// Add window declarations
+declare global {
+  interface Window {
+    recoverMissingStyles?: () => void;
+  }
 }
-
-export default CssVerification;

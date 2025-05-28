@@ -266,7 +266,17 @@ function buildProject() {
   console.log('\n🔄 Building project for production...');
   
   try {
-    execSync('npm run build', { stdio: 'inherit' });
+    // Skip the build if we're already in a build process (detected by environment variable)
+    if (process.env.MCP_BUILDING) {
+      console.log('✅ Skipping nested build to avoid recursion');
+      return true;
+    }
+    
+    // Set environment variable to indicate we're building
+    process.env.MCP_BUILDING = 'true';
+    
+    // Use vite build directly instead of npm run build to avoid recursion
+    execSync('npx vite build', { stdio: 'inherit' });
     console.log('✅ Project built successfully');
     return true;
   } catch (error) {
